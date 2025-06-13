@@ -1,0 +1,202 @@
+/* ========== RESET STYLES ========== */
+/* Ensures consistent box sizing and removes default spacing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ========== BODY BASE STYLES ========== */
+/* Sets global font and background color for the site */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+html {
+  scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+}
+
+/* ========== NAVBAR ========== */
+/* Container for the top navigation bar */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #111;
+    padding: 1rem 2rem;
+}
+
+
+/* Logo text style */
+.logo {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Unordered list for nav links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem; /* spacing between nav items */
+}
+
+/* Individual nav link styles */
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+/* Hover effect on nav links and CTA button */
+.nav-links a:hover,
+.cta-button:hover {
+    color: #6495ED;
+    background-color: #fff; /* keeps contrast for button */
+}
+
+/* ========== HERO SECTION ========== */
+/* Full height hero banner with centered text */
+.hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('salonagility-com-daniel-ZCbBBaFL-Ek-unsplash.jpg') center/cover no-repeat;
+    z-index: -1;
+    animation: zoomIn 20s ease-in-out infinite alternate;
+}
+
+@keyframes zoomIn {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+
+
+
+/* Main headline style inside hero */
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.sub-hero {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #f0f0f0;
+    text-align: center;
+}
+
+.sub-hero .highlight {
+    color: #6495ED; /* Cornflower Blue */
+    font-weight: 600;
+}
+
+
+
+/* Supporting paragraph inside hero */
+.hero-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-inline: auto; /* centers the text block */
+}
+
+/* CTA button style - "Get Started */
+.cta-button {
+    background-color: #fff;
+    color: #6495ED;
+    padding: 0.75rem 2rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+/* ========== FEATURES SECTION ========== */
+/* Horizontal layout for feature blocks */
+.features {
+    display: flex;
+    justify-content: space-around;
+    padding: 3rem 1rem;
+    background: #fff;
+}
+
+/* Individual feature block styling */
+.feature {
+    max-width: 300px;
+    text-align: center;
+}
+
+/* Feature titles */
+.feature h2 {
+    color: #6495ED;
+    margin-bottom: 1rem;
+}
+
+/* ========== MISSION SECTION ========== */
+.mission {
+    padding: 4rem 2rem;
+    background-color: #f0f8ff; /* light blue to match theme */
+    text-align: center;
+}
+
+.mission-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mission h2 {
+    font-size: 2rem;
+    color: #6495ED;
+    margin-bottom: 1rem;
+}
+
+.mission p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+
+/* ========== FOOTER ========== */
+/* Basic footer styling */
+footer {
+    text-align: center;
+    padding: 1rem;
+    background: #111;
+    color: #ffffff;
+}
+
+
+
+
