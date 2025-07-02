@@ -32,7 +32,14 @@ SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-secret")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'reroute-backend.onrender.com',
+    'www.reroutejobs.com',
+    'reroutejobs.com',
+    'localhost',
+    '127.0.0.1',
+]
+
 
 
 # Application definition
