@@ -1,0 +1,21 @@
+# Ignore everything by default
+*
+
+# BUT keep these:
+!.gitignore
+!manage.py
+!db.sqlite3
+!reroute_business/
+!static/
+!templates/
+!resumes/
+
+# Ignore specific unnecessary stuff
+env/
+__pycache__/
+*.py[cod]
+.vscode/
+.idea/
+*.log
+/staticfiles/
+media/
