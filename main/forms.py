@@ -8,18 +8,20 @@ from .models import Resume
 
 # Built-in Django User creation form + email + email duplication check
 class UserSignupForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
     password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['first_name', 'last_name', 'username', 'email', 'password']
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise ValidationError("A user with that email already exists.")
         return email
-    
+
     def clean_password(self):
         password = self.cleaned_data.get('password')
 
@@ -31,7 +33,7 @@ class UserSignupForm(forms.ModelForm):
             raise ValidationError("Password must include at least one uppercase letter.")
         if not re.search(r'[a-z]', password):
             raise ValidationError("Password must include at least one lowercase letter.")
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        if not re.search(r'[!@#$%^&*(),.?\":{}|<>]', password):
             raise ValidationError("Password must include at least one special character.")
 
         return password

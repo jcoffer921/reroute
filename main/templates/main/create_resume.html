@@ -1,7 +1,0 @@
-<form method="POST" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-
-  <button type="submit" name="action" value="save" class="submit-button">Save Resume</button>
-  <button type="submit" name="action" value="preview" class="submit-button preview-button">Preview Resume</button>
-</form>

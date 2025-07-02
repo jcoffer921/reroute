@@ -381,6 +381,17 @@ html, body {
     background-color: #4169e1;
 }
 
+a {
+    text-decoration: none;
+    color: #5b2cc3; /* optional: matches the purple you're using */
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
 .form-errors ul {
     background: #ffe6e6;
     border: 1px solid #ff4d4d;

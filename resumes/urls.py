@@ -19,4 +19,6 @@ urlpatterns = [
 
     # Placeholder for future resume creation flow
     path('create/contact/', views.contact_info_step, name='resume_contact_info_create'),
+    # Alias route so `{% url 'create_resume' %}` works
+    path('create/', views.create_resume, name='create_resume'),
 ]

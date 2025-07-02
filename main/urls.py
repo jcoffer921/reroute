@@ -7,21 +7,37 @@ from .views import signup_view, home  # Add your custom views as needed
 from .views import signup_view, home, dashboard_view
 from . import views
 from .forms import Step1Form, Step2Form, Step3Form, Step4Form
-
+from .views import (
+    CustomPasswordResetView,
+    CustomPasswordResetDoneView,
+    CustomPasswordResetConfirmView,
+    CustomPasswordResetCompleteView
+)
 
 urlpatterns = [
+    # Core Pages
     path('', views.home, name='home'),
-    path('profile/', include('profiles.urls')),
-    #path('get-started/', GetStartedWizard.as_view([Step1Form, Step2Form, Step3Form, Step4Form]), name='get_started'),
-    path('opportunities/', views.job_list, name='job_list'),
-    path('match/<int:seeker_id>/', views.match_jobs, name='match_jobs'),
-    path('signup/', signup_view, name='signup'),
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
-    path('dashboard/', dashboard_view, name='dashboard'),
-    path('resume/create/', views.create_resume_redirect, name='create_resume'),
-    path('profile/', include('profiles.urls')),  # leads to /profile/update/
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('signup/', views.signup_view, name='signup'),
 
+    # Job-related pages
+    path('jobs/', views.job_list, name='job_list'),
+    path('jobs/match/<int:seeker_id>/', views.match_jobs, name='match_jobs'),
 
+    # Multi-step profile onboarding
+    path('profile/step1/', views.step1, name='step1'),
+    path('profile/step2/', views.step2, name='step2'),
+    path('profile/step3/', views.step3, name='step3'),
+    path('profile/step4/', views.step4, name='step4'),
+    path('profile/summary/', views.final_view, name='final_view'),
 
+    # Resume or dashboard related
+    path('dashboard/', views.dashboard, name='dashboard'),
+
+    # Auth: Password Reset Flow (using custom templates)
+    path('accounts/password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('accounts/password_reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('accounts/reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('accounts/reset/done/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]

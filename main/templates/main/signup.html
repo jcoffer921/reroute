@@ -1,21 +1,18 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}ReRoute | Sign Up{% endblock %}
 
 {% block content %}
-<div class="signup-container">
-    <h2>Create Your Account</h2>
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
 
-    <!-- Show form-level and field-specific errors -->
-    {% if user_form.errors or profile_form.errors %}
-        <div class="form-errors">
+<div class="signup-container">
+    <h2>Sign up for an account</h2>
+
+    {% if user_form.errors %}
+        <div class="error-box">
             <ul>
                 {% for field in user_form %}
-                    {% for error in field.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-                {% for field in profile_form %}
                     {% for error in field.errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
@@ -23,57 +20,55 @@
                 {% for error in user_form.non_field_errors %}
                     <li>{{ error }}</li>
                 {% endfor %}
-                {% for error in profile_form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
             </ul>
         </div>
     {% endif %}
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ user_form.as_p }}
-        <button type="submit">Create Account</button>
+
+        <div class="two-col">
+            <div class="form-group">
+                <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
+                {{ user_form.first_name }}
+            </div>
+            <div class="form-group">
+                <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+                {{ user_form.last_name }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ user_form.email.id_for_label }}">Email Address</label>
+            {{ user_form.email }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ user_form.password.id_for_label }}">Password</label>
+            {{ user_form.password }}
+        </div>
+
+        <p class="terms-text">
+            By signing up you agree to our <a href="/terms">Terms and Conditions</a> and <a href="/privacy">Privacy Policy</a>.
+        </p>
+
+        <button type="submit" class="submit-btn">Register</button>
     </form>
 
+    <p class="login-prompt">
+        Already have an account? <a href="{% url 'login' %}">Log in</a>.
+    </p>
+
+    <div class="alt-auth-divider">Or register with</div>
+
+    <button class="google-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+        Continue with Google
+    </button>
 </div>
+{% endblock %}
 
-<!-- JavaScript Password Strength Checker -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const passwordInput = document.querySelector('#id_password');
-        const strengthText = document.getElementById('password-strength');
-
-        if (passwordInput) {
-            passwordInput.addEventListener('input', function () {
-                const val = passwordInput.value;
-                let strength = 0;
-
-                if (val.length >= 8) strength++;
-                if (/[A-Z]/.test(val)) strength++;
-                if (/[a-z]/.test(val)) strength++;
-                if (/\d/.test(val)) strength++;
-                if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) strength++;
-
-                switch (strength) {
-                    case 0:
-                    case 1:
-                        strengthText.textContent = 'Very weak';
-                        strengthText.style.color = 'red';
-                        break;
-                    case 2:
-                    case 3:
-                        strengthText.textContent = 'Medium strength';
-                        strengthText.style.color = 'orange';
-                        break;
-                    case 4:
-                    case 5:
-                        strengthText.textContent = 'Strong password';
-                        strengthText.style.color = 'green';
-                        break;
-                }
-            });
-        }
-    });
-</script>
+{% block extra_js %}
+<script src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'js/signup.js' %}"></script>
 {% endblock %}
