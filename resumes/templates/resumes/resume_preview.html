@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Resume Preview{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'resumes/css/resume_preview.css' %}">
+
+<div class="resume-builder">
+  <!-- Left Panel: Field Summary & Edit Links -->
+  <div class="resume-form-panel">
+    <h2>Your Info</h2>
+
+    <div class="form-group">
+      <label>Name:</label>
+      <p>{{ resume.user.first_name }} {{ resume.user.last_name }}</p>
+    </div>
+
+    <div class="form-group">
+      <label>Email:</label>
+      <p>{{ resume.user.email }}</p>
+    </div>
+
+    {% if contact_info %}
+    <div class="form-group">
+      <label>Phone:</label>
+      <p>{{ contact_info.phone }}</p>
+    </div>
+
+    <div class="form-group">
+      <label>Location:</label>
+      <p>{{ contact_info.location }}</p>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label>Summary:</label>
+      <p>{{ resume.summary }}</p>
+    </div>
+
+    <div class="form-group">
+      <label>Skills:</label>
+      <ul>
+        {% for skill in resume.skills.all %}
+          <li>{{ skill.name }}</li>
+        {% empty %}
+          <li>No skills added</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <label>Experience:</label>
+      <ul>
+        {% for exp in resume.experience.all %}
+          <li>{{ exp.job_title }} at {{ exp.company }}</li>
+        {% empty %}
+          <li>No experience added</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <label>Education:</label>
+      <ul>
+        {% for edu in resume.education.all %}
+          <li>{{ edu.degree }} at {{ edu.school }}</li>
+        {% empty %}
+          <li>No education added</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right Panel: Preview Layout -->
+  <div class="resume-preview">
+    <div class="resume-box">
+      <div class="resume-header">
+        <h1>{{ contact_info.full_name|upper }}</h1>
+        <div class="contact-line">
+          {{ resume.user.email }}{% if contact_info.phone %} | {{ contact_info.phone }}{% endif %} | {{ contact_info.location }}
+        </div>
+      </div>
+
+      {% if resume.summary %}
+      <div class="resume-section">
+        <h2>Professional Summary</h2>
+        <p>{{ resume.summary }}</p>
+      </div>
+      {% endif %}
+
+      {% if resume.education.all %}
+      <div class="resume-section">
+        <h2>Education</h2>
+        {% for edu in resume.education.all %}
+        <div class="subhead">
+          <span>{{ edu.school }}</span>
+          <span>{{ edu.start_date|date:"F Y" }} - {% if edu.end_date %}{{ edu.end_date|date:"F Y" }}{% else %}Present{% endif %}</span>
+        </div>
+        <div class="submeta">{{ edu.degree }}{% if edu.field_of_study %}, {{ edu.field_of_study }}{% endif %}</div>
+        {% if edu.description %}<p>{{ edu.description }}</p>{% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if resume.experiences.all %}
+      <div class="resume-section">
+        <h2>Professional Experience</h2>
+        {% for job in resume.experiences.all %}
+        <div class="subhead">
+          <span>{{ job.job_title }} — {{ job.company }}</span>
+          <span>{{ job.start_date|date:"F Y" }} - {% if job.end_date %}{{ job.end_date|date:"F Y" }}{% else %}Present{% endif %}</span>
+        </div>
+        <div class="submeta">{{ job.location }}</div>
+        {% if job.responsibilities %}<p>{{ job.responsibilities }}</p>{% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if resume.skills.all %}
+      <div class="resume-section">
+        <h2>Skills</h2>
+        <ul>
+          {% for skill in resume.skills.all %}
+          <li>{{ skill.name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'resumes/js/resume_preview.js' %}"></script>
+
+{% endblock %}

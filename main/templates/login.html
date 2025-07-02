@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}ReRoute | Login{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+    <h2>Login</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Log In</button>
+    </form>
+</div>
+{% endblock %}

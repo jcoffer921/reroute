@@ -1,21 +1,26 @@
-# Ignore everything by default
-*
-
-# BUT keep these:
-!.gitignore
-!manage.py
-!db.sqlite3
-!reroute_business/
-!static/
-!templates/
-!resumes/
-
-# Ignore specific unnecessary stuff
+# Ignore virtual environment
 env/
+.venv/
+
+# Ignore compiled Python files
 __pycache__/
 *.py[cod]
+
+# Ignore DB files (if not using them in Git)
+*.sqlite3
+
+# Ignore IDE/editor files
 .vscode/
 .idea/
 *.log
-/staticfiles/
+
+# Django static/media (collected or runtime generated)
+staticfiles/
 media/
+
+# Environment variables
+.env
+
+# System junk
+.DS_Store
+Thumbs.db

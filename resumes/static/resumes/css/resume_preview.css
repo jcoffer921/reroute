@@ -1,0 +1,132 @@
+/* === LAYOUT ROOT === */
+.resume-builder {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 4rem 2rem;
+  background-color: #f4f4f4;
+  flex-wrap: wrap;
+}
+
+/* === LEFT PANEL: Field Summary === */
+.resume-form-panel {
+  width: 100%;
+  max-width: 450px;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.resume-form-panel h2 {
+  font-size: 1.5rem;
+  color: #1e3a8a;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.resume-form-panel .form-group {
+  margin-bottom: 1.75rem;
+}
+
+.resume-form-panel label {
+  font-weight: bold;
+  color: #444;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.resume-form-panel p,
+.resume-form-panel ul,
+.resume-form-panel li {
+  font-size: 0.95rem;
+  color: #222;
+  line-height: 1.6;
+}
+
+.resume-form-panel ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+
+/* === RIGHT PANEL: Resume Preview === */
+.resume-preview {
+  flex: 1;
+  max-width: 800px;
+  background-color: #f9f9f9;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.resume-box {
+  background: #fff;
+  padding: 2.5rem 3rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  line-height: 1.8;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* === Resume Sections === */
+.resume-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.resume-header h1 {
+  font-size: 2rem;
+  margin: 0;
+  color: #222;
+  font-weight: bold;
+}
+
+.contact-line {
+  font-size: 14px;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.resume-section {
+  margin-top: 2rem;
+}
+
+.resume-section h2 {
+  font-size: 1.25rem;
+  color: #1e3a8a;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resume-box p,
+.resume-box li {
+  font-size: 1rem;
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.resume-box ul {
+  margin-left: 1.5rem;
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+
+/* === Experience/Education Layout Helpers === */
+.subhead {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 0.2rem;
+}
+
+.submeta {
+  font-style: italic;
+  font-size: 13px;
+  color: #555;
+}

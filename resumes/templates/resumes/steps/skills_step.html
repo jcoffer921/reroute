@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Step 4: Skills{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resumes/css/steps.css' %}">
+
+<div class="resume-builder">
+  <!-- Left Panel: Form -->
+  <div class="resume-form-panel">
+    <h2>Step 4: Skills</h2>
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="skills_input">Skills</label>
+        <textarea name="skills_input"
+                  id="skills_input"
+                  class="form-control"
+                  rows="5"
+                  placeholder="e.g. Welding, Team Leadership, Forklift Operation"></textarea>
+      </div>
+
+      <div class="form-navigation d-flex justify-between">
+        <a href="{% url 'resumes:resume_experience_step' %}" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-primary">Next</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right Panel: Preview -->
+  <div class="resume-preview">
+    <div class="resume-box">
+      <h2>Skills</h2>
+      <ul id="preview_skills_list">
+        <li>Skill Name</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript loaded at the bottom -->
+<script src="{% static 'resumes/js/steps.js' %}"></script>
+<script src="{% static 'resumes/js/skills_step.js' %}?v=1001"></script>
+
+{% endblock %}

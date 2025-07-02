@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ReRoute | Home{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/multi_step_form.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <img src="{% static 'images/reroute-trans-logo.png' %}" alt="ReRoute Logo" style="height: 65px;">
+                </a>
+            </div>
+            <!-- Mobile menu toggle button -->
+            <button class="mobile-menu-button" onclick="toggleMenu()">☰</button>
+
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="#mission">Mission</a></li>
+                <li><a href="{% url 'job_list' %}">Opportunities</a></li>
+                <li><a href="#contact">Contact</a></li>
+
+                {% if user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">Welcome, {{ user.username }} ▼</a>
+                        <div class="dropdown-content">
+                            <a href="{% url 'dashboard' %}">Dashboard</a>
+                            <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="logout-btn">Logout</button>
+                            </form>
+                        </div>
+                    </li>
+                {% else %}
+                    {% if request.path != '/login/' %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                    {% if request.path != '/signup/' and request.path != '/' %}
+                        <li><a href="{% url 'signup' %}">Get Started</a></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Main content area -->
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'images/reroute-trans-logo.png' %}" alt="ReRoute Logo" style="height: 60px;">
+                    </a>
+                    <p>Rebuild. Reclaim. ReRoute.</p>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'job_list' %}">Opportunities</a></li>
+                        <li><a href="#mission">Mission</a></li>
+                        <li><a href="#vision">Vision</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Contact</h4>
+                    <p>Email: support@reroute.org</p>
+                    <p>Philadelphia, PA</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 ReRoute. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/multi_step_form.js' %}" defer></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ resume.user.get_full_name|default:resume.user.username }} - Resume</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+    }
+    h1 { color: #333; font-size: 2rem; }
+    h2 { color: #6495ED; margin-top: 1.5rem; }
+    p { font-size: 1rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>{{ resume.user.get_full_name|default:resume.user.username }}</h1>
+  <p><strong>Email:</strong> {{ resume.user.email }}</p>
+
+  {% if resume.education %}
+    <h2>Education</h2>
+    <p>{{ resume.education|linebreaks }}</p>
+  {% endif %}
+
+  {% if resume.experience %}
+    <h2>Experience</h2>
+    <p>{{ resume.experience|linebreaks }}</p>
+  {% endif %}
+
+  {% if resume.skills %}
+    <h2>Skills</h2>
+    <p>{{ resume.skills|linebreaks }}</p>
+  {% endif %}
+
+  {% if resume.certifications %}
+    <h2>Certifications</h2>
+    <p>{{ resume.certifications|linebreaks }}</p>
+  {% endif %}
+</body>
+</html>

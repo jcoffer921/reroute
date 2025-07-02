@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ resume.user.username }} - Resume</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: #f9f9f9; color: #222; }
+        .resume-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { border-bottom: 2px solid #0077cc; padding-bottom: 5px; }
+        h2 { color: #0077cc; margin-top: 30px; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="resume-box">
+        <h1>{{ resume.user.get_full_name|default:resume.user.username }}</h1>
+        <p><strong>Email:</strong> {{ resume.user.email }}</p>
+
+        {% if resume.education %}
+        <h2>Education</h2>
+        <p>{{ resume.education|linebreaks }}</p>
+        {% endif %}
+
+        {% if resume.experience %}
+        <h2>Experience</h2>
+        <ul>
+            {% for item in resume.experience.splitlines %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if resume.skills %}
+        <h2>Skills</h2>
+        <p>{{ resume.skills|linebreaks }}</p>
+        {% endif %}
+
+        {% if resume.certifications %}
+        <h2>Certifications</h2>
+        <ul>
+            {% for item in resume.certifications.splitlines %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
