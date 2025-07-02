@@ -1,71 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  {% load static %}
-  <meta charset="UTF-8">
-  <title>ReRoute | Home</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body>
-  <nav class="navbar">
-      <div class="logo">ReRoute</div>
-      <ul class="nav-links">
-          <li><a href="#">Home</a></li>
-          <li><a href="#mission">Mission</a></li>
-          <li><a href="#">Programs</a></li>
-          <li><a href="#">Contact</a></li>
-      </ul>
-  </nav>
-
-  <section class="hero">
-      <div class="hero-content">
-          <h1>Rebuild. Reclaim. ReRoute.</h1>
-          <p class="sub-hero">
-              <span class="highlight">Rebuild</span> people's views of formerly incarcerated individuals as we help them
-          </p>
-          <p class="sub-hero">
-              <span class="highlight">Reclaim</span> their place in society in order to
-          </p>
-          <p class="sub-hero">
-              <span class="highlight">Reroute</span> their future.
-          </p>
+<!-- templates/main/home.html -->
+{% extends 'base.html' %}
+{% load static %}
 
 
-          <a href="#features" class="cta-button">Get Started</a>
-      </div>
-  </section>
+{% block title %}ReRoute | Home{% endblock %}
 
-  <section id="mission" class="mission">
+{% block content %}
+
+
+<!-- Login Status Message -->
+<div style="text-align: center; margin-top: 1rem;">
+    {% if user.is_authenticated %}
+        <p>You are logged in as <strong>{{ user.username }}</strong>.</p>
+    {% else %}
+        <p>You are not logged in.</p>
+    {% endif %}
+</div>
+
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Rebuild. Reclaim. ReRoute.</h1>
+        <div class="sub-hero">
+            <p><span class="highlight">Rebuild</span> people's views of formerly incarcerated individuals as we help them,</p>
+            <p><span class="highlight">Reclaim</span> their place in society in order to</p>
+            <p><span class="highlight">ReRoute</span> their future.</p>
+        </div>
+        <a href="{% url 'signup' %}" class="cta-button">Get Started</a>
+    </div>
+</section>
+
+<section id="mission" class="mission">
     <div class="mission-content">
         <h2>Our Mission</h2>
-        <p>
-            At ReRoute, our mission is to empower formerly incarcerated individuals to reclaim their purpose and reenter the workforce with confidence. 
-            We provide tech training, resume tools, and direct job-matching support to help rebuild lives, reduce recidivism, and foster inclusive hiring.
-        </p>
+        <p>At ReRoute, our mission is to support formerly incarcerated individuals through job readiness, training, and resume building. We aim to shift societal views while giving our clients a meaningful pathway forward.</p>
     </div>
-  </section>
+</section>
 
-  <section id="features" class="features">
-      <div class="feature">
-          <h2>Tech Training</h2>
-          <p>Gain in-demand skills through certified bootcamps and workshops.</p>
-      </div>
-      <div class="feature">
-          <h2>Resume Help</h2>
-          <p>Build standout resumes with expert guidance and AI tools.</p>
-      </div>
-      <div class="feature">
-          <h2>Job Matching</h2>
-          <p>Connect with employers open to second-chance hiring.</p>
-      </div>
-  </section>
+<section id="vision" class="vision">
+    <div class="container">
+        <h2>Our Vision</h2>
+        <p>At ReRoute, our vision is to break down the stigma surrounding men and women navigating the reentry process. We are building a community that embraces second chances, a space where individuals once shut out by society are supported, not judged.</p>
+        <p>ReRoute exists to rebuild trust, restore dignity, and reshape how we view justice-involved individuals. We believe it takes a village not only to raise a child, but to uplift our mothers, fathers, siblings, and neighbors who deserve another shot at life.</p>
+        <p>As we grow, we aspire to expand our support through access to technology, education, trade certifications, therapy and personal development, paving new pathways to purpose and opportunity.</p>
+    </div>
+</section>
 
-  <footer>
-      <p>&copy; 2025 ReRoute. All rights reserved.</p>
-  </footer>
-</body>
-</html>
+<section id="features" class="features">
+    <div class="feature">
+        <h2>Tech Training</h2>
+        <p>Gain in-demand skills through certified bootcamps and workshops.</p>
+    </div>
+    <div class="feature">
+      <h2><a href="{% url 'create_resume' %}" class="feature-link">Resume Help</a></h2>
+      <p>Build standout resumes with expert guidance and AI tools.</p>
+  </div>
+    <div class="feature">
+        <h2>Job Matching</h2>
+        <p>Connect with employers open to second-chance hiring.</p>
+    </div>
+</section>
+
+{% endblock %}
