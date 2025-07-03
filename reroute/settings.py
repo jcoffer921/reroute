@@ -39,6 +39,8 @@ ALLOWED_HOSTS = [
     'reroutejobs.com',
     'localhost',
     '127.0.0.1',
+    '10.220.68.190',
+    '10.220.71.47'
 ]
 
 

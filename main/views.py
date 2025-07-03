@@ -82,7 +82,7 @@ def login_view(request):
             # ✅ Redirect to original destination if exists
             next_url = request.GET.get('next') or request.POST.get('next')
             return redirect(next_url or 'dashboard')
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'main/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
