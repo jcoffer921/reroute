@@ -14,6 +14,7 @@ from pathlib import Path
 from django.urls import reverse_lazy
 import os
 import dj_database_url
+import sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -35,6 +36,7 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     'reroute-backend.onrender.com',
+    '.onrender.com',
     'www.reroutejobs.com',
     'reroutejobs.com',
     'localhost',
@@ -231,3 +233,17 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'ERROR',
+    },
+}
