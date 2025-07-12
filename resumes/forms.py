@@ -8,7 +8,14 @@ from .models import Resume, ContactInfo, Education, Experience, Skill, Project
 class ContactInfoForm(forms.ModelForm):
     class Meta:
         model = ContactInfo
-        fields = ['full_name', 'email', 'phone', 'location']
+        fields = ['full_name', 'email', 'phone', 'city', 'state']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'id': 'id_full_name', 'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'id': 'id_email', 'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'id': 'id_phone', 'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'id': 'id_city', 'class': 'form-control'}),
+            'state': forms.Select(attrs={'id': 'id_state', 'class': 'form-control'}),
+        }
 
 class SummaryForm(forms.ModelForm):
     class Meta:
@@ -24,11 +31,11 @@ class EducationForm(forms.ModelForm):
         model = Education
         fields = ['school', 'degree', 'start_date', 'end_date', 'description']
         widgets = {
-            'school': forms.TextInput(attrs={'class': 'form-control'}),
-            'degree': forms.TextInput(attrs={'class': 'form-control'}),
-            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'school': forms.TextInput(attrs={'class': 'form-control school-input'}),
+            'degree': forms.TextInput(attrs={'class': 'form-control degree-input'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control start-input'}),
+            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control end-input'}),
+            'description': forms.Textarea(attrs={'class': 'form-control description-input', 'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):

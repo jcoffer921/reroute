@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ReRoute | Account Settings{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}">
+
+<section class="settings-hero">
+  <div class="settings-hero-content">
+    <h1>Account Settings</h1>
+    <p>Manage your account settings and preferences.</p>
+  </div>
+</section>
+
+<div class="settings-container">
+
+  <!-- Change Password -->
+  <div class="settings-section">
+    <h2>Change Password</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_old_password">Current Password</label>
+        {{ password_form.old_password }}
+      </div>
+
+      <div class="form-group">
+        <label for="id_new_password1">New Password</label>
+        {{ password_form.new_password1 }}
+      </div>
+
+      <div class="form-group">
+        <label for="id_new_password2">Confirm Password</label>
+        {{ password_form.new_password2 }}
+      </div>
+
+      <button type="submit" name="change_password" class="btn-primary">Change Password</button>
+    </form>
+  </div>
+
+  <!-- Change Email -->
+  <div class="settings-section">
+    <h2>Change Email</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" name="email" id="email" class="input-small" value="{{ request.user.email }}" placeholder="Email Address" required>
+      </div>
+      <button type="submit" name="update_email" class="btn-primary">Change Email</button>
+    </form>
+  </div>
+
+  <!-- Account Management -->
+  <div class="settings-box danger-zone">
+    <h3>Account Management</h3>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="button-row">
+        <button type="submit" name="deactivate_account" class="btn btn-secondary">Deactivate Account</button>
+        <button type="submit" name="delete_account" class="btn btn-danger" onclick="return confirm('Are you sure? This will permanently delete your account.')">Delete Account</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

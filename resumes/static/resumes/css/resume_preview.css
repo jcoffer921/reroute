@@ -1,93 +1,79 @@
-/* === LAYOUT ROOT === */
-.resume-builder {
+/* Wrapper for left (editable) and right (preview) panels */
+.resume-preview-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 2rem;
-  padding: 4rem 2rem;
-  background-color: #f4f4f4;
   flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 7rem 2rem;
 }
 
-/* === LEFT PANEL: Field Summary === */
-.resume-form-panel {
-  width: 100%;
-  max-width: 450px;
-  background-color: #fff;
+/* Left: Editable resume block */
+.resume-final-preview {
+  flex: 1 1 48%;
+  background: white;
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  font-family: 'Inter', sans-serif;
+  border-radius: 8px;
 }
 
-.resume-form-panel h2 {
-  font-size: 1.5rem;
-  color: #1e3a8a;
-  text-align: center;
-  margin-bottom: 2rem;
+/* Right: Formatted preview block */
+.resume-builder-final {
+  flex: 1 1 48%;
+  background: #fff;
+  padding: 2rem;
+  border-left: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  border-radius: 8px;
 }
 
-.resume-form-panel .form-group {
-  margin-bottom: 1.75rem;
+/* Print-friendly layout inside right preview */
+.resume-print-layout {
+  font-size: 14px;
+  color: #111;
 }
 
-.resume-form-panel label {
+.resume-name {
+  font-size: 22px;
   font-weight: bold;
-  color: #444;
-  display: block;
+  text-transform: uppercase;
   margin-bottom: 0.25rem;
 }
 
-.resume-form-panel p,
-.resume-form-panel ul,
-.resume-form-panel li {
-  font-size: 0.95rem;
-  color: #222;
-  line-height: 1.6;
-}
-
-.resume-form-panel ul {
-  margin: 0;
-  padding-left: 1.25rem;
-  list-style-type: disc;
-}
-
-/* === RIGHT PANEL: Resume Preview === */
-.resume-preview {
-  flex: 1;
-  max-width: 800px;
-  background-color: #f9f9f9;
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-}
-
-.resume-box {
-  background: #fff;
-  padding: 2.5rem 3rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  line-height: 1.8;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-/* === Resume Sections === */
-.resume-header {
-  text-align: center;
+.resume-contact {
+  font-size: 13px;
+  color: #333;
   margin-bottom: 1.5rem;
 }
 
-.resume-header h1 {
-  font-size: 2rem;
-  margin: 0;
-  color: #222;
-  font-weight: bold;
+.resume-print-layout h2 {
+  font-size: 16px;
+  color: #003366;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.25rem;
 }
 
-.contact-line {
-  font-size: 14px;
+.resume-print-layout ul {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.resume-print-layout li {
+  margin-bottom: 0.25rem;
+}
+
+/* Editable Panel: Section Styling */
+.resume-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.resume-header p {
+  font-size: 0.95rem;
   color: #555;
-  margin-top: 0.5rem;
 }
 
 .resume-section {
@@ -96,37 +82,123 @@
 
 .resume-section h2 {
   font-size: 1.25rem;
-  color: #1e3a8a;
+  color: #003366;
   border-bottom: 1px solid #ccc;
-  padding-bottom: 0.4rem;
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  padding-bottom: 0.25rem;
 }
 
-.resume-box p,
-.resume-box li {
-  font-size: 1rem;
-  color: #222;
-  margin-bottom: 0.5rem;
+.resume-section [contenteditable="true"]:hover {
+  background: #f8f9fa;
+  cursor: text;
 }
 
-.resume-box ul {
-  margin-left: 1.5rem;
-  padding-left: 1rem;
-  list-style-type: disc;
-}
-
-/* === Experience/Education Layout Helpers === */
-.subhead {
+/* Skills list styling */
+.skills-list {
   display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  margin-bottom: 0.2rem;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
 }
 
-.submeta {
-  font-style: italic;
-  font-size: 13px;
-  color: #555;
+.skills-list li {
+  padding: 5px 10px;
+  background: #e9ecef;
+  border-radius: 5px;
 }
+
+/* Action buttons */
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.actions .btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #0047AB;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #00307d;
+}
+
+.btn-secondary {
+  background-color: #ddd;
+  color: #000;
+}
+
+.btn-secondary:hover {
+  background-color: #ccc;
+}
+
+/* Responsive tweaks */
+@media (max-width: 960px) {
+  .resume-preview-wrapper {
+    flex-direction: column;
+  }
+
+  .resume-final-preview,
+  .resume-builder-final {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+}
+
+@media print {
+  /* Hide everything else */
+  body * {
+    visibility: hidden;
+  }
+
+  .resume-builder-final,
+  .resume-builder-final * {
+    visibility: visible;
+  }
+
+  .resume-builder-final {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 1in;
+    background: white;
+    color: black;
+    box-shadow: none !important;
+  }
+
+  /* Hide navigation, buttons, and footer */
+  nav, footer, .actions, .resume-preview-wrapper, .resume-final-preview {
+    display: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 1in;
+  }
+
+  h1, h2 {
+    page-break-after: avoid;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+

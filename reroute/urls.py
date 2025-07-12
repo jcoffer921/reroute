@@ -14,18 +14,30 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django import views
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from dashboard.views import dashboard_redirect
+from profiles.views import public_profile_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('main.urls')),  # This connects your main app
+    path('', include('main.urls')),
+    path('<str:username>/', public_profile_view, name='public_profile'),
     path('resume/', include(('resumes.urls', 'resumes'), namespace='resumes')),
+    path('accounts/', include('allauth.urls')),  # ✅ Added for Google login/signup
+    path('dashboard/', dashboard_redirect, name='dashboard'),  # Redirect to dashboard
+    path('dashboard/', include('dashboard.urls')),
+    path("resources/", include("resources.urls")),
+    path('profile/', include('profiles.urls')),
+    path("blog/", include("blog.urls")),
+
+
+
 
 ]
 
-# Only serve media in development
 if settings.DEBUG:
-  urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

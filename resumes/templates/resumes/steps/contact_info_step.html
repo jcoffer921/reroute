@@ -14,8 +14,38 @@
 
     <form method="post">
       {% csrf_token %}
-      {{ contact_form.as_p }}
 
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="{{ contact_form.full_name.id_for_label }}">Full Name</label>
+        {{ contact_form.full_name }}
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="{{ contact_form.email.id_for_label }}">Email</label>
+        {{ contact_form.email }}
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label for="{{ contact_form.phone.id_for_label }}">Phone</label>
+        {{ contact_form.phone }}
+      </div>
+
+      <!-- City and State side by side -->
+      <div class="form-row d-flex justify-between gap-2">
+        <div class="form-group" style="flex: 1;">
+          <label for="{{ contact_form.city.id_for_label }}">City</label>
+          {{ contact_form.city }}
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label for="{{ contact_form.state.id_for_label }}">State</label>
+          {{ contact_form.state }}
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
       <div class="form-navigation d-flex justify-between">
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
         <button type="submit" class="btn btn-primary">Next</button>
@@ -29,11 +59,17 @@
         <h2 id="preview_full_name">Your Name</h2>
         <p id="preview_email">email@example.com</p>
         <p id="preview_phone">(123) 456-7890</p>
-        <p id="preview_location">City, State</p>
+
+        <!-- Separate spans for city and state -->
+        <p id="preview_location">
+          <span id="preview_city">City</span>, 
+          <span id="preview_state">State</span>
+        </p>
       </div>
     </div>
   </div>
 </div>
 <script src="{% static 'resumes/js/steps.js' %}"></script>
+<script src="{% static 'resumes/js/contact_info.js' %}"></script>
 
 {% endblock %}

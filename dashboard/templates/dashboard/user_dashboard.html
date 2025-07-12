@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'dashboard/css/user_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="dash-hero">
+  <div class="dash-hero-content">
+    <h1>Welcome, {{ request.user.first_name|default:request.user.username }}!</h1>
+  </div>
+</section>
+
+<!-- Dashboard Cards -->
+<div class="dashboard-container">
+  <div class="carousel-box">
+    <div class="progress-header">
+      <div class="progress-text">
+        <h2>Create your path with ReRoute</h2>
+        <p>Finish setting up to get matched faster.</p>
+      </div>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="progress-count"><span id="progressCount">0</span>/3</div>
+      </div>
+    </div>
+
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left" onclick="scrollCarousel(-1)">&#8592;</button>
+
+      <div class="carousel-track" id="cardCarousel">
+        <div class="carousel-card">
+          <div class="card-icon">👤</div>
+          <div class="card-content">
+            <h4>Complete your profile</h4>
+            <p>Add more details to qualify for more jobs.</p>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+
+        <div class="carousel-card">
+          <div class="card-icon">🧩</div>
+          <div class="card-content">
+            <h4>Upload Resume</h4>
+            <p>Showcase your skills to stand out.</p>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+
+        <div class="carousel-card">
+          <div class="card-icon">❤️</div>
+          <div class="card-content">
+            <h4>Saved Jobs</h4>
+            <p>View jobs you've bookmarked.</p>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </div>
+
+      <button class="carousel-btn right" onclick="scrollCarousel(1)">&#8594;</button>
+    </div>
+  </div>
+  <div class="suggested-box">
+    <div class="suggested-header">
+      <div>
+        <h2>Suggested Jobs</h2>
+        <p>Based on your skills and interests</p>
+      </div>
+    </div>
+    <div class="suggested-wrapper">
+      <button class="carousel-btn left" onclick="scrollSuggested(-1)">←</button>
+
+      <div class="carousel-track" id="suggestedJobsCarousel">
+        {% for job in suggested_jobs %}
+          <div class="carousel-card job-card">
+            <div class="card-content">
+              <h4>{{ job.title }}</h4>
+              <p class="job-meta">{{ job.location }} — {{ job.employer }}</p>
+              <p class="job-description">{{ job.description|truncatechars:100 }}</p>
+            </div>
+            <a href="{% url 'job_list' %}" class="card-arrow">→</a>
+          </div>
+        {% empty %}
+          <div class="carousel-card job-card">
+            <div class="card-content">
+              <p>No job suggestions yet. Complete your profile to get matched.</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <button class="carousel-btn right" onclick="scrollSuggested(1)">→</button>
+    </div>
+  </div>
+  <div class="tips-box rotating">
+    <div class="tips-header">
+      <h2>Helpful Tips</h2>
+      <p>Advice to help you get the most out of ReRoute</p>
+    </div>
+
+    <div id="tipText" class="tip-item">Loading tips...</div>
+    <button id="nextTipBtn" class="next-tip-btn">Next Tip →</button>
+  </div>
+
+
+</div>
+
+<script src="{% static 'dashboard/js/user_dashboard.js' %}"></script>
+{% endblock %}

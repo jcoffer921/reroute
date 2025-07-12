@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from profiles.models import UserProfile
 from .models import Resume
+from django.contrib.auth.forms import PasswordChangeForm
 
 
 # Built-in Django User creation form + email + email duplication check
@@ -37,6 +38,19 @@ class UserSignupForm(forms.ModelForm):
             raise ValidationError("Password must include at least one special character.")
 
         return password
+    
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget.attrs.update({
+            'placeholder': 'Current Password'
+        })
+        self.fields['new_password1'].widget.attrs.update({
+            'placeholder': 'New Password'
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'placeholder': 'Confirm Password'
+        })
 
 # Extended form for profile
 class UserProfileForm(forms.ModelForm):

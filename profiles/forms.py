@@ -45,7 +45,7 @@ class Step2Form(forms.ModelForm):
             'type': 'date',
             'class': 'form-control'
         }),
-        required=False,
+        required=True,
         label="Birthdate"
     )
 
@@ -190,3 +190,8 @@ class Step4Form(forms.ModelForm):
         if cleaned_data.get('veteran_status') == 'yes' and not cleaned_data.get('veteran_explanation'):
             self.add_error('veteran_explanation', 'Please describe your service.')
 
+
+class EmploymentInfoForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['work_in_us', 'sponsorship_needed', 'lgbtq', 'disability', 'gender', 'veteran']

@@ -132,3 +132,6 @@ function bindDynamicEducationPreviews() {
 }
 
 
+document.addEventListener('DOMContentLoaded', () => {
+  bindDynamicEducationPreviews();
+});

@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from django.db import models, transaction
 from django.contrib.auth.models import User
+from django.db.models import JSONField
 from profiles.constants import USER_STATUS_CHOICES, YES_NO
 
 
@@ -50,7 +51,9 @@ class UserProfile(models.Model):
     # -------------------------------------
     gender = models.CharField(max_length=50, blank=True)
     ethnicity = models.CharField(max_length=50, blank=True)
-    race = models.JSONField(default=list, blank=True)
+    # Temporarily preserve the old data
+    race = JSONField(default=list, blank=True, null=True)
+
 
     disability = models.CharField(
         max_length=3,
@@ -90,6 +93,16 @@ class UserProfile(models.Model):
         ],
         help_text="Platform-controlled account state."
     )
+
+    # Verified status for public profile
+    verified = models.BooleanField(
+        default=True,
+        help_text="Show a verified badge on this user's public profile."
+    )
+
+    work_in_us = models.CharField(max_length=10, choices=YES_NO, blank=True)
+    sponsorship_needed = models.CharField(max_length=10, choices=YES_NO, blank=True)
+    lgbtq = models.CharField(max_length=10, choices=YES_NO, blank=True)
 
     # -------------------------------------
     # Auto-generated ReRoute User ID

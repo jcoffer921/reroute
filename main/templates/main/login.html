@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block title %}ReRoute | Login{% endblock %}
 
@@ -10,22 +11,9 @@
 <div class="login-container">
     <h2>Login to your account</h2>
 
-    {% if form.errors %}
-        <div class="error-box">
-            <ul>
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
+    <!-- ❌ Removed Django form.errors box since errors are now shown via JS -->
 
-    <form method="POST">
+    <form id="login-form" method="POST" action="{% url 'login' %}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.GET.next }}">
 
@@ -43,16 +31,23 @@
             <button type="submit" class="submit-button">Sign In</button>
         </div>
 
+        <!-- ✅ Dynamic JS-based error display -->
+        <p id="login-error" class="error-text" style="color: red; margin-top: 1rem;"></p>
+
         <p style="margin-top: 0.5rem;">
             Don't have an account? <a href="{% url 'signup' %}">Register</a>
         </p>
     </form>
 
-    <div class="alt-auth-divider">Or log in with</div>
+    <!--div class="alt-auth-divider">Or log in with</div-->
 
-    <button class="google-btn">
+    <!--a href="{% provider_login_url 'google' %}" class="google-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
         Continue with Google
-    </button>
+    </a-->
+
 </div>
+
+<script src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'js/login.js' %}"></script>
 {% endblock %}

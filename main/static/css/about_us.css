@@ -1,0 +1,389 @@
+.about-hero {
+    background-color: #0F172A; /* rich navy blue */
+    color: #F3F4F6; /* rich navy blue for contrast */
+    padding: 10rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.about-hero h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    color: #F3F4F6;
+}
+
+.about-hero p {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    color: #F3F4F6;
+}
+
+/* Optional pattern on right side */
+.about-hero::after {
+    content: "";
+    background-image: url('{% static "images/pattern-arrows.png" %}'); /* your repeated icon file */
+    background-size: 100px;
+    background-repeat: repeat;
+    opacity: 0.2;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 0;
+}
+
+.bubble-team-section {
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));/* deep blue → cyan */
+    padding: 7rem 2rem 6rem;
+    height: 900px;;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: visible;
+}
+
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+.team-heading {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 3rem;
+    font-family: 'Comic Sans MS', sans-serif;
+}
+
+.bubble-wrapper {
+    position: relative;
+    width: 100%;
+    height: 900px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Each bubble (image container) */
+.bubble {
+    width: 100%;
+    height: 100%;
+    border-radius: 40%;
+    overflow: hidden;
+    border: 8px solid white;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.bubble:hover {
+    transform: scale(1.05);
+}
+
+/* Wrapper for image + caption positioned as a triangle */
+.bubble-with-caption {
+    position: absolute;
+    text-align: center;
+    width: auto;
+    color: white;
+}
+
+/* Triangle positioning */
+/* Bubble 1 – Top Left */
+#bubble1 {
+    top: 60px;
+    left: 5%;
+    width: 320px;
+    height: 320px;
+}
+
+/* Bubble 2 – Top Right */
+#bubble2 {
+    top: 60px;
+    left: 69%;
+    width: 320px;
+    height: 320px;
+}
+
+/* Bubble 3 – Bottom Center */
+#bubble3 {
+    top: 60px;
+    left: 37%;
+    width: 320px;
+    height: 320px;
+}
+
+
+/* Image inside each bubble */
+.bubble img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Bio text below each image */
+.bubble-caption {
+    margin-top: 1rem;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #f5f5f5;
+}
+
+.bubble-caption h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.bubble-caption p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* Mobile stacking */
+@media (max-width: 768px) {
+    .bubble-wrapper {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .bubble-with-caption {
+        position: static;
+        width: 70vw;
+        margin: 0 auto;
+    }
+
+    #bubble1, #bubble2, #bubble3 {
+        width: 70vw;
+        height: 70vw;
+        top: auto;
+        left: auto;
+    }
+}
+
+/* ------------------- */
+/* Our Story Section */
+/* ------------------- */
+
+.about-story {
+  background-color: var(--neutral-gray);
+  color: var(--contrast-navy);
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.story-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-story h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.about-story p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+/* ------------------- */
+/* Mission & Quote */
+/* ------------------- */
+
+.about-mission {
+  position: relative;
+  background-image: url('/static/images/dream_team.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  height: 100vh;
+  overflow: hidden;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-text {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 1.5rem auto;
+  color: #222;
+}
+
+.about-mission h2 {
+  font-size: 2.75rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #111;
+  text-align: center;
+}
+
+
+.mission-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(1px);
+  transition: background 0.5s ease;
+  z-index: 1;
+}
+
+.mission-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  text-align: center;
+  padding: 2rem;
+  color: #111;
+  transform: translateY(0);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.mission-quote {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease, transform 1s ease;
+  text-align: center;
+  font-size: 1.25rem;
+  font-style: italic;
+  color: rebeccapurple;
+  margin-top: 2rem;
+}
+
+.mission-quote.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quote-line {
+  color: rebeccapurple;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-right: 0.5rem;
+}
+
+/* ------------------- */
+/* Values Grid */
+/* ------------------- */
+
+.about-values {
+  background-color: white;
+  padding: 5rem 2rem;
+  color: var(--contrast-navy);
+  text-align: center;
+}
+
+.values-heading {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.value-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.value-box {
+  background-color: var(--neutral-gray);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 300px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.value-box:hover {
+  transform: translateY(-5px);
+  background: linear-gradient(135deg, #d3e5f1, #37b2eb);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.value-box h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.value-box p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ------------------- */
+/* Call to Action */
+/* ------------------- */
+
+.about-cta {
+  background-color: var(--primary-blue);
+  color: white;
+  text-align: center;
+  padding: 6rem 2rem;
+}
+
+.about-cta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.about-cta p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background-color: white;
+  color: var(--primary-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--neutral-gray);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+

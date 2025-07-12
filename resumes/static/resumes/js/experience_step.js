@@ -1,146 +1,131 @@
-function bindLivePreview(inputId, previewId, fallback = '') {
+// ========== Utility: Live Preview Binding ==========
+function bindLivePreview(inputId, previewId, fallback = "") {
   const input = document.getElementById(inputId);
   const preview = document.getElementById(previewId);
 
   if (input && preview) {
-    input.addEventListener('input', () => {
-      preview.textContent = input.value || fallback;
+    input.addEventListener("input", () => {
+      preview.textContent = input.value.trim() || fallback;
     });
 
-    // Initialize preview on page load
-    preview.textContent = input.value || fallback;
+    // Initialize on load
+    preview.textContent = input.value.trim() || fallback;
   }
 }
 
+// ========== Utility: Bullet List Preview ==========
+function bindBulletPreview(textareaId, previewListId, fallback = "Responsibilities") {
+  const textarea = document.getElementById(textareaId);
+  const previewList = document.getElementById(previewListId);
+
+  if (!textarea || !previewList) return;
+
+  function updateBullets() {
+    const lines = textarea.value.split("\n").filter(line => line.trim());
+    previewList.innerHTML = "";
+
+    if (lines.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = fallback;
+      previewList.appendChild(li);
+    } else {
+      lines.forEach(line => {
+        const li = document.createElement("li");
+        li.textContent = line.trim();
+        previewList.appendChild(li);
+      });
+    }
+  }
+
+  textarea.addEventListener("input", updateBullets);
+  updateBullets(); // on load
+}
+
+// ========== Utility: Date Range Preview ==========
 function bindDateRangePreview(startId, endId, previewId) {
   const startInput = document.getElementById(startId);
   const endInput = document.getElementById(endId);
   const preview = document.getElementById(previewId);
 
-  function updateDates() {
-    const start = startInput?.value || 'Start';
-    const end = endInput?.value || 'End';
-    preview.textContent = `${start} - ${end}`;
+  if (!preview) return;
+
+  function updateRange() {
+    const start = startInput?.value || "";
+    const end = endInput?.value || "";
+    preview.textContent = `${start} – ${end}`.trim() || "Start – End";
   }
 
-  startInput?.addEventListener('input', updateDates);
-  endInput?.addEventListener('input', updateDates);
+  if (startInput) startInput.addEventListener("input", updateRange);
+  if (endInput) endInput.addEventListener("input", updateRange);
 
-  updateDates(); // Initialize on load
+  updateRange(); // on load
 }
 
-function bindBulletPreview(textareaId, previewListId, fallback = 'Responsibilities') {
-  const textarea = document.getElementById(textareaId);
-  const previewList = document.getElementById(previewListId);
-
-  function updateBullets() {
-    const lines = (textarea?.value || '').split('\n').filter(line => line.trim());
-    previewList.innerHTML = '';
-
-    if (lines.length === 0) {
-      const fallbackLi = document.createElement('li');
-      fallbackLi.textContent = fallback;
-      previewList.appendChild(fallbackLi);
-      return;
-    }
-
-    lines.forEach(line => {
-      const li = document.createElement('li');
-      li.textContent = line.trim();
-      previewList.appendChild(li);
-    });
-  }
-
-  textarea?.addEventListener('input', updateBullets);
-  updateBullets(); // Initialize on load
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const experienceForm = document.getElementById('experience-form');
-  if (!experienceForm) return;
-
-  const entries = document.getElementById('experience-entries');
-  const previewContainer = document.getElementById('experience-preview-container');
+// ========== Main Preview Binder ==========
+function bindDynamicExperiencePreviews() {
   const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
-  const addBtn = document.getElementById('add-experience-btn');
+  const totalForms = parseInt(totalFormsInput?.value || 1);
+  const container = document.getElementById('experience-preview-container');
+  if (!container) return;
 
-  // Initial preview binding for form-0
-  bindPreviewForIndex(0);
+  container.innerHTML = ''; // Clear previous preview blocks
 
-  addBtn?.addEventListener('click', () => {
-    const currentIndex = parseInt(totalFormsInput.value);
-    const firstEntry = entries.querySelector('.experience-entry');
+  for (let i = 0; i < totalForms; i++) {
+    const titleId = `id_form-${i}-job_title`;
+    const companyId = `id_form-${i}-company`;
+    const startId = `id_form-${i}-start_date`;
+    const endId = `id_form-${i}-end_date`;
+    const descId = `id_form-${i}-description`;
 
-    if (!firstEntry) {
-      console.error("⛔ .experience-entry not found!")
-      return;
-    }
-    
-    const newEntry = firstEntry.cloneNode(true);
-
-
-    // Clean values and update IDs
-    newEntry.querySelectorAll('input, textarea, label').forEach(el => {
-      if (el.name) el.name = el.name.replace(/form-\d+/, `form-${currentIndex}`);
-      if (el.id) el.id = el.id.replace(/form-\d+/, `form-${currentIndex}`);
-      if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/form-\d+/, `form-${currentIndex}`);
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = '';
-    });
-
-    entries.appendChild(newEntry);
-    totalFormsInput.value = currentIndex + 1;
-
-    // Add matching preview HTML
     const previewBlock = document.createElement('div');
+    previewBlock.className = 'experience-preview-block';
     previewBlock.innerHTML = `
-      <p><strong id="preview_job_title_${currentIndex}">Job Title</strong> at <span id="preview_company_${currentIndex}">Company Name</span></p>
-      <p><em id="preview_dates_${currentIndex}">Start - End</em></p>
-      <ul id="preview_description_bullets_${currentIndex}">
+      <p>
+        <strong><span id="preview_job_title_${i}">Job Title</span></strong>
+        at <strong><span id="preview_company_${i}">Company Name</span></strong>
+      </p>
+      <p><em><span id="preview_dates_${i}">Start – End</span></em></p>
+      <ul id="preview_description_bullets_${i}">
         <li>Responsibilities</li>
       </ul>
     `;
-    previewContainer.appendChild(previewBlock);
+    container.appendChild(previewBlock);
 
-    // Bind inputs to this preview block
-    bindPreviewForIndex(currentIndex);
-  });
-});
-
-function bindPreviewForIndex(index) {
-  const titleId = `id_form-${index}-job_title`;
-  const companyId = `id_form-${index}-company`;
-  const startId = `id_form-${index}-start_date`;
-  const endId = `id_form-${index}-end_date`;
-  const descId = `id_form-${index}-description`;
-
-  bindLivePreview(titleId, `preview_job_title_${index}`, 'Job Title');
-  bindLivePreview(companyId, `preview_company_${index}`, 'Company Name');
-  bindDateRangePreview(startId, endId, `preview_dates_${index}`);
-  bindBulletPreview(descId, `preview_description_bullets_${index}`, 'Responsibilities');
-
-  const presentCheckbox = document.querySelector(`input.present-checkbox[data-end-field-id="id_form-${index}-end_date"]`);
-  if (presentCheckbox) {
-    bindPresentCheckbox(presentCheckbox);
+    bindLivePreview(titleId, `preview_job_title_${i}`, "Job Title");
+    bindLivePreview(companyId, `preview_company_${i}`, "Company Name");
+    bindDateRangePreview(startId, endId, `preview_dates_${i}`);
+    bindBulletPreview(descId, `preview_description_bullets_${i}`, "Responsibilities");
   }
-
 }
 
-function bindPresentCheckbox(checkbox) {
-  checkbox.addEventListener('change', () => {
-    const endInput = document.getElementById(checkbox.dataset.endFieldId);
-    const preview = document.getElementById(checkbox.dataset.previewId);
+// ========== Form Add Handler ==========
+function handleExperienceFormAdd() {
+  const addBtn = document.getElementById("add-experience-btn");
+  const formContainer = document.getElementById("experience-entries");
+  const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+  const templateHtml = document.getElementById("empty-form-template").innerHTML;
 
-    if (checkbox.checked) {
-      endInput.disabled = true;
-      const startInput = document.getElementById(endInput.id.replace('end_date', 'start_date'));
-      const start = startInput?.value || 'Start';
-      preview.textContent = `${start} - Present`;
-    } else {
-      endInput.disabled = false;
-      // Rebind date preview normally
-      const startId = endInput.id.replace('end_date', 'start_date');
-      bindDateRangePreview(startId, endInput.id, checkbox.dataset.previewId);
-    }
+  if (!addBtn || !formContainer || !totalForms || !templateHtml) return;
+
+  addBtn.addEventListener("click", () => {
+    const formCount = parseInt(totalForms.value);
+    const newFormHtml = templateHtml.replace(/__prefix__/g, formCount);
+
+    const newEntry = document.createElement("div");
+    newEntry.classList.add("experience-entry");
+    newEntry.innerHTML = newFormHtml;
+
+    formContainer.appendChild(newEntry);
+    totalForms.value = formCount + 1;
+
+    bindDynamicExperiencePreviews(); // rebuild preview section
   });
 }
 
+// ========== DOM Ready ==========
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById('experience-form')) {
+    bindDynamicExperiencePreviews();
+    handleExperienceFormAdd();
+  }
+});

@@ -30,8 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-secret")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
-#DEBUG = True
+#DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'reroute-backend.onrender.com',
@@ -48,16 +48,39 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'main',
     'django.contrib.admin',
+    'django.contrib.sites',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',
     'resumes',
+    'dashboard',
+    'blog',  # New blog app
     'profiles',
+    'resources',
     'widget_tweaks',
+    'crispy_forms',
+    'crispy_bootstrap4',  # or 'crispy_bootstrap5' if you're using Bootstrap 5
+
+    # Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+]
+
+SITE_ID = 1
+
+CRISPY_ALLOWED_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap5' if you're using Bootstrap 5
+CRISPY_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap5' if you're using Bootstrap 5
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'allauth.account.auth_backends.AuthenticationBackend',  # allauth
 ]
 
 MIDDLEWARE = [
@@ -69,6 +92,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware', 
+    'allauth.account.middleware.AccountMiddleware',
+
 ]
 
 ROOT_URLCONF = 'reroute.urls'
@@ -161,7 +186,31 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'dashboard'
 LOGIN_URL = '/login/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/login/'
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or SendGrid, Mailgun, etc.
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'support@reroutejobs.com'  # Replace with your real email
+EMAIL_HOST_PASSWORD = 'rfwkrwlvqomsmcry'  # Use App Password (never your real one)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+CONTACT_RECEIVER_EMAIL = 'support@reroutejobs.com'  # Where to send submissions
+
+# Google reCAPTCHA settings
+if DEBUG:
+  # Local development keys
+    RECAPTCHA_SITE_KEY = '6LchCXsrAAAAAJUK4ipb6_vBjR84Yn_1HfbUeXZQ'
+    RECAPTCHA_SECRET_KEY = '6LchCXsrAAAAAPm9n82MxoLQXRwUucSybpFcmfEV'
+else:
+    # Live Keys for reroutejobs.com
+    RECAPTCHA_SITE_KEY = '6LfcBnsrAAAAACC59lBm9O9fdNsIKsphP89JU0tC'
+    RECAPTCHA_SECRET_KEY = '6LfcBnsrAAAAAEqFbgwUBddDmvPEkiE7BuLvm7Az'
 
 
 

@@ -42,8 +42,15 @@ GENDER_CHOICES = [
 
 
 ETHNICITY_CHOICES = [
-    ('hispanic', 'Hispanic or Latino'),
-    ('not_hispanic', 'Not Hispanic or Latino'),
+    ("not_hispanic", "Not Hispanic or Latino"),
+    ("hispanic", "Hispanic or Latino"),
+    ("black", "Black or African American"),
+    ("white", "White (Non-Hispanic)"),
+    ("asian", "Asian"),
+    ("native", "American Indian or Alaska Native"),
+    ("pacific", "Native Hawaiian or Other Pacific Islander"),
+    ("mixed", "Two or More Races"),
+    ("other", "Other"),
     ('prefer_not', 'Prefer not to say'),
 ]
 

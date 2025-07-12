@@ -1,5 +1,6 @@
 from io import BytesIO
-from django.http import HttpResponse
+import json
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
@@ -27,7 +28,7 @@ def create_resume(request):
 # === Step 1: Contact Info ===
 @login_required
 def contact_info_step(request):
-    resume = get_object_or_404(Resume, user=request.user)
+    resume, _ = Resume.objects.get_or_create(user=request.user)
     contact_info, _ = ContactInfo.objects.get_or_create(resume=resume)
 
     if request.method == 'POST':
@@ -157,11 +158,73 @@ def summary_step(request):
 
     return render(request, 'resumes/steps/summary_step.html', {'form': form})
 
-# === Step 6: Resume Preview ===
 @login_required
 def resume_preview(request, resume_id):
     resume = get_object_or_404(Resume, id=resume_id, user=request.user)
     contact_info = ContactInfo.objects.filter(resume=resume).first()
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Update resume core fields
+            resume.full_name = data.get('full_name', resume.full_name)
+            resume.summary = data.get('summary', resume.summary)
+            resume.skill_summary = '\n'.join(data.get('skills', []))
+
+            # Update or create contact info
+            # ✅ New (safe + accurate for city/state split)
+            if contact_info:
+                contact_parts = data.get('contact_info', '').split('|')
+
+                if len(contact_parts) >= 1:
+                    contact_info.email = contact_parts[0].strip()
+
+                if len(contact_parts) >= 2:
+                    contact_info.phone = contact_parts[1].strip()
+
+                if len(contact_parts) >= 3:
+                    location = contact_parts[2].strip()
+                    if ',' in location:
+                        city, state = map(str.strip, location.split(','))
+                        contact_info.city = city
+                        contact_info.state = state.upper()[:2]
+                    else:
+                        contact_info.city = location
+                        contact_info.state = ''
+
+                contact_info.save()
+
+
+            resume.save()
+
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    # Pre-fill the resume fields from session if not already set
+    resume.full_name = resume.full_name or request.session.get('full_name', 'Your Name')
+    resume.summary = resume.summary or request.session.get('summary', '')
+    resume.skill_summary = resume.skill_summary or request.session.get('skills', '')
+    resume.save()
+
+    # Optional: Pre-fill contact info from session if blank
+    # Optional: Pre-fill contact info from session if blank
+    if contact_info:
+        contact_info.email = contact_info.email or request.session.get('email', '')
+        contact_info.phone = contact_info.phone or request.session.get('phone', '')
+
+        # Handle city/state if session stored them as a single string (e.g., "Philadelphia, PA")
+        location_string = request.session.get('location', '')
+        if ',' in location_string:
+            city, state = map(str.strip, location_string.split(','))
+            contact_info.city = contact_info.city or city
+            contact_info.state = contact_info.state or state.upper()[:2]
+        elif location_string:
+            contact_info.city = contact_info.city or location_string
+            contact_info.state = contact_info.state or ''
+
+        contact_info.save()
 
     return render(request, 'resumes/resume_preview.html', {
         'resume': resume,

@@ -1,28 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let lastScrollTop = 0;
-    const navbar = document.querySelector('.navbar');
-
-    if (!navbar) return;
-
-    window.addEventListener('scroll', function () {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        if (scrollTop > lastScrollTop) {
-            // Scrolling down
-            navbar.style.top = "-100px";
-        } else {
-            // Scrolling up
-            navbar.style.top = "0";
-        }
-
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-    });
-});
-
-// Toggle mobile navbar visibility
-function toggleMenu() {
+  const navbar = document.querySelector('.navbar');
   const navLinks = document.querySelector('.nav-links');
-  if (navLinks) {
-    navLinks.classList.toggle('show');
+  const userBtn = document.querySelector('.user-initials-btn');
+  const dropdown = document.getElementById('userDropdown');
+  const arrow = document.getElementById('arrow-icon');
+  let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+  if (navbar) {
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      navbar.style.top = (scrollTop > lastScrollTop) ? '-100px' : '0';
+      lastScrollTop = Math.max(scrollTop, 0);
+    });
+
+    window.addEventListener('load', () => {
+      navbar.style.top = '0';
+    });
   }
-}
+
+  // Toggle mobile menu
+  const mobileToggle = document.querySelector('.mobile-menu-button');
+  if (mobileToggle && navLinks) {
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('show');
+    });
+  }
+
+  // User menu toggle
+  if (userBtn && dropdown && arrow) {
+    userBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+      arrow.textContent = dropdown.classList.contains('show') ? '▲' : '▼';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && !userBtn.contains(e.target)) {
+        dropdown.classList.remove('show');
+        arrow.textContent = '▼';
+      }
+    });
+  }
+});

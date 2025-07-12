@@ -7,47 +7,75 @@
     <title>{% block title %}ReRoute | Home{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static 'css/multi_step_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account.css' %}">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="page-wrapper">
         <!-- Navbar -->
         <nav class="navbar">
-            <div class="logo">
+            <div class="navbar-logo">
                 <a href="{% url 'home' %}">
-                    <img src="{% static 'images/reroute-trans-logo.png' %}" alt="ReRoute Logo" style="height: 65px;">
+                    <img src="{% static 'images/reroute-trans-logo.png' %}" alt="ReRoute Logo" style="height: 67px;">
                 </a>
             </div>
-            <!-- Mobile menu toggle button -->
-            <button class="mobile-menu-button" onclick="toggleMenu()">☰</button>
 
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="#mission">Mission</a></li>
-                <li><a href="{% url 'job_list' %}">Opportunities</a></li>
-                <li><a href="#contact">Contact</a></li>
+            <div class="navbar-links-container">
+                <div class="nav-links">
+                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'resource_list' %}">Resources</a>
+                    <a href="{% url 'job_list' %}">Opportunities</a>
+                    <a href="{% url 'about_us' %}">About Us</a>
 
-                {% if user.is_authenticated %}
-                    <li class="dropdown">
-                        <a href="#" class="dropbtn">Welcome, {{ user.username }} ▼</a>
-                        <div class="dropdown-content">
-                            <a href="{% url 'dashboard' %}">Dashboard</a>
-                            <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="logout-btn">Logout</button>
-                            </form>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}">Dashboard</a>
+
+                        <div class="user-menu-container">
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="{% url 'public_profile' user.username %}">Profile</a>
+                                <a href="{% url 'dashboard' %}">Dashboard</a>
+                                <a href="{% url 'contact' %}">Report Issues</a>
+                                <a href="#">Support</a>
+                                <a href="{% url 'settings' %}">Settings</a>
+                                <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="logout-btn">Sign out</button>
+                                </form>
+                            </div>
                         </div>
-                    </li>
-                {% else %}
-                    {% if request.path != '/login/' %}
-                        <li><a href="{% url 'login' %}">Login</a></li>
+
+                    {% else %}
+                        {% if request.path != '/login/' %}
+                            <a href="{% url 'login' %}">Login</a>
+                        {% endif %}
+                        {% if request.path != '/signup/' and request.path != '/' %}
+                            <a href="{% url 'signup' %}">Get Started</a>
+                        {% endif %}
                     {% endif %}
-                    {% if request.path != '/signup/' and request.path != '/' %}
-                        <li><a href="{% url 'signup' %}">Get Started</a></li>
-                    {% endif %}
+                </div>
+                <!-- Right profile menu -->
+                {% if user.is_authenticated %}
+                <div class="user-profile-right">
+                    <button class="user-initials-btn">
+                        {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
+                        <span id="arrow-icon">▼</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="{% url 'public_profile' user.username %}">Profile</a>
+                        <a href="{% url 'dashboard' %}">Dashboard</a>
+                        <a href="{% url 'contact' %}">Report Issues</a>
+                        <a href="#">Support</a>
+                        <a href="{% url 'settings' %}">Settings</a>
+                        <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">Sign out</button>
+                        </form>
+                    </div>
+                </div>
                 {% endif %}
-            </ul>
+                <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+            </div>
         </nav>
 
         <!-- Main content area -->
@@ -70,9 +98,9 @@
                     <ul>
                         <li><a href="{% url 'home' %}">Home</a></li>
                         <li><a href="{% url 'job_list' %}">Opportunities</a></li>
-                        <li><a href="#mission">Mission</a></li>
+                        <li><a href="{% url 'resource_list' %}">Resources</a></li>
                         <li><a href="#vision">Vision</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="{% url 'about_us' %}">About Us</a></li>
                     </ul>
                 </div>
 
@@ -85,11 +113,47 @@
 
             <div class="footer-bottom">
                 <p>&copy; 2025 ReRoute. All rights reserved.</p>
+                <p><a href="{% url 'terms' %}">Terms of Use</a> | <a href="{% url 'privacy' %}">Privacy Policy</a></p>
             </div>
         </footer>
     </div>
 
+    <!-- Slide-Out Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu">
+        <div class="mobile-menu-header">
+            <span class="mobile-logo">
+                <img src="{% static 'images/reroute-logo.png' %}" alt="ReRoute Logo" height="36">
+            </span>
+            <button class="close-btn" onclick="toggleMobileMenu()">✕</button>
+        </div>
+
+        <!-- 👇 Your main nav links -->
+        <ul class="mobile-nav-links">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#mission">Mission</a></li>
+            <li><a href="{% url 'job_list' %}">Opportunities</a></li>
+            <li><a href="{% url 'about_us' %}">About Us</a></li>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        </ul>
+
+        <!-- 👇 Footer section with initials and logout -->
+        {% if user.is_authenticated %}
+        <div class="mobile-user-footer">
+            <div class="user-initials-circle">
+                {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
+            </div>
+            <span class="mobile-user-name">{{ user.first_name|default:user.username }}</span>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Sign out</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+
+
+
     <script src="{% static 'js/base.js' %}"></script>
-    <script src="{% static 'js/multi_step_form.js' %}" defer></script>
 </body>
 </html>

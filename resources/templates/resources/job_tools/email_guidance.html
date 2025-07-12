@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Email Guidance | ReRoute{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resources/css/job_tools/email_guidance.css' %}">
+
+<div class="email-hero">
+  <h1>📧 How to Write a Professional Email</h1>
+  <p>Whether you're reaching out to an employer, case manager, or potential mentor — here's how to do it with clarity and confidence.</p>
+</div>
+
+<div class="email-section">
+  <h2>📌 Basic Email Structure</h2>
+  <ul>
+    <li><strong>Subject:</strong> Keep it short and clear (e.g., “Application Follow-Up”)</li>
+    <li><strong>Greeting:</strong> “Hello [Name],”</li>
+    <li><strong>Body:</strong> Briefly state your purpose (1-3 short sentences)</li>
+    <li><strong>Closing:</strong> “Thank you,” or “Best regards,”</li>
+    <li><strong>Signature:</strong> Your full name + contact info</li>
+  </ul>
+</div>
+
+<div class="email-section">
+  <h2>📋 Templates You Can Use</h2>
+
+  <h3>1. Follow-Up After an Interview</h3>
+  <pre class="email-template">
+Subject: Thank You - Interview for [Job Title]
+
+Hello [Hiring Manager Name],
+
+Thank you for taking the time to speak with me about the [Job Title] role. I appreciated the opportunity and enjoyed learning more about your team.
+
+Please let me know if you need anything else from me. I look forward to next steps.
+
+Best regards,  
+[Your Name]  
+[Your Phone Number]
+  </pre>
+
+  <h3>2. Asking About a Job Opening</h3>
+  <pre class="email-template">
+Subject: Interest in Opportunities at [Company Name]
+
+Hello [Name],
+
+I hope this message finds you well. I'm reaching out to ask if you're currently hiring for any positions. I'm hardworking, dependable, and excited to contribute to a great team.
+
+Thank you for your time and consideration.
+
+Sincerely,  
+[Your Name]  
+[Your Contact Info]
+  </pre>
+</div>
+
+<div class="email-section">
+  <h2>✅ Do's and ❌ Don'ts</h2>
+  <div class="dos-donts">
+    <div class="do">
+      <h3>✅ Do</h3>
+      <ul>
+        <li>Use respectful, clear language</li>
+        <li>Proofread for typos</li>
+        <li>Keep it short and to the point</li>
+        <li>Be polite and professional</li>
+      </ul>
+    </div>
+    <div class="dont">
+      <h3>❌ Don't</h3>
+      <ul>
+        <li>Use slang or emojis</li>
+        <li>Write long paragraphs</li>
+        <li>Send without a subject line</li>
+        <li>Forget to include your name</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="email-cta">
+  <p>Need help writing your next email?</p>
+  <a href="{% url 'resource_list' %}" class="btn-primary">Back to Resources →</a>
+</div>
+
+{% endblock %}

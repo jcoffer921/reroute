@@ -2,7 +2,61 @@ from django.db import models
 from django.contrib.auth.models import User
 from main.models import Job
 
-# Resume model that holds top-level resume metadata
+US_STATE_CHOICES = [
+    ('AL', 'Alabama'),
+    ('AK', 'Alaska'),
+    ('AZ', 'Arizona'),
+    ('AR', 'Arkansas'),
+    ('CA', 'California'),
+    ('CO', 'Colorado'),
+    ('CT', 'Connecticut'),
+    ('DE', 'Delaware'),
+    ('FL', 'Florida'),
+    ('GA', 'Georgia'),
+    ('HI', 'Hawaii'),
+    ('ID', 'Idaho'),
+    ('IL', 'Illinois'),
+    ('IN', 'Indiana'),
+    ('IA', 'Iowa'),
+    ('KS', 'Kansas'),
+    ('KY', 'Kentucky'),
+    ('LA', 'Louisiana'),
+    ('ME', 'Maine'),
+    ('MD', 'Maryland'),
+    ('MA', 'Massachusetts'),
+    ('MI', 'Michigan'),
+    ('MN', 'Minnesota'),
+    ('MS', 'Mississippi'),
+    ('MO', 'Missouri'),
+    ('MT', 'Montana'),
+    ('NE', 'Nebraska'),
+    ('NV', 'Nevada'),
+    ('NH', 'New Hampshire'),
+    ('NJ', 'New Jersey'),
+    ('NM', 'New Mexico'),
+    ('NY', 'New York'),
+    ('NC', 'North Carolina'),
+    ('ND', 'North Dakota'),
+    ('OH', 'Ohio'),
+    ('OK', 'Oklahoma'),
+    ('OR', 'Oregon'),
+    ('PA', 'Pennsylvania'),
+    ('RI', 'Rhode Island'),
+    ('SC', 'South Carolina'),
+    ('SD', 'South Dakota'),
+    ('TN', 'Tennessee'),
+    ('TX', 'Texas'),
+    ('UT', 'Utah'),
+    ('VT', 'Vermont'),
+    ('VA', 'Virginia'),
+    ('WA', 'Washington'),
+    ('WV', 'West Virginia'),
+    ('WI', 'Wisconsin'),
+    ('WY', 'Wyoming'),
+]
+
+# models.py
+
 class Resume(models.Model):
     TEMPLATE_CHOICES = [
         ('professional', 'Professional'),
@@ -13,12 +67,15 @@ class Resume(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resume_resumes')
     file = models.FileField(upload_to='resumes/', blank=True, null=True)
     template = models.CharField(max_length=20, choices=TEMPLATE_CHOICES, default='professional')
-    summary = models.TextField(blank=True)  # Optional professional summary
+    full_name = models.CharField(max_length=100, blank=True)  # ✅ ADD THIS
+    summary = models.TextField(blank=True)
+    skill_summary = models.TextField(blank=True)  # ✅ ADD THIS
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Resume for {self.user.username}"
+
 
 # Step 1: Contact Information
 class ContactInfo(models.Model):
@@ -27,7 +84,11 @@ class ContactInfo(models.Model):
     full_name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True)
-    location = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=2, choices=US_STATE_CHOICES, blank=True)
+
+    def __str__(self):
+        return self.full_name
 
 # Step 2: Education or Training entries (can have many per resume)
 class Education(models.Model):

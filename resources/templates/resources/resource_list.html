@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ReRoute | Resources{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resources/css/resources.css' %}">
+
+<section class="resource-hero">
+  <div class="resource-hero-content">
+    <h1>Resources</h1>
+    <p>Explore curated tools and guidance from ReRoute</p>
+    <a href="#" class="btn-primary">View All Categories</a>
+  </div>
+</section>
+
+<div class="resource-container">
+  <h2>Resources to Help You Succeed</h2>
+  <p>Explore our curated collection of tools, courses, and support services designed to empower your journey.</p>
+
+  <div class="resource-grid">
+    <div class="resource-card">
+      <h3>📝 Job Tools</h3>
+      <ul>
+        <li><a href="#">Resume Templates</a></li>
+        <li><a href="{% url 'interview_prep' %}">Interview Prep</a></li>
+        <li><a href="{% url 'email_guidance' %}">Email Guidance</a></li>
+        <li><a href="#">View More →</a></li>
+      </ul>
+    </div>
+
+    <div class="resource-card">
+      <h3>💻 Tech Courses</h3>
+      <ul>
+        <li><a href="#">freeCodeCamp</a></li>
+        <li><a href="#">CS50 (Harvard)</a></li>
+        <li><a href="#">Google Career Certs</a></li>
+        <li><a href="#">View More →</a></li>
+      </ul>
+    </div>
+
+    <div class="resource-card">
+      <h3>🔓 Reentry Help</h3>
+      <ul>
+        <li><a href="{% url 'legal_aid' %}">Legal Aid</a></li>
+        <li><a href="#">Housing Options</a></li>
+        <li><a href="#">Counseling Services</a></li>
+        <li><a href="#">View More →</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="featured-video">
+    <h2>🎬 Featured Video</h2>
+    <iframe src="https://www.youtube.com/embed/SAMPLE_VIDEO_ID" title="How to Tie a Tie" allowfullscreen></iframe>
+    <p>Learn how to tie a tie, present yourself confidently, and walk into opportunity.</p>
+  </div>
+
+  <div class="resource-quote">
+    <blockquote>“Don't worry about what other people think of you. Just be sure you think correctly about yourself. - Jason Coffer”</blockquote>
+  </div>
+
+  <div class="resource-footer-cta">
+    <p>Can't find what you need?</p>
+    <a href="{% url 'contact' %}" class="btn-secondary">Contact Us</a>
+  </div>
+</div>
+
+{% endblock %}

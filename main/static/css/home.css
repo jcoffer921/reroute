@@ -1,0 +1,159 @@
+.blog-slider {
+  max-width: 900px;
+  margin: 4rem auto;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.blog-slider h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.slider-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.slides-wrapper {
+  display: flex;
+  transition: transform 0.5s ease;
+  width: 100%;
+}
+
+.slide {
+  min-width: 100%;
+  padding: 2rem;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.slide h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.slide p {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.slide a {
+  color: #1d4ed8;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.slide a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.3);  /* semi-transparent black */
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.slider-btn:hover {
+  background-color: rgba(29, 78, 216, 0.7); /* semi-transparent blue on hover */
+  box-shadow: 0 0 12px rgba(29, 78, 216, 0.5);
+}
+
+
+/* Arrow Triangle Styles */
+.arrow-triangle {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+.arrow-triangle.right {
+  border-left: 16px solid white;
+}
+
+.arrow-triangle.left {
+  border-right: 16px solid white;
+}
+
+/* Button Placement */
+.slider-btn.prev {
+  left: 12px;
+}
+
+.slider-btn.next {
+  right: 12px;
+}
+
+
+.blog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  text-decoration: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background-color: #1d4ed8;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1743b3;
+}
+
+.btn-secondary {
+  background-color: #f3f4f6;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.slider-dots .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.slider-dots .dot.active {
+  background-color: #1d4ed8;
+}
