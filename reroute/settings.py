@@ -212,5 +212,22 @@ else:
     RECAPTCHA_SITE_KEY = '6LfcBnsrAAAAACC59lBm9O9fdNsIKsphP89JU0tC'
     RECAPTCHA_SECRET_KEY = '6LfcBnsrAAAAAEqFbgwUBddDmvPEkiE7BuLvm7Az'
 
+if not DEBUG:
+    # Force HTTPS
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # Add HSTS headers
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Security headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    # Referrer policy
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 
