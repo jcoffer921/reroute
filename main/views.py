@@ -24,15 +24,22 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import CustomPasswordChangeForm  # make sure you’ve defined this
 from blog.models import BlogPost
+from django.db.utils import OperationalError
 
 import json
 
 # Home view with blog posts
 def home(request):
-    latest_posts = BlogPost.objects.filter(published=True).order_by('-created_at')[:3]
+    try:
+        latest_posts = BlogPost.objects.filter(published=True).order_by('-created_at')[:3]
+    except OperationalError:
+        # Fallback if the DB is temporarily down or table doesn't exist yet
+        latest_posts = []
+
     return render(request, 'main/home.html', {
         'latest_posts': latest_posts,
     })
+
 
 def resources_view(request):
     return render(request, 'resources/resource_list.html')
