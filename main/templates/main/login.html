@@ -11,7 +11,7 @@
 <div class="login-container">
     <h2>Login to your account</h2>
 
-    <!-- ❌ Removed Django form.errors box since errors are now shown via JS -->
+    <!-- Removed Django form.errors box since errors are now shown via JS -->
 
     <form id="login-form" method="POST" action="{% url 'login' %}">
         {% csrf_token %}

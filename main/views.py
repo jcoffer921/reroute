@@ -25,7 +25,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from .forms import CustomPasswordChangeForm  # make sure you’ve defined this
 from blog.models import BlogPost
 from django.db.utils import OperationalError
-
+import logging
 import json
 
 # Home view with blog posts
@@ -209,16 +209,25 @@ def signup_view(request):
     return render(request, 'main/signup.html', {'user_form': user_form})
 
 
+logger = logging.getLogger(__name__)
+
 def login_view(request):
     if request.method == "GET":
         return render(request, 'main/login.html')  # ✅ Serve login page
 
-    elif request.method == "POST" and request.headers.get('Content-Type') == 'application/json':
+    if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            username = data.get('username')
-            password = data.get('password')
-            next_url = data.get('next', '/dashboard/')
+            # Handle JSON-based logins (e.g., JS frontend)
+            if request.headers.get('Content-Type') == 'application/json':
+                data = json.loads(request.body)
+                username = data.get('username')
+                password = data.get('password')
+                next_url = data.get('next', '/dashboard/')
+            else:
+                # Fallback to form-based login
+                username = request.POST.get('username')
+                password = request.POST.get('password')
+                next_url = request.POST.get('next', '/dashboard/')
 
             user = authenticate(request, username=username, password=password)
             if user:
@@ -226,10 +235,11 @@ def login_view(request):
                 return JsonResponse({'status': 'success', 'redirect': next_url})
             else:
                 return JsonResponse({'status': 'fail', 'message': 'Invalid credentials'}, status=401)
+
         except Exception as e:
+            logger.error(f"Login error: {e}")
             return JsonResponse({'status': 'fail', 'message': 'Error during login'}, status=500)
 
-    # Optionally handle traditional POST form logins too
     return JsonResponse({'status': 'fail', 'message': 'Unsupported request'}, status=400)
 
 def logout_view(request):
