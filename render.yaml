@@ -23,7 +23,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.12
       - key: DJANGO_SETTINGS_MODULE
-        value: reroute_business.settings
+        value: reroute.settings
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG

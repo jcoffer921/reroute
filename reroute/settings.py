@@ -5,6 +5,10 @@ import dj_database_url            # ← since you call dj_database_url.config(..
 
 BASE_DIR = Path(__file__).resolve().parent.parent  # Define BASE_DIR for static/media paths
 
+# make sure these exist and match your package name
+ROOT_URLCONF = "reroute.urls"
+WSGI_APPLICATION = "reroute.wsgi.application"
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
