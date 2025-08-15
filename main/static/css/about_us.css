@@ -24,7 +24,6 @@
 /* Pattern on the right — hidden on small screens */
 .about-hero::after{
   content:"";
-  background-image:url('/static/images/pattern-arrows.png'); /* FIXED: no template tags in CSS */
   background-size:100px;
   background-repeat:repeat;
   opacity:.18;
