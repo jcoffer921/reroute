@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
     {% load static %}
+    {# NOTE: no custom template tags needed; context processor provides IS_EMPLOYER + DASHBOARD_URL #}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ReRoute | Home{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static 'css/account.css' %}">
-
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="page-wrapper">
-        <!-- Navbar -->
+        <!-- =================== NAVBAR (fixed) =================== -->
         <nav class="navbar">
             <div class="navbar-logo">
                 <a href="{% url 'home' %}">
@@ -22,19 +21,22 @@
             </div>
 
             <div class="navbar-links-container">
+                <!-- ---------- Left-side navigation links ---------- -->
                 <div class="nav-links">
                     <a href="{% url 'home' %}">Home</a>
                     <a href="{% url 'resource_list' %}">Resources</a>
-                    <a href="{% url 'job_list' %}">Opportunities</a>
+                    <a href="{% url 'opportunities' %}">Opportunities</a>
                     <a href="{% url 'about_us' %}">About Us</a>
 
                     {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard' %}">Dashboard</a>
+                        {# ✅ Role-aware: always points to the correct dashboard #}
+                        <a href="{{ DASHBOARD_URL }}">Dashboard</a>
 
+                        {# Left (optional) menu block, kept for parity with original layout #}
                         <div class="user-menu-container">
-                            <div class="user-dropdown" id="userDropdown">
-                                <a href="{% url 'public_profile' user.username %}">Profile</a>
-                                <a href="{% url 'dashboard' %}">Dashboard</a>
+                            <div class="user-dropdown" id="userDropdownLeft">
+                                <a href="{% url 'my_profile' %}">Profile</a>
+                                <a href="{{ DASHBOARD_URL }}">Dashboard</a>
                                 <a href="{% url 'contact' %}">Report Issues</a>
                                 <a href="#">Support</a>
                                 <a href="{% url 'settings' %}">Settings</a>
@@ -44,7 +46,6 @@
                                 </form>
                             </div>
                         </div>
-
                     {% else %}
                         {% if request.path != '/login/' %}
                             <a href="{% url 'login' %}">Login</a>
@@ -54,16 +55,21 @@
                         {% endif %}
                     {% endif %}
                 </div>
-                <!-- Right profile menu -->
+
+                <!-- ---------- Right-side profile menu ---------- -->
                 {% if user.is_authenticated %}
                 <div class="user-profile-right">
-                    <button class="user-initials-btn">
+                    <!--
+                      Button shows user's initials; clicking toggles dropdown menu.
+                      JS in base.js should control .show on #userDropdown and body.no-scroll for mobile.
+                    -->
+                    <button class="user-initials-btn" id="userMenuButton" aria-expanded="false" aria-controls="userDropdown">
                         {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
                         <span id="arrow-icon">▼</span>
                     </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="{% url 'public_profile' user.username %}">Profile</a>
-                        <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <div class="user-dropdown" id="userDropdown" role="menu" aria-labelledby="userMenuButton">
+                        <a href="{% url 'my_profile' %}">Profile</a>
+                        <a href="{{ DASHBOARD_URL }}">Dashboard</a>
                         <a href="{% url 'contact' %}">Report Issues</a>
                         <a href="#">Support</a>
                         <a href="{% url 'settings' %}">Settings</a>
@@ -74,16 +80,30 @@
                     </div>
                 </div>
                 {% endif %}
-                <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+
+                <!-- ---------- Mobile hamburger ---------- -->
+                <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">☰</button>
             </div>
         </nav>
 
-        <!-- Main content area -->
+        <!-- Flash messages (visible below fixed nav) -->
+        {% if messages %}
+            <div class="flash-messages max-w-4xl mx-auto mt-4 px-4">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">
+                        <span class="alert-text">{{ message }}</span>
+                        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- =================== MAIN CONTENT =================== -->
         <main class="content">
             {% block content %}{% endblock %}
         </main>
 
-        <!-- Footer -->
+        <!-- =================== FOOTER =================== -->
         <footer class="site-footer">
             <div class="footer-container">
                 <div class="footer-column">
@@ -97,9 +117,9 @@
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="{% url 'home' %}">Home</a></li>
-                        <li><a href="{% url 'job_list' %}">Opportunities</a></li>
+                        <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
                         <li><a href="{% url 'resource_list' %}">Resources</a></li>
-                        <li><a href="#vision">Vision</a></li>
+                        <li><a href="{% url 'blog_list' %}">Blog</a></li>
                         <li><a href="{% url 'about_us' %}">About Us</a></li>
                     </ul>
                 </div>
@@ -118,25 +138,28 @@
         </footer>
     </div>
 
-    <!-- Slide-Out Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu">
+    <!-- =================== MOBILE MENU (slide-in) =================== -->
+    <div id="mobileMenu" class="mobile-menu" aria-hidden="true">
         <div class="mobile-menu-header">
             <span class="mobile-logo">
                 <img src="{% static 'images/reroute-logo.png' %}" alt="ReRoute Logo" height="36">
             </span>
-            <button class="close-btn" onclick="toggleMobileMenu()">✕</button>
+            <button class="close-btn" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
         </div>
 
-        <!-- 👇 Your main nav links -->
         <ul class="mobile-nav-links">
             <li><a href="{% url 'home' %}">Home</a></li>
             <li><a href="#mission">Mission</a></li>
-            <li><a href="{% url 'job_list' %}">Opportunities</a></li>
+            <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
             <li><a href="{% url 'about_us' %}">About Us</a></li>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{{ DASHBOARD_URL }}">Dashboard</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'signup' %}">Get Started</a></li>
+            {% endif %}
         </ul>
 
-        <!-- 👇 Footer section with initials and logout -->
         {% if user.is_authenticated %}
         <div class="mobile-user-footer">
             <div class="user-initials-circle">
@@ -151,9 +174,7 @@
         {% endif %}
     </div>
 
-
-
-
+    <!-- Base scripts -->
     <script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>

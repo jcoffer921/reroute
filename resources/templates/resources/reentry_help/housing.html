@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Housing Support{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resources/css/reentry_help/housing.css' %}">
+
+<div class="resource-section">
+  <h1>🏠 Housing Support for Returning Citizens</h1>
+  <p>Finding stable housing after incarceration is essential for successful reentry. Fortunately, there are programs and protections that can help formerly incarcerated individuals secure a safe place to live in Philadelphia.</p>
+
+  <div class="resource-box">
+    <h2>🔍 Know Your Rights</h2>
+    <ul>
+      <li>🛑 <strong>No Discrimination:</strong> Landlords cannot refuse to rent to you based solely on your criminal history, especially if it's unrelated to your ability to be a good tenant.</li>
+      <li>📜 <strong>Background Checks:</strong> These must be relevant and fairly considered. Retaliation for asserting housing rights is illegal.</li>
+      <li>🏛️ <strong>File a Complaint:</strong> If you believe you've been discriminated against, contact the <a href="https://www.phila.gov/departments/fair-housing-commission/" target="_blank">Philadelphia Fair Housing Commission</a>.</li>
+    </ul>
+  </div>
+
+  <div class="resource-box">
+    <h2>🏘️ Transitional & Supportive Housing</h2>
+    <ul>
+      <li><a href="https://www.projecthome.org/" target="_blank">Project HOME</a> – Offers housing and services for those in recovery or transitioning from incarceration.</li>
+      <li><a href="https://www.impactservices.org/" target="_blank">Impact Services</a> – Provides reentry housing, job training, and support in North Philly.</li>
+      <li><a href="https://www.horizonhouses.org/" target="_blank">Horizon House</a> – Focuses on supportive housing for individuals with behavioral health needs, including those returning from prison.</li>
+    </ul>
+  </div>
+
+  <div class="resource-box">
+    <h2>🧾 Rent Assistance & Public Housing</h2>
+    <ul>
+      <li><a href="https://pha.phila.gov/" target="_blank">Philadelphia Housing Authority (PHA)</a> – Offers affordable housing units and Section 8 vouchers (eligibility may vary).</li>
+      <li><a href="https://www.rentassistance.us/" target="_blank">RentAssistance.us</a> – Search for local rent and deposit assistance programs by ZIP code.</li>
+    </ul>
+  </div>
+
+  <div class="resource-box">
+    <h2>💡 Tips for Applying</h2>
+    <ul>
+      <li>Be honest about your background, but focus on your stability and future plans.</li>
+      <li>Ask potential landlords if they participate in reentry-friendly housing programs.</li>
+      <li>Connect with a case manager or reentry organization to help with applications.</li>
+    </ul>
+  </div>
+
+  <p class="update-note">Last updated July 2025. Links and resources are subject to change.</p>
+</div>
+{% endblock %}

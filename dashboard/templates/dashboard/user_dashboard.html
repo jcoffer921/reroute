@@ -17,6 +17,8 @@
 
 <!-- Dashboard Cards -->
 <div class="dashboard-container">
+
+  <!-- Progress Carousel -->
   <div class="carousel-box">
     <div class="progress-header">
       <div class="progress-text">
@@ -35,43 +37,96 @@
       <button class="carousel-btn left" onclick="scrollCarousel(-1)">&#8592;</button>
 
       <div class="carousel-track" id="cardCarousel">
-        <div class="carousel-card">
-          <div class="card-icon">👤</div>
-          <div class="card-content">
-            <h4>Complete your profile</h4>
-            <p>Add more details to qualify for more jobs.</p>
+        <!-- Complete Profile -->
+        <a href="{% url 'my_profile' %}" class="carousel-card-link">
+          <div class="carousel-card">
+            <div class="card-icon">👤</div>
+            <div class="card-content">
+              <h4 class="card-title">Complete your profile</h4>
+              <p>Add more details to qualify for more jobs.</p>
+            </div>
+            <div class="card-arrow">→</div>
           </div>
-          <div class="card-arrow">→</div>
-        </div>
+        </a>
 
-        <div class="carousel-card">
-          <div class="card-icon">🧩</div>
-          <div class="card-content">
-            <h4>Upload Resume</h4>
-            <p>Showcase your skills to stand out.</p>
+        <!-- Upload Resume -->
+        <a href="{% url 'resumes:resume_welcome' %}" class="carousel-card-link">
+          <div class="carousel-card">
+            <div class="card-icon">🧩</div>
+            <div class="card-content">
+              <h4 class="card-title">Create a Resume</h4>
+              <p>Showcase your skills to stand out.</p>
+            </div>
+            <div class="card-arrow">→</div>
           </div>
-          <div class="card-arrow">→</div>
-        </div>
+        </a>
 
-        <div class="carousel-card">
-          <div class="card-icon">❤️</div>
-          <div class="card-content">
-            <h4>Saved Jobs</h4>
-            <p>View jobs you've bookmarked.</p>
+        <!-- Saved Jobs -->
+        <a href="{% url 'saved_jobs' %}" class="carousel-card-link">
+          <div class="carousel-card">
+            <div class="card-icon">❤️</div>
+            <div class="card-content">
+              <h4 class="card-title">Saved Jobs</h4>
+              <p>View jobs you've bookmarked.</p>
+            </div>
+            <div class="card-arrow">→</div>
           </div>
-          <div class="card-arrow">→</div>
-        </div>
+        </a>
       </div>
 
       <button class="carousel-btn right" onclick="scrollCarousel(1)">&#8594;</button>
     </div>
   </div>
+
+  <!-- ===== Imported Resume Section (if available) ===== -->
+  {% if imported_resume %}
+    <section class="dashboard-resume-card">
+      <h3 class="section-title">📄 Imported Resume</h3>
+
+      <div class="resume-card-wrapper">
+        <div class="resume-thumbnail">
+          <img src="{% static 'images/resume_preview.png' %}" alt="Resume Preview">
+        </div>
+
+        <div class="resume-info">
+          <p><strong>Summary:</strong> {{ imported_resume.ai_summary|truncatewords:20 }}</p>
+
+          <div class="resume-actions">
+            <a href="{% url 'resumes:imported_resume' imported_resume.id %}" class="btn btn-primary">View Details</a>
+            {% if imported_resume.file %}
+              <a href="{{ imported_resume.file.url }}" class="btn btn-outline" target="_blank">Download File</a>
+            {% else %}
+              <span class="text-muted">No file uploaded</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- ===== Created Resume Section (if available) ===== -->
+  {% if resume %}
+    <section class="dashboard-resume-card">
+      <h3 class="section-title">🛠️ Your Created Resume</h3>
+
+      <div class="resume-info">
+        <p>{{ resume.ai_summary|default:"No summary available yet." }}</p>
+        <a href="{% url 'resumes:created_resume_view' resume.id %}" class="btn btn-primary">View Resume</a>
+      </div>
+    </section>
+  {% else %}
+    <section class="dashboard-resume-card">
+      <p>You haven't created a resume yet. <a href="{% url 'resumes:resume_welcome' %}">Start here</a></p>
+    </section>
+  {% endif %}
+
+  <!-- Suggested Jobs -->
   <div class="suggested-box">
     <div class="suggested-header">
-      <div>
+      <a href="{% url 'dashboard:matched_jobs' %}" class="suggested-jobs-link">
         <h2>Suggested Jobs</h2>
         <p>Based on your skills and interests</p>
-      </div>
+      </a>
     </div>
     <div class="suggested-wrapper">
       <button class="carousel-btn left" onclick="scrollSuggested(-1)">←</button>
@@ -98,17 +153,16 @@
       <button class="carousel-btn right" onclick="scrollSuggested(1)">→</button>
     </div>
   </div>
+
+  <!-- Tips -->
   <div class="tips-box rotating">
     <div class="tips-header">
       <h2>Helpful Tips</h2>
       <p>Advice to help you get the most out of ReRoute</p>
     </div>
-
     <div id="tipText" class="tip-item">Loading tips...</div>
     <button id="nextTipBtn" class="next-tip-btn">Next Tip →</button>
   </div>
-
-
 </div>
 
 <script src="{% static 'dashboard/js/user_dashboard.js' %}"></script>

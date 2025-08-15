@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Review Imported Resume{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resumes/css/imported_resume.css' %}">
+
+<div class="imported-resume-wrapper">
+  <h2>📄 Imported Resume Overview</h2>
+
+  <!-- AI Summary Section -->
+  {% if resume.ai_summary %}
+    <div class="ai-summary-card">
+      <h3>🤖 AI-Powered Summary</h3>
+      <div class="ai-summary-content">
+        {{ resume.ai_summary|linebreaks }}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Raw Resume Text -->
+  {% if resume.raw_text %}
+    <details class="raw-section">
+      <summary><strong> Raw Extracted Resume Text</strong> (click to expand)</summary>
+      <pre class="raw-text-block">{{ resume.raw_text }}</pre>
+    </details>
+  {% endif %}
+
+  <!-- Save Button -->
+  <form method="post" action="{% url 'resumes:imported_resume' resume.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary mt-4">💾 Save Resume to Profile</button>
+  </form>
+</div>
+{% endblock %}

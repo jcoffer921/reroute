@@ -1,18 +1,7 @@
 from django.contrib import admin
-from .models import JobSeeker, Resume, Job, Application
+from resumes.models import Resume, Application
 from profiles.models import UserProfile
 
-
-@admin.register(Job)
-class JobAdmin(admin.ModelAdmin):
-    list_display = ("title", "employer", "location", "tags")
-    search_fields = ("title", "employer", "location", "tags")
-    list_filter = ("location", "employer")
-
-@admin.register(JobSeeker)
-class JobSeekerAdmin(admin.ModelAdmin):
-    list_display = ("name", "email")
-    search_fields = ("name", "email", "skills", "interests")
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
@@ -32,10 +21,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "user_uid", "phone_number", "bio")
     readonly_fields = ("user_uid",)
 
-
     def has_delete_permission(self, request, obj=None):
         if obj and obj.user.is_superuser:
             return False
         return super().has_delete_permission(request, obj)
-
-

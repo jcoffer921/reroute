@@ -11,5 +11,6 @@ urlpatterns = [
 
     # Reentry help resources
     path('reentry-help/legal-aid/', views.legal_aid, name='legal_aid'),
+    path('reetry-help/houusing_opt/', views.housing_opt, name='housing'),
 
 ]

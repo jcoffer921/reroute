@@ -1,20 +1,35 @@
+# ============================
+# models.py (drop-in replacement)
+# ============================
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.db.models import JSONField
+
+# NOTE: If these imports live under a different app, update imports accordingly
 from profiles.constants import USER_STATUS_CHOICES, YES_NO
+from core.models import Skill
 
 
 class UserProfile(models.Model):
-    # -------------------------------------
-    # Core User Link
-    # -------------------------------------
+    """
+    User-owned profile for job seekers.
+    We DO NOT add a DB field for role here to avoid a migration today.
+    Instead, we expose properties that infer role from existing data:
+      - Presence of EmployerProfile (preferred)
+      - OR membership in Group('Employer' or 'Employers')
+    """
+
+    # --- Core link ---
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
-    # -------------------------------------
-    # Step 1: Basic Profile Details
-    # -------------------------------------
+    # --- Skills owned by the user (kept) ---
+    skills = models.ManyToManyField(Skill, blank=True)
+
+    # --- Step 1: Basic Profile Details ---
     firstname = models.CharField(max_length=50, blank=True)
     lastname = models.CharField(max_length=50, blank=True)
     preferred_name = models.CharField(max_length=100, blank=True)
@@ -26,9 +41,7 @@ class UserProfile(models.Model):
     zip_code = models.CharField(max_length=20, blank=True)
     bio = models.TextField(blank=True)
 
-    # -------------------------------------
-    # Step 2: Additional Info
-    # -------------------------------------
+    # --- Step 2: Additional Info ---
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
     pronouns = models.CharField(max_length=50, blank=True)
@@ -37,118 +50,105 @@ class UserProfile(models.Model):
     year_released = models.IntegerField(blank=True, null=True)
     relation_to_reroute = models.CharField(max_length=100, blank=True)
 
-    # -------------------------------------
-    # Step 3: Emergency Contact
-    # -------------------------------------
+    # --- Step 3: Emergency Contact ---
     emergency_contact_firstname = models.CharField(max_length=100, blank=True)
     emergency_contact_lastname = models.CharField(max_length=100, blank=True)
     emergency_contact_relationship = models.CharField(max_length=100, blank=True)
     emergency_contact_phone = models.CharField(max_length=20, blank=True)
     emergency_contact_email = models.EmailField(blank=True)
 
-    # -------------------------------------
-    # Step 4: Demographics
-    # -------------------------------------
+    # --- Step 4: Demographics ---
     gender = models.CharField(max_length=50, blank=True)
     ethnicity = models.CharField(max_length=50, blank=True)
-    # Temporarily preserve the old data
     race = JSONField(default=list, blank=True, null=True)
 
-
-    disability = models.CharField(
-        max_length=3,
-        choices=YES_NO,
-        blank=True,
-        null=True
-    )
-    veteran_status = models.CharField(
-        max_length=3,
-        choices=YES_NO,
-        blank=True,
-        null=True
-    )
+    disability = models.CharField(max_length=3, choices=YES_NO, blank=True, null=True)
+    veteran_status = models.CharField(max_length=3, choices=YES_NO, blank=True, null=True)
     disability_explanation = models.TextField(blank=True, null=True)
     veteran_explanation = models.TextField(blank=True, null=True)
 
-    # -------------------------------------
-    # ReRoute User Journey Status
-    # -------------------------------------
+    # --- User journey status ---
     status = models.CharField(
         max_length=30,
         choices=USER_STATUS_CHOICES,
         blank=True,
-        help_text="User-defined status reflecting their current journey."
+        help_text="User-defined status reflecting their current journey.",
     )
 
-    # -------------------------------------
-    # Platform Admin Account Control
-    # -------------------------------------
+    # --- Platform account control (NOT A ROLE FIELD) ---
     account_status = models.CharField(
         max_length=20,
         default='active',
-        choices=[
-            ('active', 'Active'),
-            ('inactive', 'Inactive'),
-            ('suspended', 'Suspended')
-        ],
-        help_text="Platform-controlled account state."
+        choices=[('active', 'Active'), ('inactive', 'Inactive'), ('suspended', 'Suspended')],
+        help_text="Platform-controlled account state.",
     )
 
-    # Verified status for public profile
-    verified = models.BooleanField(
-        default=True,
-        help_text="Show a verified badge on this user's public profile."
-    )
+    # Verified badge for public profile
+    verified = models.BooleanField(default=True, help_text="Show a verified badge on this user's public profile.")
 
     work_in_us = models.CharField(max_length=10, choices=YES_NO, blank=True)
     sponsorship_needed = models.CharField(max_length=10, choices=YES_NO, blank=True)
     lgbtq = models.CharField(max_length=10, choices=YES_NO, blank=True)
 
-    # -------------------------------------
-    # Auto-generated ReRoute User ID
-    # Format: RR-YYYY-XXXXXX
-    # -------------------------------------
-    user_uid = models.UUIDField(
-        default=uuid.uuid4,
-        unique=True,
-        db_index=True,
-        editable=False
-    )
+    # --- Auto-generated ReRoute User ID (RR-YYYY-XXXXXX) ---
+    user_uid = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True, editable=False)
 
+    # =========================
+    # Computed role properties
+    # =========================
+    @property
+    def is_employer(self) -> bool:
+        """Treat someone as employer if they own an EmployerProfile or are in Employer group(s)."""
+        try:
+            # Presence of employer profile is the strongest signal (OneToOne)
+            if hasattr(self.user, 'employerprofile') and self.user.employerprofile:
+                return True
+        except Exception:
+            pass
+        try:
+            return self.user.groups.filter(name__in=["Employer", "Employers"]).exists()
+        except Exception:
+            return False
 
+    @property
+    def account_type(self) -> str:
+        """Human readable role: 'employer' vs 'seeker'. Keeps templates simple."""
+        return "employer" if self.is_employer else "seeker"
+
+    # =========================
+    # ID generation
+    # =========================
     def save(self, *args, **kwargs):
-        """
-        Automatically generate a unique ReRoute user ID on first save.
-        """
         if not self.user_uid:
             self.user_uid = self.generate_uid()
         super().save(*args, **kwargs)
 
-    def generate_uid(self):
-        """
-        Generates a structured, unique user ID like:
-        Example: RR-2025-000123
-        Falls back to temporary ID if user is not yet saved.
-        """
-        if self.user and self.user.id and self.user.date_joined:
+    def generate_uid(self) -> str:
+        if self.user and self.user.id and getattr(self.user, 'date_joined', None):
             return f"RR-{self.user.date_joined.year}-{self.user.id:06d}"
-        else:
-            year = datetime.now().year
-            with transaction.atomic():
-                count = (
-                    UserProfile.objects
-                    .filter(user_uid__startswith=f"RR-{year}")
-                    .count() + 1
-                )
-                return f"RR-{year}-TEMP{count:06d}"
+        year = datetime.now().year
+        with transaction.atomic():
+            count = UserProfile.objects.filter(user_uid__startswith=f"RR-{year}").count() + 1
+            return f"RR-{year}-TEMP{count:06d}"
 
     def __str__(self):
-        """
-        String representation in admin panel and debugging.
-        """
         return self.user.get_full_name() or self.user.username
 
     class Meta:
         ordering = ['user_uid']
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
+
+
+class EmployerProfile(models.Model):
+    """
+    Separate employer entity tied 1:1 to a User. Its mere existence implies the user is an employer.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employerprofile')
+    company_name = models.CharField(max_length=255)
+    website = models.URLField(blank=True)
+    description = models.TextField(blank=True)
+    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+
+    def __str__(self):
+        return self.company_name

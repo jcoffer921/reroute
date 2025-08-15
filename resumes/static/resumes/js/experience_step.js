@@ -1,131 +1,75 @@
-// ========== Utility: Live Preview Binding ==========
-function bindLivePreview(inputId, previewId, fallback = "") {
-  const input = document.getElementById(inputId);
-  const preview = document.getElementById(previewId);
+// experience_step.js
+// Same pattern as education. Also adds UX: if "currently_work_here" is checked,
+// we disable and clear the end_date to prevent conflicting inputs.
 
-  if (input && preview) {
-    input.addEventListener("input", () => {
-      preview.textContent = input.value.trim() || fallback;
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("experience-form");
+  const addBtn = document.getElementById("add-experience-btn");
+  const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+  const emptyTemplate = document.getElementById("empty-form-template");
 
-    // Initialize on load
-    preview.textContent = input.value.trim() || fallback;
+  if (!form || !addBtn || !totalForms || !emptyTemplate) return;
+
+  function toggleCurrent(scope) {
+    const current = scope.querySelector('input[name$="-currently_work_here"]');
+    const end = scope.querySelector('input[name$="-end_date"]');
+    if (!current || !end) return;
+
+    const apply = () => {
+      if (current.checked) {
+        end.value = "";
+        end.disabled = true;
+      } else {
+        end.disabled = false;
+      }
+    };
+    current.addEventListener("change", apply);
+    apply(); // initial
   }
-}
 
-// ========== Utility: Bullet List Preview ==========
-function bindBulletPreview(textareaId, previewListId, fallback = "Responsibilities") {
-  const textarea = document.getElementById(textareaId);
-  const previewList = document.getElementById(previewListId);
-
-  if (!textarea || !previewList) return;
-
-  function updateBullets() {
-    const lines = textarea.value.split("\n").filter(line => line.trim());
-    previewList.innerHTML = "";
-
-    if (lines.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = fallback;
-      previewList.appendChild(li);
-    } else {
-      lines.forEach(line => {
-        const li = document.createElement("li");
-        li.textContent = line.trim();
-        previewList.appendChild(li);
+  function wireRow(scope) {
+    // Delete checkbox UX (existing rows)
+    const del = scope.querySelector('input[name$="-DELETE"]');
+    if (del) {
+      del.addEventListener("change", () => {
+        scope.style.opacity = del.checked ? 0.6 : 1;
       });
     }
+    // Current job toggle
+    toggleCurrent(scope);
   }
 
-  textarea.addEventListener("input", updateBullets);
-  updateBullets(); // on load
-}
+  function addRow() {
+    const idx = parseInt(totalForms.value, 10);
+    const html = emptyTemplate.innerHTML.replace(/__prefix__/g, String(idx));
 
-// ========== Utility: Date Range Preview ==========
-function bindDateRangePreview(startId, endId, previewId) {
-  const startInput = document.getElementById(startId);
-  const endInput = document.getElementById(endId);
-  const preview = document.getElementById(previewId);
+    const wrapper = document.createElement("div");
+    wrapper.className = "formset-row border rounded p-4 mb-4";
+    wrapper.innerHTML = html;
 
-  if (!preview) return;
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "btn btn-sm btn-outline-danger";
+    removeBtn.textContent = "Remove this entry";
+    removeBtn.addEventListener("click", () => {
+      wrapper.remove();
+      // Keep TOTAL_FORMS as-is; see comment in education_step.js
+    });
 
-  function updateRange() {
-    const start = startInput?.value || "";
-    const end = endInput?.value || "";
-    preview.textContent = `${start} – ${end}`.trim() || "Start – End";
+    const nav = document.createElement("div");
+    nav.className = "mt-2";
+    nav.appendChild(removeBtn);
+    wrapper.appendChild(nav);
+
+    const navBlock = form.querySelector(".form-navigation");
+    form.insertBefore(wrapper, navBlock);
+
+    totalForms.value = String(idx + 1);
+    wireRow(wrapper);
   }
 
-  if (startInput) startInput.addEventListener("input", updateRange);
-  if (endInput) endInput.addEventListener("input", updateRange);
+  // Wire existing rows
+  document.querySelectorAll("#experience-form .formset-row").forEach(wireRow);
 
-  updateRange(); // on load
-}
-
-// ========== Main Preview Binder ==========
-function bindDynamicExperiencePreviews() {
-  const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
-  const totalForms = parseInt(totalFormsInput?.value || 1);
-  const container = document.getElementById('experience-preview-container');
-  if (!container) return;
-
-  container.innerHTML = ''; // Clear previous preview blocks
-
-  for (let i = 0; i < totalForms; i++) {
-    const titleId = `id_form-${i}-job_title`;
-    const companyId = `id_form-${i}-company`;
-    const startId = `id_form-${i}-start_date`;
-    const endId = `id_form-${i}-end_date`;
-    const descId = `id_form-${i}-description`;
-
-    const previewBlock = document.createElement('div');
-    previewBlock.className = 'experience-preview-block';
-    previewBlock.innerHTML = `
-      <p>
-        <strong><span id="preview_job_title_${i}">Job Title</span></strong>
-        at <strong><span id="preview_company_${i}">Company Name</span></strong>
-      </p>
-      <p><em><span id="preview_dates_${i}">Start – End</span></em></p>
-      <ul id="preview_description_bullets_${i}">
-        <li>Responsibilities</li>
-      </ul>
-    `;
-    container.appendChild(previewBlock);
-
-    bindLivePreview(titleId, `preview_job_title_${i}`, "Job Title");
-    bindLivePreview(companyId, `preview_company_${i}`, "Company Name");
-    bindDateRangePreview(startId, endId, `preview_dates_${i}`);
-    bindBulletPreview(descId, `preview_description_bullets_${i}`, "Responsibilities");
-  }
-}
-
-// ========== Form Add Handler ==========
-function handleExperienceFormAdd() {
-  const addBtn = document.getElementById("add-experience-btn");
-  const formContainer = document.getElementById("experience-entries");
-  const totalForms = document.getElementById("id_form-TOTAL_FORMS");
-  const templateHtml = document.getElementById("empty-form-template").innerHTML;
-
-  if (!addBtn || !formContainer || !totalForms || !templateHtml) return;
-
-  addBtn.addEventListener("click", () => {
-    const formCount = parseInt(totalForms.value);
-    const newFormHtml = templateHtml.replace(/__prefix__/g, formCount);
-
-    const newEntry = document.createElement("div");
-    newEntry.classList.add("experience-entry");
-    newEntry.innerHTML = newFormHtml;
-
-    formContainer.appendChild(newEntry);
-    totalForms.value = formCount + 1;
-
-    bindDynamicExperiencePreviews(); // rebuild preview section
-  });
-}
-
-// ========== DOM Ready ==========
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById('experience-form')) {
-    bindDynamicExperiencePreviews();
-    handleExperienceFormAdd();
-  }
+  addBtn.addEventListener("click", addRow);
 });

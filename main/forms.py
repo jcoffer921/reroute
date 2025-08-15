@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from profiles.models import UserProfile
-from .models import Resume
+from resumes.models import Resume
 from django.contrib.auth.forms import PasswordChangeForm
 
 

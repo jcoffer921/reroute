@@ -234,85 +234,6 @@
   color: #222;
 }
 
-/* Always-visible Mini Navbar */
-.mini-navbar {
-  max-width: 800px;
-  margin: 2rem auto;
-
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1rem 0;
-  background-color: #f9fafb;
-  border-top: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 2rem;
-}
-
-.tab-button {
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  background-color: #f3f4f6;
-  color: #111827;
-  font-weight: 500;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.tab-button:hover {
-  background-color: #e5e7eb;
-}
-
-.tab-button.active-tab {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #2563eb;
-}
-.mini-navbar-content {
-  display: none;
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.mini-navbar-content a {
-  margin: 0 0.75rem;
-  text-decoration: none;
-  color: #e5edfa;
-  font-weight: 500;
-}
-
-.mini-navbar-content a:hover {
-  text-decoration: underline;
-}
-
-.tab-button {
-  background: #f0f4f8;
-  border: none;
-  padding: 0.5rem 1rem;
-  margin: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.tab-button:hover {
-  background-color: #e2e8f0;
-}
-
-.active-tab {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.tab-section {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background: white;
-}
-
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -461,6 +382,88 @@
   border-top: 2px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+  cursor: pointer;
+}
+
+.skill-item {
+  background-color: #e5f0ff;
+  color: #333;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.skill-tag {
+  display: inline-block;
+  background: #eef;
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.skill-tag button {
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: red;
+}
+
+.suggested-skills {
+  margin-top: 1rem;
+}
+
+.suggested-skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.refresh-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.suggested-skill-btn {
+  background: #f0f0f0;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggested-skill-btn:hover {
+  background: #e0e0e0;
+}
+
+.refresh-btn {
+  width: 150px;
+  height: 40px;
+  font-size: 1rem;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.refresh-btn:hover {
+  background-color: #e2e4e7;
 }
 
 @keyframes spin {

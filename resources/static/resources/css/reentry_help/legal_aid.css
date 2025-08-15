@@ -238,3 +238,40 @@
   color: #1e88e5;
 }
 
+.related-articles {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.related-articles h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.related-article-list {
+  list-style: none;
+  padding: 0;
+}
+
+.related-article-list li {
+  margin-bottom: 1.25rem;
+}
+
+.related-article-list a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.related-article-list a:hover {
+  text-decoration: underline;
+}
+
+.view-more {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #007bff;
+  font-weight: bold;
+}

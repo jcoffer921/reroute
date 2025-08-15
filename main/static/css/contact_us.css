@@ -118,7 +118,7 @@
 /* ----------------------------- */
 .contact-info {
   flex: 1 1 300px;
-  background-color: var(--primary-blue);
+  background-color: white;
   padding: 2rem;
   border-radius: 12px;
   color: var(--contrast-navy);

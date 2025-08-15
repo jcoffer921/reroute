@@ -1,26 +1,43 @@
-# Ignore virtual environment
-env/
-.venv/
-
-# Ignore compiled Python files
+# --- Python / Django ---
 __pycache__/
 *.py[cod]
-
-# Ignore DB files (if not using them in Git)
-*.sqlite3
-
-# Ignore IDE/editor files
-.vscode/
-.idea/
+*.pyo
+*.pyd
 *.log
 
-# Django static/media (collected or runtime generated)
+# Local env & secrets
+.env
+.env.*
+/env/
+/.venv/
+
+# Databases (local only)
+*.sqlite3
+
+# Django collected/static root (keep app/static tracked)
 staticfiles/
 media/
 
-# Environment variables
-.env
+# If you keep a top-level "static/" as source assets, DO NOT ignore it.
+# If it's generated output, uncomment the next line:
+# /static/
 
-# System junk
+# IDEs & OS junk
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
+
+# --- Frontend (until we’re ready to ship it) ---
+/frontend/*
+!/frontend/.gitignore
+
+# Common frontend build artifacts anywhere
+**/node_modules/
+**/dist/
+**/build/
+**/.cache/
+**/.parcel-cache/
+**/.next/
+**/.nuxt/
+**/coverage/

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'dashboard/css/saved_jobs.css' %}">
+
+<section class="saved-jobs-hero">
+  <div class="saved-jobs-hero-content">
+    <h1>My Jobs</h1>
+    <p>Hurry and Apply Before it's too Late!</p>
+  </div>
+</section>
+
+<div class="saved-jobs-wrapper">
+  <h1 class="text-2xl font-bold mb-4">Saved Jobs</h1>
+
+  {% if saved_jobs %}
+    <div class="saved-job-list">
+      {% for saved in saved_jobs %}
+        <div class="saved-job-card">
+          <div class="flex justify-between items-start">
+            <div>
+              <h2>{{ saved.job.title }}</h2>
+              <p>{{ saved.job.employer.username }} · {{ saved.job.location }}</p>
+              <p class="text-sm text-gray-400">Posted {{ saved.job.created_at|timesince }} ago</p>
+            </div>
+
+            <!-- Optional: Unsave button -->
+            <button class="unsave-job-btn" data-job-id="{{ saved.job.id }}" title="Remove from saved">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v14l6-3 6 3V4a2 2 0 00-2-2H6z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+
+          <p class="line-clamp-3">{{ saved.job.description|truncatechars:200 }}</p>
+
+          <div class="mt-4">
+            <a href="{% url 'job_detail' saved.job.id %}">View Job</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center text-gray-500">
+      <p>You haven't saved any jobs yet.</p>
+      <a href="{% url 'opportunities' %}">Browse Jobs</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

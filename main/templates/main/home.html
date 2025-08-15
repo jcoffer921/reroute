@@ -47,19 +47,32 @@
     </div>
 </section>
 
+<!-- =========================
+     Blog Slider Section
+     - Shows featured_posts
+     - Arrows, dots, keyboard + swipe support
+     - Self-contained CSS + JS (move to your static files later)
+     ========================= -->
 <section class="blog-slider">
-  <h2>From the ReRoute Blog</h2>
+  <h2>Our Blog</h2>
 
   <div class="slider-container">
+    <!-- Wrapper holds all slides in a single horizontal row -->
     <div class="slides-wrapper" id="slidesWrapper">
-      {% for post in latest_posts %}
+      {% for post in featured_posts %}
         <div class="slide">
           <h3>{{ post.title }}</h3>
+
+          <!-- Truncate long content so the card stays tidy -->
           <p>{{ post.content|truncatechars:150 }}</p>
+
           <small>{{ post.created_at|date:"F j, Y" }}</small><br><br>
 
           <div class="blog-actions">
+            <!-- Link to full blog detail page -->
             <a href="{% url 'blog_detail' slug=post.slug %}" class="btn-primary">Read Blog →</a>
+
+            <!-- Link to your resources hub (ensure `resources` URL name exists) -->
             <a href="{% url 'resources' %}" class="btn-secondary">Go to Resource →</a>
           </div>
         </div>
@@ -70,16 +83,16 @@
       {% endfor %}
     </div>
 
-    <button class="slider-btn prev" onclick="prevSlide()">
-        <span class="arrow-triangle left"></span>
+    <!-- Slider Controls (no inline JS; JS is below) -->
+    <button type="button" class="slider-btn prev" aria-label="Previous slide">
+      <span class="arrow-triangle left"></span>
     </button>
-
-    <button class="slider-btn next" onclick="nextSlide()">
-        <span class="arrow-triangle right"></span>
+    <button type="button" class="slider-btn next" aria-label="Next slide">
+      <span class="arrow-triangle right"></span>
     </button>
+  </div>
 
-
-  <!-- Pagination Dots -->
+  <!-- Pagination Dots (JS will populate) -->
   <div class="slider-dots" id="sliderDots"></div>
 </section>
 
@@ -90,7 +103,7 @@
         <p>Gain in-demand skills through certified bootcamps and workshops.</p>
     </div>
     <div class="feature">
-      <h2><a href="{% url 'resumes:create_resume' %}" class="feature-link">Resume Help</a></h2>
+      <h2><a href="{% url 'resumes:resume_welcome' %}" class="feature-link">Resume Help</a></h2>
       <p>Build standout resumes with expert guidance and AI tools.</p>
   </div>
     <div class="feature">

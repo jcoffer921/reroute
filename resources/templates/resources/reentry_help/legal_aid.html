@@ -100,6 +100,22 @@
   </ul>
 </div>
 
+{% if related_articles %}
+  <section class="related-articles">
+    <h2>Related Articles</h2>
+    <ul class="related-article-list">
+      {% for article in related_articles %}
+        <li>
+          <h4><a href="{% url 'blog_detail' slug=article.slug %}">{{ article.title }}</a></h4>
+          <p>{{ article.content|truncatewords:25 }}</p>
+          <small>{{ article.created_at|date:"F j, Y" }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+      <a href="{% url 'blog_list' %}?category={{ post.category }}">View All Legal Articles →</a>
+  </section>
+{% endif %}
+
 <div class="legal-cta">
   <p>Need more help with your specific situation?</p>
   <a href="{% url 'contact' %}" class="btn-primary">Contact ReRoute Support →</a>

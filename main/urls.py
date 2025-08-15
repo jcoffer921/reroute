@@ -6,6 +6,9 @@ from django.contrib.auth import views as auth_views
 from .views import signup_view, home  # Add your custom views as needed
 from dashboard.views import dashboard_redirect  # NEW
 from . import views
+from job_list.user import views as user_views
+from job_list.employers import views as employer_views
+from django.shortcuts import redirect
 from .forms import Step1Form, Step2Form, Step3Form, Step4Form
 from .views import (
     CustomPasswordResetView,
@@ -19,30 +22,38 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('about-us/', views.about_us, name='about_us'),
     path('login/', views.login_view, name='login'),
+    path('employer/signup/', views.employer_signup_view, name='employer_signup'),
+    path('employer/login/', views.employer_login_view, name='employer_login'),
     path('logout/', views.logout_view, name='logout'),
     path('signup/', views.signup_view, name='signup'),
     path('contact/', views.contact_view, name='contact'),
     path('settings/', views.settings_view, name='settings'),
     path('resources/', views.resources_view, name='resources'),
+    #path('blog/articles/', lambda request: redirect('blog_list', permanent=True)),
+    path('blog/', include('blog.urls')),  # This connects /blog/* to blog.urls
+    path('employer/dashboard/', views.employer_dashboard_view, name='employer_dashboard'),
 
-
+    path('resumes/', include('resumes.urls')),
+    path('profile/step1/', lambda request: redirect('resumes:resume_contact_info')),
 
 
     # Job-related pages
-    path('jobs/', views.job_list, name='job_list'),
-    path('jobs/match/<int:seeker_id>/', views.match_jobs, name='match_jobs'),
+    # User-side job board
+    path('', user_views.opportunities_view, name='opportunities'),  # /jobs/
+    path('<int:job_id>/', user_views.job_detail_view, name='job_detail'),  # /jobs/5/
+    path('<int:job_id>/apply/', user_views.apply_to_job, name='apply_to_job'),
 
-    # Multi-step profile onboarding
-    path('profile/step1/', views.step1, name='step1'),
-    path('profile/step2/', views.step2, name='step2'),
-    path('profile/step3/', views.step3, name='step3'),
-    path('profile/step4/', views.step4, name='step4'),
-    path('profile/summary/', views.final_view, name='final_view'),
+    # Match/suggested jobs (keep if used)
+    path('match/<int:seeker_id>/', user_views.match_jobs, name='match_jobs'),
+
+    # Employer-side job controls
+    path('employer/dashboard/', employer_views.dashboard_view, name='employer_dashboard'),
+    path('employer/job/create/', employer_views.create_job, name='create_job'),
 
     # Resume or dashboard related
-    path('dashboard/', dashboard_redirect, name='dashboard_home'),  # ✅ NEW
     path('dashboard/', include('dashboard.urls')),  # Include dashboard app URLs
     path('profile/', include('profiles.urls')),  # include profiles app URLs
+    path('api/skills/', views.get_skills_json, name='get_skills_json'),
 
 
     # Auth: Password Reset Flow (using custom templates)

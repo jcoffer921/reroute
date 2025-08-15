@@ -42,3 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+setTimeout(() => {
+  document.querySelectorAll('.alert').forEach(alert => {
+    alert.style.display = 'none';
+  });
+}, 5000); // 5 seconds

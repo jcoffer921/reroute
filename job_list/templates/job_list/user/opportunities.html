@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Job Opportunities{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'user/css/job_list.css' %}">
+<script src="{% static 'user/js/job_list.js' %}" defer></script>
+
+<section class="opportunities-hero">
+  <div class="oportunities-hero-content">
+    <h1>Explore Job Opportunities</h1>
+  </div>
+</section>
+
+<div class="opportunities-wrapper">
+  <div class="container">
+    <!-- Search & Filters Form -->
+    <form method="get" action="{% url 'opportunities' %}" id="jobFilterForm" class="search-filter-form">
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <input type="text" name="q" placeholder="Job title, keywords..." value="{{ request.GET.q }}">
+        <input type="text" name="zip" placeholder="Location (ZIP)" value="{{ request.GET.zip }}">
+        <button type="submit">Search</button>
+        <button type="button" class="mobile-filter-toggle" onclick="toggleFilters()">Filter</button>
+      </div>
+
+      <!-- Filters + Job List -->
+      <div class="job-layout">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar" id="filtersSidebar">
+          <h3>Job Type</h3>
+          <label><input type="checkbox" name="type" value="Full-Time" {% if 'Full-Time' in request.GET.type %}checked{% endif %}> Full-Time</label><br>
+          <label><input type="checkbox" name="type" value="Part-Time" {% if 'Part-Time' in request.GET.type %}checked{% endif %}> Part-Time</label><br>
+          <label><input type="checkbox" name="type" value="Internship" {% if 'Internship' in request.GET.type %}checked{% endif %}> Internship</label><br>
+          <label><input type="checkbox" name="type" value="Contract" {% if 'Contract' in request.GET.type %}checked{% endif %}> Contract</label><br>
+
+          <h3>Location</h3>
+          <label><input type="checkbox" name="zip" value="19104" {% if '19104' in request.GET.zip %}checked{% endif %}> Philadelphia</label><br>
+          <label><input type="checkbox" name="zip" value="00000" {% if '00000' in request.GET.zip %}checked{% endif %}> Remote</label><br>
+        </aside>
+      </div>
+    </form>
+
+    <!-- Job Listings -->
+    <div class="job-layout">
+      <div class="job-list">
+        {% if jobs %}
+          {% for job in jobs %}
+            <a href="{% url 'job_detail' job.id %}" class="job-card-link">
+              <div class="job-card">
+                <div class="job-header">
+                  <img src="{% static 'user/img/test-logo.png' %}" alt="Company Logo" class="job-logo">
+                  <div class="job-info">
+                    <h2 class="job-title">
+                      <a href="{% url 'job_detail' job.id %}" class="job-title-link">
+                        {{ job.title }}
+                      </a>
+                    </h2>
+                    <p class="job-company">{{ job.employer.username }} · {{ job.location }}</p>
+                  </div>
+                </div>
+
+                <div class="job-meta">
+                  <!-- Experience Level -->
+                  <div class="meta-section">
+                    <p class="meta-label">Experience</p>
+                    <p class="meta-value">
+                      {% if job.experience_level %}
+                        {{ job.get_experience_level_display }}
+                      {% else %}
+                        Not specified
+                      {% endif %}
+                    </p>
+                  </div>
+
+                  <!-- Job Type -->
+                  <div class="meta-section">
+                    <p class="meta-label">Job Type</p>
+                    <p class="meta-value">{{ job.get_job_type_display }}</p>
+                  </div>
+
+                  <!-- Pay -->
+                  <div class="meta-section">
+                    <p class="meta-label">Pay</p>
+                    <p class="meta-value">
+                      {% if job.salary_type == 'hour' %}
+                        ${{ job.hourly_min }} - ${{ job.hourly_max }} per hour
+                      {% else %}
+                        ${{ job.salary_min }}k - ${{ job.salary_max }}k per year
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+
+
+                <div class="job-footer">
+                  <p class="posted-time">Posted {{ job.created_at|timesince }} ago</p>
+
+                  <button type="button"
+                          class="save-job-btn {% if job.id in saved_job_ids %}saved{% endif %}"
+                          data-job-id="{{ job.id }}">
+                    <span class="save-job">
+                      <span class="save-job-icon-wrapper">
+                        <svg class="bookmark-icon {% if job.id in saved_job_ids %}filled{% endif %}" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-4-7 4V5z" />
+                        </svg>
+                      </span>
+                      <span class="save-label">
+                        {% if job.id in saved_job_ids %}Saved{% else %}Save Job{% endif %}
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        {% else %}
+          <p class="no-jobs">No job postings available at this time.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const toggleSaveUrl = "{% url 'toggle_saved_job' %}";
+  const csrfToken = "{{ csrf_token }}";
+</script>
+<script src="{% static 'user/js/job_list.js' %}"></script>
+
+{% endblock %}

@@ -1,203 +1,125 @@
-/* login.css */
+/* -----------------------------------------------------------
+   Login page — matches requested layout (no colors from sample)
+   Uses neutral grays + your brand primary for the button.
+   ----------------------------------------------------------- */
 
-.login-container {
-    max-width: 500px;
-    margin: 3rem auto;
-    padding: 10rem 2rem;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+/* Card container */
+.login-card{
+  max-width: 480px;
+  margin: 56px auto;
+  padding: 28px 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
 }
 
-.login-container h2 {
-    text-align: center;
-    font-weight: 700;
-    font-size: 1.75rem;
-    color: #1c1e21;
-    margin-bottom: 2rem;
+/* Heading */
+.auth-title{
+  text-align:center;
+  font-weight:800;
+  font-size:28px;
+  color:#111827;
+  margin:0 0 18px;
 }
 
-.form-group {
-    margin-bottom: 1.2rem;
-    position: relative;
+/* Error region */
+.auth-error{
+  min-height:18px;
+  color:#b91c1c;
+  margin-bottom:10px;
 }
 
-.form-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.3rem;
-    font-size: 0.95rem;
-    color: #333;
+/* Fields */
+.form-group{ margin-bottom:16px; }
+.label-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+label{ font-weight:600; color:#374151; font-size:14.5px; }
+.micro-link{
+  font-size:14px;
+  text-decoration:none;
+  color:#4b5563;             /* neutral; not the sample color */
+}
+.micro-link:hover{ text-decoration:underline; }
+
+input[type="text"], input[type="password"]{
+  width:100%;
+  margin-top:6px;
+  padding:12px 14px;
+  font-size:16px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;         /* same rounded corners as sample */
+  background:#f9fafb;
+}
+input:focus{
+  outline:none;
+  border-color:#2563eb;       /* your primary; adjust if you have a CSS var */
+  box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
 
-.form-group input {
-    width: 100%;
-    padding: 0.65rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9fafb;
+/* Remember device row */
+.remember-row{ margin:8px 0 16px; }
+.checkbox{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  color:#374151;
+  font-size:14.5px;
+}
+.checkbox input[type="checkbox"]{
+  width:20px; height:20px; border-radius:4px;
+}
+.help{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px; height:18px;
+  border-radius:50%;
+  border:1px solid #9ca3af;
+  color:#6b7280;
+  font-size:12px; line-height:1;
+  cursor:help;
 }
 
-.password-row {
-    display: flex;
-    flex-direction: column;
-    position: relative;
+/* Primary pill button */
+.btn-pill{
+  width:100%;
+  padding:14px 20px;
+  border:0;
+  border-radius:9999px;       /* pill shape like the sample */
+  background:#2563eb;         /* brand primary (not sample teal) */
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .02s ease, background .15s ease;
 }
+.btn-pill:hover{ background:#1d4ed8; }
+.btn-pill:active{ transform:translateY(1px); }
+.btn-pill:disabled{ opacity:.6; cursor:not-allowed; }
 
-.password-row .forgot-link {
-    position: absolute;
-    right: 0;
-    top: 0;
-    font-size: 0.85rem;
-    color: #007bff;
-    text-decoration: none;
+/* Secondary actions row */
+.secondary-actions{
+  margin-top:16px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  color:#6b7280;
+  text-align:center;
+  flex-wrap:wrap;
 }
-
-.form-remember {
-    display: flex;
-    align-items: center;
-    font-size: 0.85rem;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+.secondary-actions .link{
+  color:#6d28d9;              /* subtle indigo used in your site */
+  text-decoration:none;
 }
+.secondary-actions .link:hover{ text-decoration:underline; }
+.secondary-actions .sep{ color:#9ca3af; }
 
-.form-remember .tooltip {
-    background: #eee;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    text-align: center;
-    line-height: 18px;
-    font-size: 0.75rem;
-    margin-left: 4px;
-    cursor: help;
-}
-
-label {
-    display: inline-block;
-    margin-bottom: 0;
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: #333;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    margin-top: 4px;
-    margin-left: 0;
-    width: 100%;
-    padding: 0.65rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9fafb;
-    box-sizing: border-box;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    padding: 0;
-    margin-bottom: 1rem;
-}
-
-.submit-button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-.submit-button:hover {
-    background-color: #2b92ff;
-}
-
-.signup-prompt {
-    text-align: center;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-}
-
-.signup-prompt a {
-    color: #007bff;
-}
-
-.alt-auth-divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: #888;
-    font-size: 0.85rem;
-    margin: 2rem 0 1rem;
-}
-
-.alt-auth-divider::before,
-.alt-auth-divider::after {
-    content: "";
-    flex: 1;
-    border-bottom: 1px solid #ccc;
-    margin: 0 10px;
-}
-
-.google-btn {
-    width: 100%;
-    padding: 0.65rem;
-    border: 1px solid #ccc;
-    border-radius: 999px;
-    background: #007bff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-    font-size: 0.95rem;
-    margin-top: 0.5rem;
-}
-
-.google-btn img {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-}
-
-/* Optional error box reuse */
-.error-box {
-    background-color: #ffe0e0;
-    color: #b00020;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.auth-container {
-    max-width: 500px;
-    margin: 3rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    font-family: 'Inter', sans-serif;
-}
-
-.auth-container h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.auth-description {
-    font-size: 0.95rem;
-    color: #555;
-    text-align: center;
-    margin-bottom: 1.5rem;
+/* Mobile */
+@media (max-width:480px){
+  .login-card{ margin:40px 12px; padding:24px 16px; }
 }

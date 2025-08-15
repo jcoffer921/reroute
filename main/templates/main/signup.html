@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load form_extras %}
 
 {% block title %}ReRoute | Sign Up{% endblock %}
 
@@ -7,65 +8,98 @@
 <link rel="stylesheet" href="{% static 'css/signup.css' %}">
 
 <div class="signup-container">
-    <h2>Sign up for an account</h2>
+  <h1 class="auth-title">Create your account</h1>
 
-    {% if user_form.errors %}
-        <div class="error-box">
-            <ul>
-                {% for field in user_form %}
-                    {% for error in field.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-                {% for error in user_form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+  {# Global error box (kept), plus field-level errors below each input #}
+  {% if user_form.errors %}
+    <div class="error-box" role="alert" aria-live="polite">
+      <ul>
+        {% for field in user_form %}
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in user_form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <div class="two-col">
+      <div class="form-group">
+        <label for="{{ user_form.first_name.id_for_label }}">First name</label>
+        {{ user_form.first_name|add_class:"input" }}
+        {% if user_form.first_name.errors %}<div class="field-error">{{ user_form.first_name.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ user_form.last_name.id_for_label }}">Last name</label>
+        {{ user_form.last_name|add_class:"input" }}
+        {% if user_form.last_name.errors %}<div class="field-error">{{ user_form.last_name.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="{{ user_form.email.id_for_label }}">Email address</label>
+      {# Ensure nice attrs for autofill #}
+      {{ user_form.email|add_class:"input"|attr:"autocomplete=email"|attr:"inputmode=email"|attr:"placeholder=name@domain.com" }}
+      {% if user_form.email.errors %}<div class="field-error">{{ user_form.email.errors.0 }}</div>{% endif %}
+    </div>
+
+    {# --- Password --- #}
+    <div class="form-group">
+        <div class="label-row">
+            <label for="id_password">Password</label>
+            <span class="micro-hint">Use at least 8 characters.</span>
         </div>
-    {% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <div class="two-col">
-            <div class="form-group">
-                <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
-                {{ user_form.first_name }}
-            </div>
-            <div class="form-group">
-                <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
-                {{ user_form.last_name }}
-            </div>
+        <div class="pwd-wrap">
+            <!-- Direct input: no custom filters required -->
+            <input
+            id="id_password"
+            name="{{ user_form.password.html_name }}"
+            type="password"
+            class="input"
+            autocomplete="new-password"
+            placeholder="Password"
+            required
+            >
+            <!-- Not a button; hover only -->
+            <span
+            id="pwd-toggle"
+            class="pwd-toggle-text"
+            role="button"
+            tabindex="0"
+            aria-controls="id_password"
+            aria-label="Show password"
+            >Show Password</span>
         </div>
 
-        <div class="form-group">
-            <label for="{{ user_form.email.id_for_label }}">Email Address</label>
-            {{ user_form.email }}
-        </div>
+        <div id="password-strength" class="field-hint" aria-live="polite"></div>
+        {% if user_form.password.errors %}
+            <div class="field-error">{{ user_form.password.errors.0 }}</div>
+        {% endif %}
+    </div>
 
-        <div class="form-group">
-            <label for="{{ user_form.password.id_for_label }}">Password</label>
-            {{ user_form.password }}
-        </div>
-
-        <p class="terms-text">
-            By signing up you agree to our <a href="/terms">Terms and Conditions</a> and <a href="/privacy">Privacy Policy</a>.
-        </p>
-
-        <button type="submit" class="submit-btn">Register</button>
-    </form>
-
-    <p class="login-prompt">
-        Already have an account? <a href="{% url 'login' %}">Log in</a>.
+    <p class="terms-text">
+      By signing up you agree to our
+      <a href="/terms">Terms and Conditions</a> and
+      <a href="/privacy">Privacy Policy</a>.
     </p>
 
-    <!--div class="alt-auth-divider">Or register with</div>
+    <button type="submit" class="submit-btn">Create account</button>
+  </form>
 
-    <button class="google-btn">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
-        Continue with Google
-    </button-->
+  <div class="secondary-actions">
+    <p>Already have an account? <a href="{% url 'login' %}">Log in</a>.</p>
+    <p class="muted">Are you an employer? <a href="{% url 'employer_signup' %}">Create an employer account</a>.</p>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}

@@ -102,6 +102,17 @@
   font-weight: 600;
 }
 
+.card-title {
+  color: #111827;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.carousel-card-link:hover .card-title {
+  color: #2563eb; /* Tailwind blue-600 or your primary */
+  text-decoration: underline;
+}
+
+
 .card-content p {
   margin: 0;
   font-size: 0.875rem;
@@ -225,6 +236,21 @@
   position: relative;
 }
 
+.suggested-jobs-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 1rem;
+  border-radius: 10px;
+  transition: background-color 0.25s ease;
+}
+
+/* Highlight on hover */
+.suggested-jobs-link:hover {
+  background-color: #f0f4ff;
+  cursor: pointer;
+}
+
 #suggestedJobsCarousel {
   display: flex;
   overflow-x: auto;
@@ -274,6 +300,52 @@
   font-size: 1.25rem;
   color: #007bff;
   text-decoration: none;
+}
+
+.dashboard-resume-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  max-width: 800px;
+}
+
+.resume-card-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-top: 1rem;
+}
+
+.resume-thumbnail img {
+  width: 120px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
+
+.resume-info {
+  flex: 1;
+}
+
+.resume-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+.resume-info p {
+  margin-bottom: 1rem;
+}
+
+.resume-actions a.btn {
+  margin-right: 1rem;
+  font-size: 0.9rem;
 }
 
 .tips-box {

@@ -1,159 +1,114 @@
-/* signup.css */
+/* Signup — aligned with login look & feel */
 
-.signup-container {
-    max-width: 600px;
-    margin: 3rem auto;
-    padding: 10rem 2rem;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+/* Card */
+.signup-container{
+  max-width: 560px;
+  margin: 56px auto;
+  padding: 28px 24px;               /* was 10rem 2rem — way too tall */
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+}
+.auth-title{
+  text-align:center;
+  font-weight:800;
+  font-size:28px;
+  color:#111827;
+  margin:0 0 18px;
 }
 
-.signup-container h2 {
-    text-align: center;
-    font-weight: 700;
-    font-size: 1.75rem;
-    color: #1c1e21;
-    margin-bottom: 2rem;
+/* Layout */
+.two-col{ display:flex; gap:14px; margin-bottom:8px; }
+.two-col .form-group{ flex:1; }
+@media (max-width:640px){ .two-col{ flex-direction:column; } }
+
+.form-group{ margin-bottom:14px; }
+.label-row{ display:flex; justify-content:space-between; align-items:center; }
+.micro-hint{ font-size:12px; color:#6b7280; }
+
+/* Inputs */
+.input,
+input[type="text"], input[type="email"], input[type="password"]{
+  width:100%;
+  padding:12px 14px;
+  font-size:16px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#f9fafb;
+  box-sizing:border-box;
+  margin-top:6px;
+}
+input:focus, .input:focus{
+  outline:none;
+  border-color:#2563eb;             /* brand primary */
+  box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
 
-.two-col {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+/* Position the toggle INSIDE the input on the right */
+.pwd-wrap { position: relative; }
+
+/* Make room inside the input so text doesn't overlap the toggle */
+.pwd-wrap .input,
+.pwd-wrap input[type="password"] {
+  padding-right: 132px; /* room for “Show Password” */
 }
 
-.two-col .form-group {
-    flex: 1;
+/* The “Show Password” text – not a button */
+.pwd-toggle-text {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #6b7280;         /* neutral */
+  cursor: pointer;        /* feels clickable without being a button */
+  user-select: none;
 }
 
-label {
-    display: inline-block;     /* allows tight layout */
-    margin-bottom: 0;          /* no default space below */
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: #333;
+/* Light up on hover/focus (no heavy button look) */
+.pwd-toggle-text:hover,
+.pwd-toggle-text:focus {
+  color: #2563eb;         /* your brand accent */
+  text-decoration: underline;
+  outline: none;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    margin-top: 4px;           /* slight breathing room under label */
-    margin-left: 0;
-    width: 100%;
-    padding: 0.65rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9fafb;
-    box-sizing: border-box;
+/* Optional: narrower phones—shorter label to avoid wrapping */
+@media (max-width: 360px) {
+  .pwd-wrap .input { padding-right: 110px; }
+  .pwd-toggle-text { font-size: 13px; }
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    padding: 0;
-    margin-bottom: 1rem;
+/* Hints & errors */
+.field-hint{ margin-top:6px; font-size:12.5px; color:#6b7280; }
+.field-error{ margin-top:6px; color:#b91c1c; font-size:13px; }
+.error-box{
+  background:#fff1f2; color:#b91c1c;
+  padding:12px 14px; border-radius:10px; margin-bottom:12px; font-size:14px;
 }
 
-
-input {
-    width: 100%;
-    padding: 0.65rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9fafb;
-    box-sizing: border-box;
-    margin: 0;
+/* CTA */
+.submit-btn{
+  width:100%;
+  padding:14px 20px;
+  border:0; border-radius:9999px;   /* pill */
+  background:#2563eb; color:#fff; font-weight:700; font-size:16px;
+  cursor:pointer; transition:transform .02s ease, background .15s ease;
+  margin-top:10px;
 }
+.submit-btn:hover{ background:#1d4ed8; }
+.submit-btn:disabled{ opacity:.6; cursor:not-allowed; }
 
-input:focus {
-    outline: none;
-    border-color: #00a8c6;
-    background-color: #fff;
-}
+/* Secondary actions */
+.secondary-actions{ margin-top:16px; text-align:center; }
+.secondary-actions p{ margin:6px 0; }
+.secondary-actions .muted{ color:#6b7280; }
 
-/* Error box */
-.error-box {
-    background-color: #ffe0e0;
-    color: #b00020;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
+/* Focused error state when JS tags the input */
+.has-error{ border-color:#b91c1c !important; box-shadow:0 0 0 3px rgba(185,28,28,.08) !important; }
 
-/* Terms */
-.terms-text {
-    font-size: 0.8rem;
-    color: #555;
-    margin-top: 0.5rem;
-}
-
-/* Submit */
-.submit-btn {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #00a8c6;
-    color: white;
-    border: none;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 1rem;
-}
-
-/* Already have account */
-.login-prompt {
-    text-align: center;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-}
-
-.login-prompt a {
-    color: #007bff;
-}
-
-/* Divider */
-.alt-auth-divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: #888;
-    font-size: 0.85rem;
-    margin: 2rem 0 1rem;
-}
-
-.alt-auth-divider::before,
-.alt-auth-divider::after {
-    content: "";
-    flex: 1;
-    border-bottom: 1px solid #ccc;
-    margin: 0 10px;
-}
-
-/* Google button */
-.google-btn {
-    width: 100%;
-    padding: 0.65rem;
-    border: 1px solid #ccc;
-    border-radius: 999px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-    font-size: 0.95rem;
-    margin-top: 0.5rem;
-}
-
-.google-btn img {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
+/* Mobile */
+@media (max-width:480px){
+  .signup-container{ margin:40px 12px; padding:24px 16px; }
 }

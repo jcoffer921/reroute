@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(default='pending', max_length=50)),
                 ('applicant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='main_applications', to=settings.AUTH_USER_MODEL)),
-                ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='main_job_applications', to='main.job')),
+                ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='resume_job_applications', to='job_list.Job')),
             ],
         ),
         migrations.CreateModel(

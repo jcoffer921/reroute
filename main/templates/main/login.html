@@ -5,47 +5,77 @@
 {% block title %}ReRoute | Login{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 
-<div class="login-container">
-    <h2>Login to your account</h2>
+<div class="login-card">
+  <h1 class="auth-title">Login to your account</h1>
 
-    <!-- Removed Django form.errors box since errors are now shown via JS -->
+  {# Inline error area (server-rendered or JS can write here) #}
+  {% if error %}
+    <div id="form-error" class="auth-error" role="alert" aria-live="polite">{{ error }}</div>
+  {% else %}
+    <div id="form-error" class="auth-error" role="alert" aria-live="polite"></div>
+  {% endif %}
 
-    <form id="login-form" method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.GET.next }}">
+  <form id="login-form" method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
 
-        <div class="form-group">
-            <label for="id_username">Email Address</label>
-            <input type="text" id="id_username" name="username" required>
-        </div>
+    <!-- ================= Email/Username ================= -->
+    <div class="form-group">
+      <label for="login-username">Email or username</label>
+      <input
+        id="login-username"
+        name="username"                       {# Your view accepts email or username #}
+        type="text"
+        inputmode="email"
+        autocomplete="username"
+        placeholder="Email or username"
+        required
+        value="{{ prefill_identifier|default:'' }}"
+      >
+    </div>
 
-        <div class="form-group">
-            <label for="id_password">Password</label>
-            <input type="password" id="id_password" name="password" required>
-        </div>
+    <!-- ================= Password + 'Forgot?' ================= -->
+    <div class="form-group">
+      <div class="label-row">
+        <label for="login-password">Password</label>
+        <a class="micro-link" href="/password-reset/">Forgot your password?</a>
+      </div>
+      <input
+        id="login-password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Password"
+        required
+      >
+    </div>
 
-        <div class="form-group" style="margin-top: 1rem;">
-            <button type="submit" class="submit-button">Sign In</button>
-        </div>
+    <!-- ================= Remember device (with tooltip) ================= -->
+    <div class="remember-row">
+      <label class="checkbox">
+        <input type="checkbox" name="remember" value="1">
+        <span>Remember this device</span>
+        <!-- Accessible tooltip: screen readers get title; mouse gets hover -->
+        <span class="help" tabindex="0" title="Keeps you signed in on this device longer. Don't use on shared computers.">?</span>
+      </label>
+    </div>
 
-        <!-- ✅ Dynamic JS-based error display -->
-        <p id="login-error" class="error-text" style="color: red; margin-top: 1rem;"></p>
+    <!-- ================= Primary action ================= -->
+    <button id="signin-btn" type="submit" class="btn-pill">Sign in</button>
 
-        <p style="margin-top: 0.5rem;">
-            Don't have an account? <a href="{% url 'signup' %}">Register</a>
-        </p>
-    </form>
+    <!-- ================= Secondary actions ================= -->
+    <div class="secondary-actions">
+      <span>Don't have an account? <a class="link" href="{% url 'signup' %}">Register</a>.</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <!-- ✅ Best place for Employer Login: with other secondary links -->
+      <a class="link" href="{% url 'employer_login' %}">Employer Login</a>
+    </div>
 
-    <!--div class="alt-auth-divider">Or log in with</div-->
-
-    <!--a href="{% provider_login_url 'google' %}" class="google-btn">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
-        Continue with Google
-    </a-->
-
+    <!-- Optional: AJAX error slot if you submit via JS -->
+    <p id="login-error" class="error-text" aria-live="polite"></p>
+  </form>
 </div>
 
 <script src="{% static 'js/base.js' %}"></script>

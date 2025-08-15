@@ -1,4 +1,148 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Employer Dashboard{% endblock %}
+
 {% block content %}
-  <h1>Welcome to the [User/Employer/Admin] Dashboard</h1>
+<link rel="stylesheet" href="{% static 'dashboard/css/employer_dashboard.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<section class="employer-hero">
+  <div class="employer-hero-content">
+    <h1>Dashboard</h1>
+    <p>Take the leap of faith</p>
+  </div>
+</section>
+
+<div class="employer-dashboard container">
+
+  <!-- 📋 Job Listings -->
+  <section class="job-listings">
+    <div class="section-header">
+      <h2>Job Listings</h2>
+      <div class="sort-control">
+        <a href="{% url 'create_job' %}" class="btn btn-secondary">
+          <i class="fas fa-plus"></i> Create Job
+        </a>
+        <label for="sort_by">Sort by:</label>
+        <select id="sort_by" name="sort_by">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+      </div>
+    </div>
+
+    <table class="job-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Candidates</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td>{{ job.title }}</td>
+          <td>{{ job.main_job_applications.count }} active</td>
+          <td>
+            <span class="badge {% if job.is_active %}badge-success{% else %}badge-secondary{% endif %}">
+              {{ job.is_active|yesno:"Open,Closed" }}
+            </span>
+          </td>
+          <td>
+            <a href="#" class="btn btn-sm btn-outline">Manage</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No job listings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 📈 Analytics Summary -->
+  <section class="analytics-section">
+    <h2 class="section-title">Analytics</h2>
+    <div class="analytics-cards">
+      <div class="analytics-card">
+        <div class="icon-circle">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="analytics-value">{{ analytics.total_applicants }}</div>
+        <div class="analytics-label">Total Applicants</div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="icon-circle">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="analytics-value">{{ analytics.jobs_posted }}</div>
+        <div class="analytics-label">Jobs Posted</div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="icon-circle">
+          <i class="fas fa-circle text-green"></i>
+        </div>
+        <div class="analytics-value">{{ analytics.active_jobs }}</div>
+        <div class="analytics-label">Active Listings</div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="icon-circle">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="analytics-value">{{ analytics.jobs_filled }}</div>
+        <div class="analytics-label">Jobs Filled via ReRoute</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🧑‍🤝‍🧑 Matcher -->
+  <section class="matcher">
+    <div class="section-header">
+      <h2>Matcher</h2>
+      <a href="{% url 'employer_analytics' %}" class="view-all-link">View All →</a>
+    </div>
+    <div class="matcher-cards">
+      {% for match in matched_seekers %}
+        <div class="matcher-card">
+          <img src="{{ match.profile_picture.url }}" alt="Profile" class="profile-pic">
+          <p>{{ match.user.first_name|default:"Name" }}</p>
+        </div>
+      {% empty %}
+        <p>No matches yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- 🔔 Notifications + Interviews -->
+  <section class="notifications-interviews">
+    <div class="notification-box">
+      <h3>Notifications</h3>
+      <ul>
+        {% for note in notifications %}
+          <li>{{ note.message }}</li>
+        {% empty %}
+          <li>No new notifications.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="interview-box">
+      <h3>Interviews Scheduled</h3>
+      <ul>
+        {% for interview in interviews %}
+          <li>{{ interview.date|date:"M d, Y" }} with {{ interview.candidate.first_name }}</li>
+        {% empty %}
+          <li>No interviews scheduled.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+</div>
 {% endblock %}

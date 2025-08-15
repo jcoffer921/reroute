@@ -1,159 +1,104 @@
 {% extends "base.html" %}
 {% load static %}
 {% load widget_tweaks %}
-{% load crispy_forms_tags %}
 
 {% block title %}Step 3: Experience{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'resumes/css/steps.css' %}">
+<link rel="stylesheet" href="{% static 'resumes/css/steps/experience.css' %}">
 
-<div class="resume-builder">
-  <!-- Left Panel: Experience Form -->
-  <div class="resume-form-panel">
-    <h2>Step 3: Experience</h2>
-    <form method="post" id="experience-form">
-      {% csrf_token %}
-      {{ formset.management_form }}
+<div class="form-step-wrapper">
+  <h2>Step 3: Experience</h2>
 
-      <!-- 🔁 Wrap all experience entries in a single container -->
-      <div id="experience-entries">
-        {% for form in formset %}
-          <div class="experience-entry" data-form-index="{{ forloop.counter0 }}">
-            {{ form.id }}
-            {{ form.non_field_errors }}
-
-            <!-- Job Title -->
-            <div class="form-group">
-              <label for="{{ form.job_title.id_for_label }}">Job Title</label>
-              {{ form.job_title|add_class:"form-control" }}
-              {{ form.job_title.errors }}
-            </div>
-
-            <!-- Company -->
-            <div class="form-group">
-              <label for="{{ form.company.id_for_label }}">Company</label>
-              {{ form.company|add_class:"form-control" }}
-              {{ form.company.errors }}
-            </div>
-
-            <!-- Start Date -->
-            <div class="form-group">
-              <label for="{{ form.start_date.id_for_label }}">Start Date</label>
-              {{ form.start_date|add_class:"form-control" }}
-              {{ form.start_date.errors }}
-            </div>
-
-            <!-- End Date with "Present" checkbox -->
-            <div class="form-group">
-              <label for="{{ form.end_date.id_for_label }}">End Date</label>
-              {{ form.end_date|add_class:"form-control" }}
-              {{ form.end_date.errors }}
-              <div style="margin-top: 0.25rem;">
-                <label class="d-flex align-items-center gap-2" style="font-weight: 500; font-size: 0.95rem;">
-                  <input type="checkbox"
-                         class="form-check-input present-checkbox"
-                         id="id_form-{{ forloop.counter0 }}-current"
-                         data-end-field-id="id_form-{{ forloop.counter0 }}-end_date"
-                         data-preview-id="preview_dates_{{ forloop.counter0 }}"
-                         data-form-index="{{ forloop.counter0 }}">
-                  I currently work here
-                </label>
-              </div>
-            </div>
-
-            <!-- Description -->
-            <div class="form-group">
-              <label for="{{ form.description.id_for_label }}">
-                Description <small>(Each line becomes a bullet point)</small>
-              </label>
-              {{ form.description|add_class:"form-control" }}
-              {{ form.description.errors }}
-            </div>
-
-            <hr>
-          </div>
-        {% endfor %}
-      </div>
-
-      <!-- Hidden empty form template for JS cloning -->
-      <div id="empty-form-template" style="display: none;">
-        <div class="experience-entry" data-form-index="__prefix__">
-          {{ formset.empty_form.id }}
-          {{ formset.empty_form.non_field_errors }}
-
-          <div class="form-group">
-            <label for="id_form-__prefix__-job_title">Job Title</label>
-            {{ formset.empty_form.job_title|add_class:"form-control" }}
-            {{ formset.empty_form.job_title.errors }}
-          </div>
-
-          <div class="form-group">
-            <label for="id_form-__prefix__-company">Company</label>
-            {{ formset.empty_form.company|add_class:"form-control" }}
-            {{ formset.empty_form.company.errors }}
-          </div>
-
-          <div class="form-group">
-            <label for="id_form-__prefix__-start_date">Start Date</label>
-            {{ formset.empty_form.start_date|add_class:"form-control" }}
-            {{ formset.empty_form.start_date.errors }}
-          </div>
-
-          <div class="form-group">
-            <label for="id_form-__prefix__-end_date">End Date</label>
-            {{ formset.empty_form.end_date|add_class:"form-control" }}
-            {{ formset.empty_form.end_date.errors }}
-            <div style="margin-top: 0.25rem;">
-              <label class="d-flex align-items-center gap-2" style="font-weight: 500; font-size: 0.95rem;">
-                <input type="checkbox"
-                       class="form-check-input present-checkbox"
-                       id="id_form-__prefix__-current"
-                       data-end-field-id="id_form-__prefix__-end_date"
-                       data-preview-id="preview_dates___prefix__"
-                       data-form-index="__prefix__">
-                I currently work here
-              </label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="id_form-__prefix__-description">
-              Description <small>(Each line becomes a bullet point)</small>
-            </label>
-            {{ formset.empty_form.description|add_class:"form-control" }}
-            {{ formset.empty_form.description.errors }}
-          </div>
-
-          <hr>
-        </div>
-      </div>
-
-      <!-- Add Experience Button -->
-      <button type="button" id="add-experience-btn" class="btn btn-outline-secondary mb-3">+ Add Another Experience</button>
-
-      <!-- Navigation -->
-      <div class="form-navigation d-flex justify-between">
-        <a href="{% url 'resumes:resume_education_step' %}" class="btn btn-secondary">Back</a>
-        <button type="submit" class="btn btn-primary">Next</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Right Panel: Experience Preview -->
-  <div class="resume-preview">
-    <div class="resume-box">
-      <div class="resume-section">
-        <h2>Experience</h2>
-
-        <!-- ✅ Live preview container -->
-        <div id="experience-preview-container"></div>
-      </div>
+  {# ✅ Show any formset-level (non-field) errors #}
+  {% if formset.non_form_errors %}
+    <div class="alert alert-danger" role="alert">
+      {{ formset.non_form_errors }}
     </div>
-  </div>
+  {% endif %}
+
+  <form method="post" id="experience-form" novalidate>
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    {% for form in formset %}
+      <div class="formset-row border rounded p-4 mb-4">
+        {{ form.id }}
+        {{ form.non_field_errors }}
+
+        <div class="form-group">
+          <label for="{{ form.job_title.id_for_label }}">Job Title</label>
+          {{ form.job_title|add_class:"form-control"|attr:"autocomplete=organization-title"|attr:"placeholder=e.g., Warehouse Associate" }}
+          {% if form.job_title.errors %}<div class="invalid-feedback d-block">{{ form.job_title.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.company.id_for_label }}">Company</label>
+          {{ form.company|add_class:"form-control"|attr:"autocomplete=organization"|attr:"placeholder=e.g., ACME Logistics" }}
+          {% if form.company.errors %}<div class="invalid-feedback d-block">{{ form.company.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="form-row d-flex gap-2">
+          <div class="form-group" style="flex:1;">
+            <label for="{{ form.start_date.id_for_label }}">Start Date</label>
+            {{ form.start_date|add_class:"form-control"|attr:"autocomplete=bday-month" }}
+            {% if form.start_date.errors %}<div class="invalid-feedback d-block">{{ form.start_date.errors|striptags }}</div>{% endif %}
+          </div>
+
+          <div class="form-group" style="flex:1;">
+            <label for="{{ form.end_date.id_for_label }}">End Date</label>
+            {# JS will disable this when "currently_work_here" is checked #}
+            {{ form.end_date|add_class:"form-control"|attr:"autocomplete=bday-month" }}
+            {% if form.end_date.errors %}<div class="invalid-feedback d-block">{{ form.end_date.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-check mb-2">
+          {{ form.currently_work_here|add_class:"form-check-input" }}
+          <label class="form-check-label" for="{{ form.currently_work_here.id_for_label }}">I currently work here</label>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.description.id_for_label }}">Description</label>
+          <small class="form-text text-muted">Each line becomes a bullet point.</small>
+          {{ form.description|add_class:"form-control"|attr:"rows=4"|attr:"placeholder=• Loaded/unloaded pallets\n• Operated sit-down forklift\n• Trained 3 new hires" }}
+          {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors|striptags }}</div>{% endif %}
+        </div>
+
+        {% if form.DELETE %}
+          <div class="form-check delete mt-2">
+            {{ form.DELETE|add_class:"form-check-input" }}
+            <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Delete this entry</label>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    {# 🔧 Template the JS clones for new rows (keeps Django's naming/indexing) #}
+    <div id="empty-form-template" style="display: none;">
+      {{ formset.empty_form.as_p }}
+    </div>
+
+    <!-- Add Button -->
+    <div style="text-align: right; margin-top: 1.25rem;">
+      <button type="button" id="add-experience-btn" class="add-row">➕ Add Experience</button>
+    </div>
+
+    <div class="form-navigation">
+      <a href="{% url 'resumes:resume_education_step' %}" class="btn btn-secondary">Back</a>
+      <button type="submit" class="btn btn-primary" id="experience-next-btn">Next</button>
+    </div>
+  </form>
 </div>
 
-<!-- JavaScript -->
 <script src="{% static 'resumes/js/steps.js' %}"></script>
 <script src="{% static 'resumes/js/experience_step.js' %}"></script>
+<script>
+  // Prevent double-submit on slow networks
+  document.getElementById('experience-form')?.addEventListener('submit', function () {
+    const btn = document.getElementById('experience-next-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  });
+</script>
 {% endblock %}
