@@ -33,20 +33,23 @@ TEMPLATES = [
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"  # was hardcoded True
 RENDER = os.getenv("RENDER", "") != ""                 # Render sets RENDER="true" in env
 
-ALLOWED_HOSTS = os.getenv(
+# Helpers to parse comma-separated env vars safely
+def _csv_env(name, default):
+    raw = os.getenv(name, default)
+    return [h.strip() for h in raw.split(",") if h.strip()]
+
+ALLOWED_HOSTS = _csv_env(
     "ALLOWED_HOSTS",
-    "reroute-backend.onrender.com,.onrender.com,reroutejobs.com,www.reroutejobs.com,localhost,127.0.0.1"
-).split(",")
+    ".onrender.com,reroutejobs.com,www.reroutejobs.com,localhost,127.0.0.1",
+)
 
-# Required behind proxies (Render) so request.is_secure() is correct
+CSRF_TRUSTED_ORIGINS = _csv_env(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://*.onrender.com,https://reroutejobs.com,https://www.reroutejobs.com",
+)
+
+# Behind Render’s proxy:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-# CSRF: trust your public origins (Render + custom domain)
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.onrender.com",
-    "https://reroutejobs.com",
-    "https://www.reroutejobs.com",
-]
 
 # --- Installed apps ---
 INSTALLED_APPS = [
