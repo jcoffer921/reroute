@@ -234,29 +234,29 @@ def signup_view(request):
     """
     Regular user signup.
     - Uses UserSignupForm (validates email uniqueness & password strength).
-    - Logs in the user on success and redirects to dashboard.
-    Template: main/signup.html
+    - Logs in the user on success and redirects to dashboard (or ?next=).
     """
+    # Bind POST data if present so errors re-render on the page
+    user_form = UserSignupForm(request.POST or None)
+
     if request.method == 'POST':
         try:
-            form = UserSignupForm(request.POST, request.FILES)
-            if form.is_valid():
-                user = form.save(commit=False)
-                # Securely set password
-                user.set_password(form.cleaned_data['password'])
-                user.save()
-                # Auto-login
+            if user_form.is_valid():
+                # Form.save() already hashes the password (per our form code)
+                user = user_form.save()
                 login(request, user)
-                return redirect('dashboard')
-            else:
-                # Useful during dev; switch to messages in prod
-                logger.info(f"Signup validation errors: {form.errors}")
-        except Exception as e:
-            logger.exception(f"Signup exception: {e}")
-    else:
-        form = UserSignupForm()
 
-    return render(request, 'main/signup.html', {'user_form': form})
+                # Respect ?next= if provided and safe; else go to dashboard
+                next_url = request.POST.get('next') or request.GET.get('next') or reverse('dashboard')
+                return redirect(next_url)
+
+            # Log validation errors to server logs (won't crash now)
+            logger.info("Signup validation errors: %s", user_form.errors)
+        except Exception as e:
+            # Log full traceback to server logs and fall through to re-render
+            logger.exception("Signup exception: %s", e)
+
+    return render(request, 'main/signup.html', {'user_form': user_form})
 
 
 @csrf_protect
