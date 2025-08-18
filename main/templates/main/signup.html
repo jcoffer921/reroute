@@ -50,6 +50,19 @@
       {% if user_form.email.errors %}<div class="field-error">{{ user_form.email.errors.0 }}</div>{% endif %}
     </div>
 
+    <!-- Username (REQUIRED by UserSignupForm) -->
+    <div class="form-group">
+      <!-- Use Django's bound field so it preserves user input on validation errors -->
+      <label for="{{ user_form.username.id_for_label }}">Username</label>
+      {{ user_form.username
+        |add_class:"input"
+        |attr:"autocomplete=username"
+        |attr:"placeholder=Your username" }}
+      {% if user_form.username.errors %}
+        <div class="field-error">{{ user_form.username.errors.0 }}</div>
+      {% endif %}
+    </div>
+
     {# --- Password --- #}
     <div class="form-group">
         <div class="label-row">

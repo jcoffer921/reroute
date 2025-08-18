@@ -227,3 +227,12 @@ else:
     # Live Keys for reroutejobs.com
     RECAPTCHA_SITE_KEY = '6LfcBnsrAAAAACC59lBm9O9fdNsIKsphP89JU0tC'
     RECAPTCHA_SECRET_KEY = '6LfcBnsrAAAAAEqFbgwUBddDmvPEkiE7BuLvm7Az'
+
+# Send anonymous users here when @login_required triggers
+LOGIN_URL = '/login/'
+
+# Where to land after successful login
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+# Where to land after logout (optional)
+LOGOUT_REDIRECT_URL = '/'
