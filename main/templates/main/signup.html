@@ -47,10 +47,13 @@
       </div>
     </div>
 
+    <!-- Username -->
     <div class="form-group">
       <label for="{{ user_form.username.id_for_label }}">Username</label>
-      {{ user_form.username }}
-      {% if user_form.username.errors %}<div class="field-error">{{ user_form.username.errors.0 }}</div>{% endif %}
+      {{ user_form.username }}  {# renders with widgets you defined in forms.py #}
+      {% if user_form.username.errors %}
+        <div class="field-error">{{ user_form.username.errors.0 }}</div>
+      {% endif %}
     </div>
 
     <div class="form-group">
