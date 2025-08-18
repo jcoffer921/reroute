@@ -2,6 +2,9 @@
 import os                         # ← required for os.getenv
 from pathlib import Path          # ← if you use BASE_DIR = Path(...)
 import dj_database_url            # ← since you call dj_database_url.config(...)
+from dotenv import load_dotenv
+load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent  # Define BASE_DIR for static/media paths
 
@@ -69,7 +72,7 @@ def _csv_env(name, default):
     raw = os.getenv(name, default)
     return [h.strip() for h in raw.split(",") if h.strip()]
 
-ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', 'localhost', '127.0.0.1', '10.220.68.190', '10.220.71.47']
 
 CSRF_TRUSTED_ORIGINS = [
     "https://reroute-backend.onrender.com",
@@ -184,10 +187,10 @@ EMAIL_BACKEND = (
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "no-reply@reroutejobs.com"
-CONTACT_RECEIVER_EMAIL = os.getenv('CONTACT_RECEIVER_EMAIL', DEFAULT_FROM_EMAIL)
+EMAIL_HOST_USER = 'support@reroutejobs.com' 
+EMAIL_HOST_PASSWORD = 'rfwkrwlvqomsmcry'  # Use App Password (never your real one)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+CONTACT_RECEIVER_EMAIL = 'support@reroutejobs.com' 
 
 # ---------- SECURITY (production) ----------
 # These are enabled only when DEBUG is False (i.e., on Render)
@@ -214,3 +217,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+# Google reCAPTCHA settings
+if DEBUG:
+  # Local development keys
+    RECAPTCHA_SITE_KEY = '6LchCXsrAAAAAJUK4ipb6_vBjR84Yn_1HfbUeXZQ'
+    RECAPTCHA_SECRET_KEY = '6LchCXsrAAAAAPm9n82MxoLQXRwUucSybpFcmfEV'
+else:
+    # Live Keys for reroutejobs.com
+    RECAPTCHA_SITE_KEY = '6LfcBnsrAAAAACC59lBm9O9fdNsIKsphP89JU0tC'
+    RECAPTCHA_SECRET_KEY = '6LfcBnsrAAAAAEqFbgwUBddDmvPEkiE7BuLvm7Az'
