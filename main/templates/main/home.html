@@ -62,18 +62,19 @@
       {% for post in featured_posts %}
         <div class="slide">
           <h3>{{ post.title }}</h3>
-
-          <!-- Truncate long content so the card stays tidy -->
           <p>{{ post.content|truncatechars:150 }}</p>
-
           <small>{{ post.created_at|date:"F j, Y" }}</small><br><br>
 
           <div class="blog-actions">
-            <!-- Link to full blog detail page -->
-            <a href="{% url 'blog_detail' slug=post.slug %}" class="btn-primary">Read Blog →</a>
+            {% url 'blog_detail' slug=post.slug as blog_url %}
+            {% if blog_url %}
+              <a href="{{ blog_url }}" class="btn-primary">Read Blog →</a>
+            {% endif %}
 
-            <!-- Link to your resources hub (ensure `resources` URL name exists) -->
-            <a href="{% url 'resources' %}" class="btn-secondary">Go to Resource →</a>
+            {% url 'resources' as res_url %}
+            {% if res_url %}
+              <a href="{{ res_url }}" class="btn-secondary">Go to Resource →</a>
+            {% endif %}
           </div>
         </div>
       {% empty %}

@@ -77,39 +77,59 @@ except Exception:
 
 logger = logging.getLogger(__name__)
 
+# views.py
+
+from django.shortcuts import render
+import logging
+from django.apps import apps
+
+logger = logging.getLogger(__name__)
+
 def home(request):
     """
     Homepage:
-    - Show only a limited number of featured and recent posts.
-    - Limits can be adjusted via FEATURED_LIMIT and RECENT_LIMIT.
+    - Show a limited number of featured and recent posts.
+    - If the 'blog' app or its table isn't available, degrade gracefully.
     """
-    FEATURED_LIMIT = 3  # Number of featured posts to show
-    RECENT_LIMIT = 6    # Number of non-featured posts to show
+    FEATURED_LIMIT = 3
+    RECENT_LIMIT   = 6
+
+    featured_posts = []
+    recent_posts   = []
 
     try:
-        # Get featured posts first
-        featured_posts = (
-            BlogPost.objects
-            .filter(published=True, featured=True)
-            .order_by('-created_at')[:FEATURED_LIMIT]
-        )
+        # --- Try to get the BlogPost model dynamically to avoid import-time crashes
+        BlogPost = apps.get_model('blog', 'BlogPost') if apps.is_installed('blog') else None
 
-        # Then get recent posts that are NOT featured to avoid duplicates
-        recent_posts = (
-            BlogPost.objects
-            .filter(published=True, featured=False)
-            .order_by('-created_at')[:RECENT_LIMIT]
-        )
-    except Exception:
-        featured_posts = []
-        recent_posts = []
+        if BlogPost is not None:
+            # Query only if model is available; this can still raise if table is missing
+            featured_posts = (
+                BlogPost.objects
+                .filter(published=True, featured=True)
+                .order_by('-created_at')[:FEATURED_LIMIT]
+            )
 
+            recent_posts = (
+                BlogPost.objects
+                .filter(published=True, featured=False)
+                .order_by('-created_at')[:RECENT_LIMIT]
+            )
+        else:
+            logger.warning("Blog app not installed; rendering home without blog posts.")
+
+    except Exception as exc:
+        # Log stacktrace so you can see missing table/column or other errors in Render logs
+        logger.exception("Home view failed while fetching BlogPost items: %s", exc)
+        # Fall back to empty lists; template will render without posts
+
+    # ✅ Always render with safe defaults so template never crashes
     return render(request, 'main/home.html', {
         'featured_posts': featured_posts,
         'recent_posts': recent_posts,
         'FEATURED_LIMIT': FEATURED_LIMIT,
         'RECENT_LIMIT': RECENT_LIMIT,
     })
+
 
 def about_us(request):
     """Public About page."""

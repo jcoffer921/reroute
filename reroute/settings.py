@@ -5,53 +5,82 @@ import dj_database_url            # ← since you call dj_database_url.config(..
 
 BASE_DIR = Path(__file__).resolve().parent.parent  # Define BASE_DIR for static/media paths
 
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-secret")
+
+# ---------- DATABASES ----------
+# Use Postgres when DATABASE_URL is present (Render/production),
+# otherwise default to local SQLite for development.
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600
+    )
+}
+
+# (Optional but good hygiene)
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 # make sure these exist and match your package name
 ROOT_URLCONF = "reroute.urls"
 WSGI_APPLICATION = "reroute.wsgi.application"
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # Add your project-level template dirs here (keep APP_DIRS=True too)
-        "DIRS": [
-            BASE_DIR / "templates",           # if you have a /templates folder
-            BASE_DIR / "main" / "templates",  # you do have /main/templates/**
-        ],
-        "APP_DIRS": True,  # looks in each app's /templates as well
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",   # REQUIRED (admin + allauth)
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'main' / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
-# --- Debug & environment flags ---
+# ---------- DEBUG / LOGGING ----------
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"  # was hardcoded True
+#DEBUG = False
 RENDER = os.getenv("RENDER", "") != ""                 # Render sets RENDER="true" in env
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "[{levelname}] {asctime} {name}: {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+    },
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "django": {"handlers": ["console"], "level": "INFO"},
+    },
+}
+# During emergency prod debugging you can also enable this (remove after):
+# DEBUG_PROPAGATE_EXCEPTIONS = True
+
+# ---------- HOSTS / CSRF ----------
 # Helpers to parse comma-separated env vars safely
 def _csv_env(name, default):
     raw = os.getenv(name, default)
     return [h.strip() for h in raw.split(",") if h.strip()]
 
-ALLOWED_HOSTS = _csv_env(
-    "ALLOWED_HOSTS",
-    ".onrender.com,reroutejobs.com,www.reroutejobs.com,localhost,127.0.0.1",
-)
+ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', 'localhost', '127.0.0.1']
 
-CSRF_TRUSTED_ORIGINS = _csv_env(
-    "CSRF_TRUSTED_ORIGINS",
-    "https://*.onrender.com,https://reroutejobs.com,https://www.reroutejobs.com",
-)
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://reroute-backend.onrender.com",
+    "https://reroutejobs.com",
+    "http://localhost",
+    "http://127.0.0.1",
+]
 # Behind Render’s proxy:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# --- Installed apps ---
+# ---------- APPS ----------
 INSTALLED_APPS = [
     'main',
     'django.contrib.admin',
@@ -61,6 +90,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # your apps
     'resumes',
     'dashboard',
     'blog',
@@ -68,8 +99,8 @@ INSTALLED_APPS = [
     'profiles',
     'job_list',
     'resources',
-    'widget_tweaks',
-    # 'geopy',   # ❌ remove: geopy is not a Django app
+
+    # third-party
     'crispy_forms',
     'crispy_bootstrap4',
     'allauth',
@@ -82,10 +113,40 @@ INSTALLED_APPS = [
 if DEBUG:
     INSTALLED_APPS = ['whitenoise.runserver_nostatic'] + INSTALLED_APPS
 
-# --- Middleware (WhiteNoise directly after SecurityMiddleware) ---
+# ✅ Sites framework required by allauth to resolve domains
+SITE_ID = 1
+
+# ---------- AUTH / ALLAUTH ----------
+# Enable allauth backend alongside Django's default
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# If you’re on allauth ≥ 0.63, these “new style” settings are valid.
+# If your Render build pins an older allauth, either upgrade or
+# switch to legacy equivalents (see comments below).
+ACCOUNT_EMAIL_VERIFICATION = "none" if DEBUG else "optional"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if not DEBUG else 'http'
+
+# New-style (allauth ≥ 0.63):
+ACCOUNT_LOGIN_METHODS = ["email", "username"]
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
+
+# Legacy (ONLY if you’re on old allauth; comment out the two above and use these):
+# ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+# ACCOUNT_USERNAME_REQUIRED = True
+# ACCOUNT_EMAIL_REQUIRED = True
+
+# ---------- CRISPY FORMS ----------
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+# ---------- MIDDLEWARE ----------
+# WhiteNoise must be right after SecurityMiddleware in MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # moved up
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # must be early for static
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,17 +156,27 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-# --- Static files / WhiteNoise storage (Django 4/5 style) ---
+# ---------- STATIC / MEDIA ----------
+# Static files (CSS, JS, images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']  # app-level assets during build
+STATIC_ROOT = BASE_DIR / 'staticfiles'             # where collectstatic writes
 
+# Use WhiteNoise + Manifest storage for cache-busting in production.
+# If you hit a "Missing staticfiles manifest" error after deploy,
+# temporarily switch to CompressedStaticFilesStorage, redeploy to verify,
+# then switch back and ensure collectstatic runs in your Build Command.
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
+# Temporary fallback (comment out the Manifest line above and uncomment below if needed):
+# STORAGES = {
+#     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+#     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+# }
 
-# --- Email (env-driven; console in DEBUG) ---
+# ---------- EMAIL ----------
 EMAIL_BACKEND = (
     'django.core.mail.backends.console.EmailBackend'
     if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
@@ -115,21 +186,11 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-CONTACT_RECEIVER_EMAIL = os.getenv('CONTACT_RECEIVER_EMAIL', EMAIL_HOST_USER)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "no-reply@reroutejobs.com"
+CONTACT_RECEIVER_EMAIL = os.getenv('CONTACT_RECEIVER_EMAIL', DEFAULT_FROM_EMAIL)
 
-# --- Allauth tweaks ---
-ACCOUNT_EMAIL_VERIFICATION = "none" if DEBUG else "optional"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if not DEBUG else 'http'
-
-ACCOUNT_LOGIN_METHODS = ["email", "username"]          # new-style
-ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
-
-# --- reCAPTCHA via env (no secrets in code) ---
-RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '')
-RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '')
-
-# --- Production security flags ---
+# ---------- SECURITY (production) ----------
+# These are enabled only when DEBUG is False (i.e., on Render)
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -142,3 +203,14 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
     SESSION_COOKIE_SAMESITE = "Lax"
     CSRF_COOKIE_SAMESITE = "Lax"
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.2/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
