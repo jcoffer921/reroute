@@ -42,6 +42,7 @@ from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 
 from job_list.models import Application
+from main.forms import UserSignupForm
 from resumes.models import Resume
 from profiles.views import is_employer
 
@@ -57,12 +58,7 @@ except Exception:
 # Local Imports
 # -----------------------------
 from profiles.models import EmployerProfile, UserProfile
-from blog.models import BlogPost
-from .forms import (
-    UserSignupForm,
-    Step1Form, Step2Form, Step3Form, Step4Form,
-    # If you have a custom password change form, we’ll try to import below
-)
+
 # Try to import a custom password form; if unavailable, we use Django's default.
 try:
     from .forms import CustomPasswordChangeForm as PasswordForm
@@ -98,6 +94,7 @@ def home(request):
     recent_posts   = []
 
     try:
+        from blog.models import BlogPost
         # --- Try to get the BlogPost model dynamically to avoid import-time crashes
         BlogPost = apps.get_model('blog', 'BlogPost') if apps.is_installed('blog') else None
 
