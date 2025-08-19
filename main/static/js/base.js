@@ -64,3 +64,67 @@
     }, 120);
   });
 })();
+
+/* ---------------------------------------------
+ * Right-side profile dropdown (desktop only)
+ * - Expects:
+ *   - Button  : #userMenuButton (contains <span id="arrow-icon">▼</span>)
+ *   - Dropdown: #userDropdown
+ * - Works alongside the mobile drawer code
+ * ------------------------------------------- */
+(function () {
+  const btn  = document.getElementById('userMenuButton'); // initials button
+  const menu = document.getElementById('userDropdown');   // dropdown panel
+  const arrow = document.getElementById('arrow-icon');    // ▼ / ▲ indicator
+
+  // Bail gracefully if elements aren’t present (e.g., logged out pages)
+  if (!btn || !menu) return;
+
+  // --- Helpers: open/close with ARIA + arrow updates
+  function openMenu() {
+    menu.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    if (arrow) arrow.textContent = '▲';
+  }
+  function closeMenu() {
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    if (arrow) arrow.textContent = '▼';
+  }
+  function toggleMenu() {
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) closeMenu(); else openMenu();
+  }
+
+  // --- Toggle on click / Enter / Space
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleMenu();
+    }
+  });
+
+  // --- Close when clicking anywhere outside
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) closeMenu();
+  });
+
+  // --- Close on Esc
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  // --- Close when a link or button inside the dropdown is used (e.g., Sign out)
+  menu.addEventListener('click', (e) => {
+    if (e.target.closest('a') || e.target.closest('button')) closeMenu();
+  });
+
+  // Defensive: if viewport shrinks to mobile (where this menu is hidden), ensure closed
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) closeMenu();
+  });
+})();
