@@ -71,8 +71,6 @@ try:
 except Exception:
     Skill = None  # We’ll guard usage via conditionals
 
-logger = logging.getLogger(__name__)
-
 # views.py
 
 from django.shortcuts import render
@@ -247,7 +245,7 @@ def signup_view(request):
                 login(request, user)
 
                 # Respect ?next= if provided and safe; else go to dashboard
-                next_url = request.POST.get('next') or request.GET.get('next') or reverse('dashboard')
+                next_url = request.POST.get('next') or request.GET.get('next') or reverse('user_dashboard')
                 return redirect(next_url)
 
             # Log validation errors to server logs (won't crash now)
@@ -574,9 +572,9 @@ def employer_dashboard_view(request):
 def dashboard(request):
     """
     Simple user dashboard view.
-    Template: profiles/dashboard.html
+    Template: dashboard/user_dashboard.html
     """
-    return render(request, 'profiles/dashboard.html')
+    return render(request, 'dashboard/user_dashboard.html')
 
 
 @login_required
@@ -588,7 +586,7 @@ def dashboard_view(request):
     resume = Resume.objects.filter(user=request.user).first()
     applications = Application.objects.filter(applicant=request.user)
 
-    return render(request, 'dashboard.html', {
+    return render(request, 'user_dashboard.html', {
         'profile': profile,
         'resume': resume,
         'applications': applications,

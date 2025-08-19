@@ -31,7 +31,7 @@
     {% csrf_token %}
 
     {# Preserve ?next= so you can land users where you want after signup #}
-    <input type="hidden" name="next" value="{{ request.GET.next|default:'/dashboard/' }}">
+    <input type="hidden" name="next" value="{{ request.GET.next|default:'/user_dashboard/' }}">
 
     <div class="two-col">
       <div class="form-group">
@@ -107,44 +107,4 @@
 {% block extra_js %}
 {# Optional: external JS if you keep your auth JS separate #}
 <script src="{% static 'js/signup.js' %}"></script>
-
-<script>
-  // ──────────────────────────────────────────────────────────────────────────
-  // Small, self-contained helpers for password UX
-  // - Toggle show/hide password
-  // - (Optional) Dumb strength hint (length-based). Replace with real checker later.
-  // ──────────────────────────────────────────────────────────────────────────
-
-  // Toggle show/hide for any button with .pwd-toggle
-  document.addEventListener('click', (e) => {
-    if (!e.target.classList.contains('pwd-toggle')) return;
-    const inputId = e.target.getAttribute('data-target');
-    const input = document.getElementById(inputId);
-    if (!input) return;
-
-    const showing = input.getAttribute('type') === 'text';
-    input.setAttribute('type', showing ? 'password' : 'text');
-    e.target.textContent = showing ? 'Show' : 'Hide';
-  });
-
-  // Naive strength meter for instant feedback (optional)
-  const pwdInput = document.getElementById('{{ user_form.password.id_for_label }}');
-  const strength = document.getElementById('password-strength');
-  if (pwdInput && strength) {
-    pwdInput.addEventListener('input', () => {
-      const v = pwdInput.value || '';
-      if (!v.length) { strength.textContent = ''; return; }
-      // Basic heuristic; your server-side rules still apply.
-      let score = 0;
-      if (v.length >= 8) score++;
-      if (/[A-Z]/.test(v)) score++;
-      if (/[a-z]/.test(v)) score++;
-      if (/\d/.test(v)) score++;
-      if (/[!@#$%^&*(),.?":{}|<>]/.test(v)) score++;
-
-      const labels = ['Very weak', 'Weak', 'Okay', 'Good', 'Strong'];
-      strength.textContent = labels[Math.max(0, score - 1)];
-    });
-  }
-</script>
 {% endblock %}

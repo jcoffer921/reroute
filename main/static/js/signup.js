@@ -1,44 +1,45 @@
-// signup.js — password show/hide + strength meter (cleaned, commented)
+// signup.js — password show/hide + strength meter + AJAX submit with redirect (commented)
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- Grabs ---
-  const pwd = document.getElementById('id_password');           // password input
+  const form = document.getElementById('signup-form');          // <form id="signup-form">
+  const pwd = document.getElementById('id_password');           // password input (Django default id)
   const strengthEl = document.getElementById('password-strength'); // strength text container
-  const toggle = document.getElementById('pwd-toggle');          // "Show Password" text on the right
+  const toggle = document.getElementById('pwd-toggle');         // "Show Password" clickable element
+  const errorBox = document.getElementById('form-errors');      // container to display form errors (optional)
+  const nextInput = document.querySelector('input[name="next"]'); // hidden next redirect, if present
 
-  if (!pwd) return; // Not on this page
+  // =========================
+  // Helper: CSRF token from cookie (Django)
+  // =========================
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+    return null;
+  }
+  const csrftoken = getCookie('csrftoken');
 
   // =========================
   // Show / Hide password
   // =========================
-  function setToggleLabel() {
-    const showing = pwd.type === 'text';
-    const txt = showing ? 'Hide Password' : 'Show Password';
-    if (toggle) {
-      toggle.textContent = txt;
-      toggle.setAttribute('aria-label', txt);
-      toggle.setAttribute('aria-pressed', String(showing));
-    }
-  }
+  if (!input || !toggle) return;
 
   function flipVisibility() {
-    // Toggle the input type
-    pwd.type = (pwd.type === 'text') ? 'password' : 'text';
-    setToggleLabel();
-    pwd.focus(); // keep focus in the field
+    const showing = pwd.type == 'text';
+    pwd.type = showing ? 'password' : 'text';
+    toggle.textContent = showing ? 'Show Password' : 'Hide Password';
   }
 
-  if (toggle) {
-    setToggleLabel();                          // initialize the label
-    toggle.addEventListener('click', flipVisibility);
-    // Accessibility: make the span behave like a button from the keyboard too
-    toggle.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        flipVisibility();
-      }
-    });
-  }
+  toggle.addEventListener('click', flipVisibility);
+
+  // Accessibility: allow Enter/Space to toggle
+  toggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      flipVisibility();
+    }
+  });
 
   // =========================
   // Strength meter (lightweight)
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateStrength() {
-    if (!strengthEl) return;
+    if (!strengthEl || !pwd) return;
     const val = pwd.value || '';
     if (!val) {
       strengthEl.textContent = '';
@@ -74,6 +75,91 @@ document.addEventListener('DOMContentLoaded', () => {
     strengthEl.style.color = sc <= 1 ? '#b91c1c' : (sc <= 3 ? '#b45309' : '#065f46');
   }
 
-  pwd.addEventListener('input', updateStrength);
-  updateStrength();
+  if (pwd) {
+    pwd.addEventListener('input', updateStrength);
+    updateStrength();
+  }
+
+  // =========================
+  // AJAX submit + follow redirect
+  // =========================
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      // If you want to allow normal POST (no fetch), remove this preventDefault.
+      e.preventDefault();
+
+      // Clear old errors (if you render them here)
+      if (errorBox) {
+        errorBox.innerHTML = '';
+        errorBox.hidden = true;
+      }
+
+      // Build form data payload
+      const data = new FormData(form);
+      // Pass along ?next= if you’re using it
+      if (nextInput && nextInput.value) data.append('next', nextInput.value);
+
+      try {
+        const resp = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest', // lets the server know it's AJAX
+            'X-CSRFToken': csrftoken || '',
+          },
+          redirect: 'follow', // fetch will follow, but it won't auto-navigate the browser
+        });
+
+        // If the server returns JSON with a redirect key, use it
+        const contentType = resp.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const payload = await resp.json();
+          if (resp.ok && payload.redirect) {
+            window.location.href = payload.redirect; // ✅ explicit navigation
+            return;
+          }
+          // Handle JSON-form errors (optional shape)
+          if (!resp.ok && payload.errors && errorBox) {
+            errorBox.hidden = false;
+            errorBox.innerHTML = Array.isArray(payload.errors)
+              ? payload.errors.map(e => `<li>${e}</li>`).join('')
+              : `<li>${payload.message || 'Please correct the errors below.'}</li>`;
+            return;
+          }
+        }
+
+        // If the server did a normal redirect (302), fetch marks resp.redirected=true.
+        if (resp.redirected && resp.url) {
+          window.location.href = resp.url; // ✅ follow server redirect
+          return;
+        }
+
+        // If we got HTML back (form re-render with errors), inject it or show a generic error.
+        const html = await resp.text();
+        // Option 1 (quick): fall back to hard redirect to dashboard on 200 OK.
+        if (resp.ok) {
+          // If you always redirect on success server-side, we should rarely hit this branch.
+          // As a safe fallback:
+          window.location.href = '/dashboard/';
+          return;
+        }
+
+        // Option 2 (better UX): replace the form container with returned HTML so field errors show.
+        // const wrapper = document.getElementById('signup-form-wrapper');
+        // if (wrapper) wrapper.innerHTML = html;
+
+        // Minimal fallback error message:
+        if (errorBox) {
+          errorBox.hidden = false;
+          errorBox.innerHTML = '<li>Signup failed. Please correct the errors and try again.</li>';
+        }
+      } catch (err) {
+        if (errorBox) {
+          errorBox.hidden = false;
+          errorBox.innerHTML = '<li>Network error. Please try again.</li>';
+        }
+        // In dev: console.error(err);
+      }
+    });
+  }
 });
