@@ -91,7 +91,7 @@ def user_profile_view(request):
 @csrf_protect
 def multi_step_form_view(request, step=1):
     """Legacy redirect. Route to your own profile edit or view as desired."""
-    return redirect('public_profile', username=request.user.username)
+    return redirect('user_profile', username=request.user.username)
 
 
 @csrf_exempt
@@ -131,7 +131,7 @@ def update_bio(request):
     profile = get_object_or_404(UserProfile, user=request.user)
     profile.bio = request.POST.get('bio', '')
     profile.save()
-    return redirect('public_profile', username=request.user.username)
+    return redirect('user_profile', username=request.user.username)
 
 
 @require_POST
@@ -180,7 +180,7 @@ def update_emergency_contact(request):
     profile.emergency_contact_phone = request.POST.get("emergency_contact_phone", "")
     profile.emergency_contact_email = request.POST.get("emergency_contact_email", "")
     profile.save()
-    return redirect('public_profile', username=request.user.username)
+    return redirect('user_profile', username=request.user.username)
 
 
 @require_POST
@@ -192,7 +192,7 @@ def update_demographics(request):
     profile.disability_explanation = request.POST.get("disability_explanation", "")
     profile.veteran_explanation = request.POST.get("veteran_explanation", "")
     profile.save()
-    return redirect('public_profile', username=request.user.username)
+    return redirect('user_profile', username=request.user.username)
 
 
 @login_required
@@ -281,7 +281,7 @@ def remove_profile_picture(request):
 @login_required
 def edit_personal_info(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/edit_personal_info.html', {
+    return render(request, 'profiles/user_profile.html', {
         'profile': profile,
         'US_STATES': US_STATES,
     })
@@ -290,7 +290,7 @@ def edit_personal_info(request):
 @login_required
 def edit_emergency_contact(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/edit_emergency.html', {
+    return render(request, 'profiles/user_profile.html', {
         'profile': profile,
     })
 
@@ -298,7 +298,7 @@ def edit_emergency_contact(request):
 @login_required
 def edit_employment(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/edit_employment.html', {
+    return render(request, 'profiles/user_profile.html', {
         'profile': profile,
     })
 
@@ -306,7 +306,7 @@ def edit_employment(request):
 @login_required
 def edit_demographics(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/edit_demographics.html', {
+    return render(request, 'profiles/user_profile.html', {
         'profile': profile,
         'ETHNICITY_CHOICES': ETHNICITY_CHOICES,
     })
@@ -318,7 +318,7 @@ def edit_skills(request):
     resume = Resume.objects.filter(user=request.user).order_by('-created_at').first()
     skills_json = json.dumps([s.name for s in resume.skills.all()]) if resume else json.dumps([])
 
-    return render(request, 'profiles/edit_skills.html', {
+    return render(request, 'profiles/user_profile.html', {
         'resume': resume,
         'skills_json': skills_json,
     })

@@ -1,50 +1,66 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const navbar = document.querySelector('.navbar');
-  const navLinks = document.querySelector('.nav-links');
-  const userBtn = document.querySelector('.user-initials-btn');
-  const dropdown = document.getElementById('userDropdown');
-  const arrow = document.getElementById('arrow-icon');
-  let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+/* -------------------------------------------------------
+ * Mobile menu controller (matches base.html + your CSS)
+ * - HTML calls: onclick="toggleMobileMenu()"
+ * - Drawer element: #mobileMenu
+ * - Visible class: .show  (you already use .mobile-menu.show { left: 0; })
+ * ----------------------------------------------------- */
+(function () {
+  const menu = document.getElementById('mobileMenu');        // slide-in drawer
+  const hamburger = document.querySelector('.hamburger');     // ☰ button in navbar
+  if (!menu || !hamburger) return;                            // graceful exit if markup changes
 
-  if (navbar) {
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      navbar.style.top = (scrollTop > lastScrollTop) ? '-100px' : '0';
-      lastScrollTop = Math.max(scrollTop, 0);
-    });
-
-    window.addEventListener('load', () => {
-      navbar.style.top = '0';
-    });
+  // Open/close helpers (lock body scroll on open)
+  function openMenu() {
+    menu.classList.add('show');                               // <-- aligns with your CSS
+    menu.setAttribute('aria-hidden', 'false');                // a11y: announce state
+    document.body.classList.add('no-scroll');                 // prevent background scrolling
+    hamburger.setAttribute('aria-expanded', 'true');
+    // Optional: focus first link for better keyboard UX
+    const firstLink = menu.querySelector('.mobile-nav-links a, button');
+    if (firstLink) firstLink.focus({ preventScroll: true });
+  }
+  function closeMenu() {
+    menu.classList.remove('show');
+    menu.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('no-scroll');
+    hamburger.setAttribute('aria-expanded', 'false');
+    // Return focus to hamburger for accessibility
+    hamburger.focus({ preventScroll: true });
   }
 
-  // Toggle mobile menu
-  const mobileToggle = document.querySelector('.mobile-menu-button');
-  if (mobileToggle && navLinks) {
-    mobileToggle.addEventListener('click', () => {
-      navLinks.classList.toggle('show');
-    });
-  }
+  // Expose the global used by base.html
+  window.toggleMobileMenu = function () {
+    const isOpen = menu.classList.contains('show');
+    if (isOpen) closeMenu(); else openMenu();
+  };
 
-  // User menu toggle
-  if (userBtn && dropdown && arrow) {
-    userBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle('show');
-      arrow.textContent = dropdown.classList.contains('show') ? '▲' : '▼';
-    });
+  // Also wire direct events so it works even if inline onclick is removed later
+  const activate = (e) => {
+    // Prevent double-trigger on touch devices
+    if (e.type === 'touchstart') e.preventDefault();
+    window.toggleMobileMenu();
+  };
+  hamburger.addEventListener('click', activate, { passive: true });
+  hamburger.addEventListener('touchstart', activate, { passive: false });
 
-    document.addEventListener('click', (e) => {
-      if (!dropdown.contains(e.target) && !userBtn.contains(e.target)) {
-        dropdown.classList.remove('show');
-        arrow.textContent = '▼';
-      }
-    });
-  }
-});
-
-setTimeout(() => {
-  document.querySelectorAll('.alert').forEach(alert => {
-    alert.style.display = 'none';
+  // Close on any link/button tap inside the drawer (e.g., Logout)
+  menu.addEventListener('click', (e) => {
+    if (e.target.closest('a') || e.target.closest('button')) closeMenu();
   });
-}, 5000); // 5 seconds
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('show')) closeMenu();
+  });
+
+  // Defensive: if resized to desktop, ensure the drawer is closed
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (window.innerWidth >= 769 && menu.classList.contains('show')) {
+        closeMenu();
+      }
+    }, 120);
+  });
+})();
