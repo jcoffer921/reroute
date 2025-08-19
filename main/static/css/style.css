@@ -111,6 +111,11 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
 
 
 /* ========== USER MENU / INITIALS BUTTON ========== */
+/* Make the actual container the positioning anchor */
+.user-profile-right { 
+  position: relative;          /* <-- critical */
+  overflow: visible; 
+}
 .user-menu-container { position: relative; display: flex; align-items: center; }
 .user-initials-btn {
   background: var(--accent-cyan); color: #fff;
@@ -136,6 +141,11 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
 }
 .user-dropdown a:hover, .user-dropdown .logout-btn:hover { background: #f5f5f5; }
 .logout-btn { cursor: pointer; }
+
+/* Important: on mobile, this area is intentionally hidden */
+@media (max-width: 768px) {
+  .user-profile-right { display: none !important; }
+}
 
 /* ========== HAMBURGER & MOBILE MENU ========== */
 .hamburger { display: none; }

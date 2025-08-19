@@ -1,130 +1,142 @@
-/* -------------------------------------------------------
- * Mobile menu controller (matches base.html + your CSS)
- * - HTML calls: onclick="toggleMobileMenu()"
- * - Drawer element: #mobileMenu
- * - Visible class: .show  (you already use .mobile-menu.show { left: 0; })
- * ----------------------------------------------------- */
-(function () {
-  const menu = document.getElementById('mobileMenu');        // slide-in drawer
-  const hamburger = document.querySelector('.hamburger');     // ☰ button in navbar
-  if (!menu || !hamburger) return;                            // graceful exit if markup changes
+/* =============================================================================
+ * ReRoute Base JS
+ * - Mobile drawer (hamburger) using #mobileMenu + .show
+ * - Right-side profile dropdown (desktop) using #userMenuButton + #userDropdown
+ * - Accessibility: ARIA updates, Esc to close, click-outside handling
+ * ============================================================================= */
 
-  // Open/close helpers (lock body scroll on open)
-  function openMenu() {
-    menu.classList.add('show');                               // <-- aligns with your CSS
-    menu.setAttribute('aria-hidden', 'false');                // a11y: announce state
-    document.body.classList.add('no-scroll');                 // prevent background scrolling
-    hamburger.setAttribute('aria-expanded', 'true');
-    // Optional: focus first link for better keyboard UX
-    const firstLink = menu.querySelector('.mobile-nav-links a, button');
-    if (firstLink) firstLink.focus({ preventScroll: true });
+(() => {
+  // ---------------------------------------------------------------------------
+  // Config
+  // ---------------------------------------------------------------------------
+  const DESKTOP_MIN = 769; // Keep in sync with your CSS breakpoints
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+  const qs = (sel, root = document) => root.querySelector(sel);
+  const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
+
+  // ---------------------------------------------------------------------------
+  // MOBILE DRAWER (Hamburger)
+  // HTML:
+  //   <button class="hamburger" onclick="toggleMobileMenu()" ...>☰</button>
+  //   <div id="mobileMenu" class="mobile-menu" aria-hidden="true"> ... </div>
+  // CSS:
+  //   .mobile-menu { left:-100%; }
+  //   .mobile-menu.show { left:0; }
+  // ---------------------------------------------------------------------------
+  const mobileMenu   = qs('#mobileMenu');
+  const hamburgerBtn = qs('.hamburger');
+
+  function openMobileMenu() {
+    mobileMenu.classList.add('show');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('no-scroll');       // lock background scroll
+    hamburgerBtn?.setAttribute('aria-expanded', 'true');
+
+    // Optionally focus first actionable element for accessibility
+    const firstLink = qs('.mobile-nav-links a, .mobile-menu a, .mobile-menu button', mobileMenu);
+    firstLink?.focus({ preventScroll: true });
   }
-  function closeMenu() {
-    menu.classList.remove('show');
-    menu.setAttribute('aria-hidden', 'true');
+
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('show');
+    mobileMenu.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('no-scroll');
-    hamburger.setAttribute('aria-expanded', 'false');
-    // Return focus to hamburger for accessibility
-    hamburger.focus({ preventScroll: true });
+    hamburgerBtn?.setAttribute('aria-expanded', 'false');
+    hamburgerBtn?.focus({ preventScroll: true });
   }
 
-  // Expose the global used by base.html
-  window.toggleMobileMenu = function () {
-    const isOpen = menu.classList.contains('show');
-    if (isOpen) closeMenu(); else openMenu();
+  // Expose global for inline HTML onclick (keeps your template unchanged)
+  window.toggleMobileMenu = function toggleMobileMenu() {
+    if (!mobileMenu) return;
+    mobileMenu.classList.contains('show') ? closeMobileMenu() : openMobileMenu();
   };
 
-  // Also wire direct events so it works even if inline onclick is removed later
-  const activate = (e) => {
-    // Prevent double-trigger on touch devices
-    if (e.type === 'touchstart') e.preventDefault();
-    window.toggleMobileMenu();
-  };
-  hamburger.addEventListener('click', activate, { passive: true });
-  hamburger.addEventListener('touchstart', activate, { passive: false });
+  // Bind events only if elements exist
+  if (mobileMenu && hamburgerBtn) {
+    // Click / touch to open
+    on(hamburgerBtn, 'click', () => window.toggleMobileMenu(), { passive: true });
 
-  // Close on any link/button tap inside the drawer (e.g., Logout)
-  menu.addEventListener('click', (e) => {
-    if (e.target.closest('a') || e.target.closest('button')) closeMenu();
-  });
+    // Close when tapping any link/button inside the drawer (e.g., logout)
+    on(mobileMenu, 'click', (e) => {
+      if (e.target.closest('a') || e.target.closest('button')) closeMobileMenu();
+    });
 
-  // Close on Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && menu.classList.contains('show')) closeMenu();
-  });
+    // Close on Escape
+    on(document, 'keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('show')) closeMobileMenu();
+    });
 
-  // Defensive: if resized to desktop, ensure the drawer is closed
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      if (window.innerWidth >= 769 && menu.classList.contains('show')) {
-        closeMenu();
+    // If resized to desktop, ensure the drawer is closed
+    let resizeTimer;
+    on(window, 'resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (window.innerWidth >= DESKTOP_MIN && mobileMenu.classList.contains('show')) {
+          closeMobileMenu();
+        }
+      }, 120);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // DESKTOP PROFILE DROPDOWN (Right side)
+  // HTML:
+  //   <button id="userMenuButton" aria-expanded="false" aria-controls="userDropdown">AB <span id="arrow-icon">▼</span></button>
+  //   <div id="userDropdown" class="user-dropdown" role="menu" ...>...</div>
+  // CSS:
+  //   .user-dropdown { display:none; }
+  //   .user-dropdown.show { display:block; }
+  // NOTE:
+  //   On mobile (<768px) you intentionally hide .user-profile-right in CSS. Good.
+  //   These links should also exist in the mobile drawer.
+  // ---------------------------------------------------------------------------
+  const profileBtn   = qs('#userMenuButton');
+  const profilePanel = qs('#userDropdown');
+  const arrowIcon    = qs('#arrow-icon');
+
+  function openProfile() {
+    profilePanel.classList.add('show');            // matches your CSS
+    profileBtn.setAttribute('aria-expanded', 'true');
+    if (arrowIcon) arrowIcon.textContent = '▲';
+  }
+
+  function closeProfile() {
+    profilePanel.classList.remove('show');
+    profileBtn.setAttribute('aria-expanded', 'false');
+    if (arrowIcon) arrowIcon.textContent = '▼';
+  }
+
+  function toggleProfile() {
+    profilePanel.classList.contains('show') ? closeProfile() : openProfile();
+  }
+
+  if (profileBtn && profilePanel) {
+    // Toggle via click / keyboard
+    on(profileBtn, 'click', (e) => { e.stopPropagation(); toggleProfile(); }, { passive: true });
+    on(profileBtn, 'keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleProfile();
       }
-    }, 120);
-  });
-})();
+    });
 
-/* ---------------------------------------------
- * Right-side profile dropdown (desktop only)
- * - Expects:
- *   - Button  : #userMenuButton (contains <span id="arrow-icon">▼</span>)
- *   - Dropdown: #userDropdown
- * - Works alongside the mobile drawer code
- * ------------------------------------------- */
-(function () {
-  const btn  = document.getElementById('userMenuButton'); // initials button
-  const menu = document.getElementById('userDropdown');   // dropdown panel
-  const arrow = document.getElementById('arrow-icon');    // ▼ / ▲ indicator
+    // Close when clicking outside
+    on(document, 'click', (e) => {
+      if (!profilePanel.contains(e.target) && !profileBtn.contains(e.target)) closeProfile();
+    });
 
-  // Bail gracefully if elements aren’t present (e.g., logged out pages)
-  if (!btn || !menu) return;
+    // Close on Escape
+    on(document, 'keydown', (e) => { if (e.key === 'Escape') closeProfile(); });
 
-  // --- Helpers: open/close with ARIA + arrow updates
-  function openMenu() {
-    menu.classList.add('open');
-    btn.setAttribute('aria-expanded', 'true');
-    if (arrow) arrow.textContent = '▲';
+    // Close after action inside dropdown (e.g., Sign out)
+    on(profilePanel, 'click', (e) => {
+      if (e.target.closest('a') || e.target.closest('button')) closeProfile();
+    });
+
+    // Defensive: if we shrink to mobile (area hidden), ensure closed
+    on(window, 'resize', () => { if (window.innerWidth < DESKTOP_MIN) closeProfile(); });
   }
-  function closeMenu() {
-    menu.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
-    if (arrow) arrow.textContent = '▼';
-  }
-  function toggleMenu() {
-    const isOpen = menu.classList.contains('open');
-    if (isOpen) closeMenu(); else openMenu();
-  }
-
-  // --- Toggle on click / Enter / Space
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleMenu();
-  });
-  btn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleMenu();
-    }
-  });
-
-  // --- Close when clicking anywhere outside
-  document.addEventListener('click', (e) => {
-    if (!menu.contains(e.target) && !btn.contains(e.target)) closeMenu();
-  });
-
-  // --- Close on Esc
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMenu();
-  });
-
-  // --- Close when a link or button inside the dropdown is used (e.g., Sign out)
-  menu.addEventListener('click', (e) => {
-    if (e.target.closest('a') || e.target.closest('button')) closeMenu();
-  });
-
-  // Defensive: if viewport shrinks to mobile (where this menu is hidden), ensure closed
-  window.addEventListener('resize', () => {
-    if (window.innerWidth <= 768) closeMenu();
-  });
 })();
