@@ -79,7 +79,7 @@ def public_profile_view(request, username: str):
         request,
         "profiles/public_profile.html",
         {
-            "user": target_user,
+            "viewed_user": target_user,
             "profile": profile,
             "resume": resume,
             "is_owner": False,

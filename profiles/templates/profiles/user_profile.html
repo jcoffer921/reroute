@@ -27,12 +27,16 @@
           {% if profile.profile_picture %}
             <img src="{{ profile.profile_picture.url }}" class="profile-picture" alt="Profile Picture">
           {% else %}
-            <img src="{% static 'images/default-avatar.png' %}" class="profile-picture" alt="Default Avatar">
+            {# Initials fallback instead of static default image #}
+            <span class="profile-picture profile-initials" aria-label="Profile picture placeholder" title="Add a profile photo">
+              {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
+            </span>
           {% endif %}
-          <input type="file" id="profilePicInput" accept="image/*" style="display: none;" onchange="handleProfilePicChange(this);">
+          <input type="file" id="profilePicInput" name="profile_picture" accept="image/*" style="display: none;" onchange="handleProfilePicChange(this);">
         </label>
       </form>
-      <!-- Profile Picture Modal -->
+
+      <!-- Profile Picture Modal (unchanged) -->
       <div id="profilePicModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000;">
         <div style="background: white; margin: 10% auto; padding: 20px; width: 300px; text-align: center;">
           <h3>Update Profile Picture</h3>

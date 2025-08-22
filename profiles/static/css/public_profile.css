@@ -82,6 +82,21 @@
   align-items: center;
 }
 
+/* Reuse your picture sizing; works for both <img> and initials <span> */
+.profile-picture {
+  width: 140px; height: 140px; border-radius: 50%;
+  object-fit: cover; display: inline-block;
+}
+
+/* Only for the initials fallback */
+.profile-initials {
+  /* center the letters */
+  display: inline-flex; align-items: center; justify-content: center;
+  /* visual style */
+  background: #e5f6ff; color: #0077b6; font-weight: 700;
+  text-transform: uppercase; font-size: 48px; /* adjust to taste */
+}
+
 /* Profile Picture Wrapper */
 .profile-picture-wrapper {
   position: relative;
@@ -155,13 +170,17 @@
   margin-top: 4px;
 }
 
+.selector {
+  -webkit-user-select: none; /* Safari/iOS support */
+  user-select: none;
+}
+
 .uid {
   background-color: #e6f0ff;  /* Soft blue background */
   color: #0056b3;             /* Darker blue text */
   padding: 2px 8px;
   border-radius: 5px;
   font-family: monospace;     /* Optional: gives it that "tech" look */
-  user-select: all;           /* Lets users easily copy the ID */
 }
 
 .edit-bio-btn {

@@ -18,33 +18,20 @@
 <div class="profile-container">
   <div class="profile-header">
 
-    <!-- Center: Picture + Name + Badge + ID -->
+   <!-- Center: Picture + Name + Badge + ID (read-only) -->
     <div class="profile-section profile-center">
-      <form method="POST" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
-        {% csrf_token %}
-        <label for="profilePicInput" class="profile-picture-wrapper">
-          {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" class="profile-picture" alt="Profile Picture">
-          {% else %}
-            <img src="{% static 'images/default-avatar.png' %}" class="profile-picture" alt="Default Avatar">
-          {% endif %}
-          <input type="file" id="profilePicInput" accept="image/*" style="display: none;" onchange="handleProfilePicChange(this);">
-        </label>
-      </form>
-      <!-- Profile Picture Modal -->
-      <div id="profilePicModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000;">
-        <div style="background: white; margin: 10% auto; padding: 20px; width: 300px; text-align: center;">
-          <h3>Update Profile Picture</h3>
-          <img id="previewImage" src="" style="width: 100%; height: auto; margin-bottom: 10px;" />
-          <form id="profilePicForm" method="POST" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
-            {% csrf_token %}
-            <input type="file" id="modalPicInput" name="profile_picture" accept="image/*" style="display: none;" />
-            <button type="submit">Save</button>
-            <button type="button" onclick="removeProfilePicture()">Remove</button>
-            <button type="button" onclick="closeModal()">Cancel</button>
-          </form>
-        </div>
-      </div>
+      {% if profile.profile_picture %}
+        <img
+          src="{{ profile.profile_picture.url }}"
+          class="profile-picture"
+          alt="{{ profile.user.get_full_name|default:profile.user.username }}'s profile photo">
+      {% else %}
+        {# Initials fallback — no static file dependency #}
+        <span class="profile-picture profile-initials" aria-hidden="true">
+          {{ profile.user.first_name|default:profile.user.username|slice:":1" }}{{ profile.user.last_name|default:""|slice:":1" }}
+        </span>
+      {% endif %}
+    </div>
 
 
       <h2 class="profile-name">
