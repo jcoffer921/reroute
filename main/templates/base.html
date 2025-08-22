@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load static %}
+      <meta charset="UTF-8">
+    </head>{% load static %}
     {# NOTE: no custom template tags needed; context processor provides IS_EMPLOYER + DASHBOARD_URL #}
-    <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ReRoute | Home{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">

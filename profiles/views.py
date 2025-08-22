@@ -1,6 +1,4 @@
-# ============================
-# views.py (drop-in replacement)
-# ============================
+# profiles/views.py — slide-in friendly, JSON-first
 from __future__ import annotations
 
 import json
@@ -9,316 +7,300 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from PIL import Image, UnidentifiedImageError
 
-# Local imports
-from .constants import US_STATES, ETHNICITY_CHOICES
-from .models import UserProfile, EmployerProfile
-from resumes.models import Resume
-from core.models import Skill
+from .models import UserProfile
+
+# Optional integrations — guarded to avoid hard crashes if app not installed
+try:
+    from resumes.models import Resume
+except Exception:
+    Resume = None
+
+try:
+    from core.models import Skill
+except Exception:
+    Skill = None
+
+# Optional constants (guarded)
+try:
+    from .constants import US_STATES, ETHNICITY_CHOICES
+except Exception:
+    US_STATES, ETHNICITY_CHOICES = [], []
 
 
-# --------------------------------------------
-# Centralized helper — single source of truth
-# --------------------------------------------
+# ----------------------------- JSON helpers -----------------------------
+def json_ok(updated=None, message=None, status=200):
+    payload = {"ok": True}
+    if updated is not None:
+        payload["updated"] = updated
+    if message:
+        payload["message"] = message
+    return JsonResponse(payload, status=status)
+
+def json_err(errors, status=400):
+    return JsonResponse({"ok": False, "errors": errors}, status=status)
+
+def is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
 def is_employer(user) -> bool:
-    """Robust employer check used by views (mirrors model property)."""
+    """
+    Public helper used by other apps (e.g., main.views).
+    Checks if the user belongs to the Employer group(s).
+    Kept defensive so it never crashes if groups aren't set up.
+    """
     if not getattr(user, "is_authenticated", False):
         return False
-    # 1) EmployerProfile present?
-    if hasattr(user, 'employerprofile'):
-        try:
-            if user.employerprofile:  # may raise if not created yet
-                return True
-        except Exception:
-            pass
-    # 2) Group membership fallback
     try:
         return user.groups.filter(name__in=["Employer", "Employers"]).exists()
     except Exception:
         return False
 
 
+# ----------------------------- Public profile ---------------------------
 @login_required
-def public_profile_view(request, username):
-    """
-    Public-facing profile page. Only employers should access other users' profiles.
-    PREVIOUS BUG: used profile.account_status == 'employer' — that field is NOT a role.
-    """
+def public_profile_view(request, username: str):
+    # Only employers should view others' profiles (adjust logic as you like)
     if not is_employer(request.user):
         messages.error(request, "Only employers can view applicant profiles.")
-        return redirect('home')
+        return redirect("home")
 
     target_user = get_object_or_404(User, username=username)
     profile = get_object_or_404(UserProfile, user=target_user)
-    resume = Resume.objects.filter(user=target_user).first()
+    resume = Resume.objects.filter(user=target_user).order_by("-created_at").first() if Resume else None
 
-    return render(request, 'profiles/public_profile.html', {
-        'user': target_user,
-        'profile': profile,
-        'resume': resume,
-        'is_owner': False,
-        'US_STATES': US_STATES,
-        'ETHNICITY_CHOICES': ETHNICITY_CHOICES,
-    })
+    return render(
+        request,
+        "profiles/public_profile.html",
+        {
+            "user": target_user,
+            "profile": profile,
+            "resume": resume,
+            "US_STATES": US_STATES,
+            "ETHNICITY_CHOICES": ETHNICITY_CHOICES,
+            "is_owner": False,
+        },
+    )
 
 
+# ----------------------------- Own profile ------------------------------
 @login_required
 def user_profile_view(request):
-    """Owner's own profile page."""
     profile = get_object_or_404(UserProfile, user=request.user)
 
-    # Get most recent resume + skills as list (works with M2M)
-    resume = Resume.objects.filter(user=request.user).order_by('-created_at').first()
-    skill_list = [s.name for s in resume.skills.all()] if resume else []
+    resume = None
+    skills_json = "[]"
+    if Resume:
+        resume = Resume.objects.filter(user=request.user).order_by("-created_at").first()
+        if resume and hasattr(resume, "skills"):
+            skills_json = json.dumps([s.name for s in resume.skills.all()])
 
-    return render(request, 'profiles/user_profile.html', {
-        'user': request.user,
-        'profile': profile,
-        'resume': resume,
-        'skills_json': json.dumps(skill_list),
-        'is_owner': True,
-    })
-
-
-@login_required
-@csrf_protect
-def multi_step_form_view(request, step=1):
-    """Legacy redirect. Route to your own profile edit or view as desired."""
-    return redirect('user_profile', username=request.user.username)
-
-
-@csrf_exempt
-@login_required
-def update_profile(request):
-    """AJAX endpoint to update basic profile fields safely."""
-    if request.method != "POST":
-        return JsonResponse({'success': False}, status=400)
-
-    profile = get_object_or_404(UserProfile, user=request.user)
-
-    # Birthdate parse — tolerate empty
-    raw_birthdate = request.POST.get("birthdate", "").strip()
-    if raw_birthdate:
-        try:
-            profile.birthdate = datetime.strptime(raw_birthdate, "%Y-%m-%d").date()
-        except ValueError:
-            return JsonResponse({"success": False, "error": "Invalid birthdate format"}, status=400)
-    else:
-        profile.birthdate = None
-
-    # Simple scalar fields (keep existing if not present)
-    for field in [
-        "firstname", "lastname", "phone_number", "personal_email",
-        "bio", "status", "gender",
-    ]:
-        if field in request.POST:
-            setattr(profile, field, request.POST.get(field, getattr(profile, field)))
-
-    profile.save()
-    return JsonResponse({'success': True})
+    return render(
+        request,
+        "profiles/user_profile.html",
+        {
+            "user": request.user,
+            "profile": profile,
+            "resume": resume,
+            "skills_json": skills_json,
+            "is_owner": True,
+        },
+    )
 
 
-@require_POST
-@login_required
-def update_bio(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    profile.bio = request.POST.get('bio', '')
-    profile.save()
-    return redirect('user_profile', username=request.user.username)
-
-
+# ----------------------------- Updates: Personal ------------------------
 @require_POST
 @login_required
 def update_personal_info(request):
     profile = get_object_or_404(UserProfile, user=request.user)
 
-    profile.firstname = request.POST.get('firstname', '')
-    profile.lastname = request.POST.get('lastname', '')
-    profile.personal_email = request.POST.get('personal_email', '')
-    profile.phone_number = request.POST.get('phone_number', '')
-    profile.state = request.POST.get('state', '')
-    profile.city = request.POST.get('city', '')
+    first = (request.POST.get("firstname") or "").strip()
+    last  = (request.POST.get("lastname") or "").strip()
+    phone = (request.POST.get("phone_number") or "").strip()
+    email = (request.POST.get("personal_email") or "").strip()
+    state = (request.POST.get("state") or "").strip()
+    city  = (request.POST.get("city") or "").strip()
 
-    dob_str = request.POST.get('birthdate', '')
-    try:
-        profile.birthdate = datetime.strptime(dob_str, '%Y-%m-%d').date() if dob_str else None
-    except ValueError:
-        return JsonResponse({'success': False, 'error': 'Invalid birthdate format'}, status=400)
+    errors = {}
+    if not first: errors["firstname"] = "First name is required."
+    if not last:  errors["lastname"]  = "Last name is required."
 
+    if errors:
+        return json_err(errors) if is_ajax(request) else redirect("my_profile")
+
+    # Use Django User as the source of truth for names
+    u = request.user
+    u.first_name, u.last_name = first, last
+    u.save(update_fields=["first_name", "last_name"])
+
+    # Mirror to profile if you keep duplicates
+    if hasattr(profile, "firstname"): profile.firstname = first
+    if hasattr(profile, "lastname"):  profile.lastname  = last
+    profile.phone_number = phone
+    profile.personal_email = email
+    profile.state = state
+    profile.city = city
     profile.save()
-    return JsonResponse({'success': True})
+
+    updated = {
+        "full_name": f"{first} {last}",
+        "initials": (first[:1] + last[:1]).upper(),
+        "phone_number": phone, "personal_email": email, "state": state, "city": city,
+    }
+    return json_ok(updated) if is_ajax(request) else redirect("my_profile")
 
 
-@require_POST
-@login_required
-def update_employment_info(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    profile.work_in_us = request.POST.get('authorized_us')
-    profile.sponsorship_needed = request.POST.get('sponsorship_needed')
-    profile.disability = request.POST.get('disability')
-    profile.lgbtq = request.POST.get('lgbtq')
-    profile.gender = request.POST.get('gender')
-    profile.veteran_status = request.POST.get('veteran_status')
-    profile.save()
-    return JsonResponse({'success': True})
-
-
+# ----------------------------- Updates: Emergency -----------------------
 @require_POST
 @login_required
 def update_emergency_contact(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    profile.emergency_contact_firstname = request.POST.get("emergency_contact_firstname", "")
-    profile.emergency_contact_lastname = request.POST.get("emergency_contact_lastname", "")
-    profile.emergency_contact_relationship = request.POST.get("emergency_contact_relationship", "")
-    profile.emergency_contact_phone = request.POST.get("emergency_contact_phone", "")
-    profile.emergency_contact_email = request.POST.get("emergency_contact_email", "")
+
+    data = {
+      "emergency_contact_firstname": (request.POST.get("emergency_contact_firstname") or "").strip(),
+      "emergency_contact_lastname":  (request.POST.get("emergency_contact_lastname") or "").strip(),
+      "emergency_contact_relationship": (request.POST.get("emergency_contact_relationship") or "").strip(),
+      "emergency_contact_phone": (request.POST.get("emergency_contact_phone") or "").strip(),
+      "emergency_contact_email": (request.POST.get("emergency_contact_email") or "").strip(),
+    }
+
+    errors = {}
+    if not data["emergency_contact_firstname"]: errors["emergency_contact_firstname"] = "Required."
+    if not data["emergency_contact_lastname"]:  errors["emergency_contact_lastname"]  = "Required."
+    if errors:
+      return json_err(errors) if is_ajax(request) else redirect("my_profile")
+
+    for k, v in data.items():
+      setattr(profile, k, v)
     profile.save()
-    return redirect('user_profile', username=request.user.username)
+
+    updated = {**data, "emergency_contact_fullname": f"{data['emergency_contact_firstname']} {data['emergency_contact_lastname']}".strip()}
+    return json_ok(updated) if is_ajax(request) else redirect("my_profile")
 
 
+# ----------------------------- Updates: Employment ----------------------
+@require_POST
+@login_required
+def update_employment_info(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    fields = ["authorized_us", "sponsorship_needed", "disability", "veteran_status", "gender", "status"]
+    for f in fields:
+        if f in request.POST:
+            setattr(profile, f, request.POST.get(f))
+    profile.save()
+
+    updated = {f: getattr(profile, f, "") for f in fields}
+    return json_ok(updated) if is_ajax(request) else redirect("my_profile")
+
+
+# ----------------------------- Updates: Demographics --------------------
 @require_POST
 @login_required
 def update_demographics(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    profile.gender = request.POST.get("gender", "")
-    profile.ethnicity = request.POST.get("ethnicity", "")
-    profile.disability_explanation = request.POST.get("disability_explanation", "")
-    profile.veteran_explanation = request.POST.get("veteran_explanation", "")
+
+    payload = {
+        "gender": (request.POST.get("gender") or "").strip(),
+        "ethnicity": (request.POST.get("ethnicity") or "").strip(),
+        "race": (request.POST.get("race") or "").strip(),
+        "disability_explanation": (request.POST.get("disability_explanation") or "").strip(),
+        "veteran_explanation": (request.POST.get("veteran_explanation") or "").strip(),
+    }
+
+    for k, v in payload.items():
+        if hasattr(profile, k):
+            setattr(profile, k, v)
     profile.save()
-    return redirect('user_profile', username=request.user.username)
+
+    updated = {
+        **payload,
+        "pill_text": ", ".join([x for x in [payload["gender"], payload["ethnicity"], payload["race"]] if x]),
+    }
+    return json_ok(updated) if is_ajax(request) else redirect("my_profile")
 
 
-@login_required
+# ----------------------------- Updates: Bio -----------------------------
 @require_POST
-def update_skills(request):
-    """Add/remove skills on the most recent resume (M2M)."""
-    resume = Resume.objects.filter(user=request.user).order_by('-created_at').first()
-    if not resume:
-        return JsonResponse({'error': 'No resume found for this user.'}, status=404)
+@login_required
+def update_bio(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+    bio = (request.POST.get("bio") or "").strip()
+    profile.bio = bio
+    profile.save()
+    return json_ok({"bio": bio}) if is_ajax(request) else redirect("my_profile")
 
-    # Current skills → case-insensitive dict
+
+# ----------------------------- Updates: Skills (Resume M2M) ------------
+@require_POST
+@login_required
+def update_skills(request):
+    if not (Resume and Skill):
+        return json_err({"form": "Resume/Skill models are not available."}, status=501)
+
+    resume = Resume.objects.filter(user=request.user).order_by("-created_at").first()
+    if not resume:
+        return json_err({"form": "No resume found."}, status=404)
+
     existing = {s.name.lower(): s for s in resume.skills.all()}
 
-    # Additions
-    for raw in request.POST.get('add_skills', '').split(','):
-        sk = raw.strip()
-        if not sk:
-            continue
-        key = sk.lower()
+    # Add
+    for raw in (request.POST.get("add_skills") or "").split(","):
+        name = raw.strip()
+        if not name: continue
+        key = name.lower()
         if key not in existing:
-            obj, _ = Skill.objects.get_or_create(name=sk)
+            obj, _ = Skill.objects.get_or_create(name=name)
             existing[key] = obj
 
-    # Removals
-    for raw in request.POST.get('remove_skills', '').split(','):
-        sk = raw.strip()
-        if not sk:
-            continue
-        existing.pop(sk.lower(), None)
+    # Remove
+    for raw in (request.POST.get("remove_skills") or "").split(","):
+        name = raw.strip()
+        if not name: continue
+        existing.pop(name.lower(), None)
 
-    # Persist as list of IDs
     resume.skills.set([s.id for s in existing.values()])
-    resume.save()
-    return JsonResponse({'success': True})
+    skills_sorted = sorted((s.name for s in existing.values()), key=str.lower)
+    return json_ok({"skills": skills_sorted}) if is_ajax(request) else redirect("my_profile")
 
 
+# ----------------------------- Profile picture -------------------------
 @login_required
 def update_profile_picture(request):
-    if request.method == 'POST' and 'profile_picture' in request.FILES:
-        image_file = request.FILES['profile_picture']
-        # Validate basic image integrity
+    if request.method == "POST" and "profile_picture" in request.FILES:
+        image_file = request.FILES["profile_picture"]
         try:
             img = Image.open(image_file)
             img.verify()
-            if img.format.lower() not in ['jpeg', 'png', 'gif', 'jpg']:
+            if img.format and img.format.lower() not in {"jpeg", "jpg", "png", "gif"}:
                 messages.error(request, "Unsupported image format. Use JPEG, PNG, or GIF.")
-                return redirect('my_profile')
+                return redirect("my_profile")
         except UnidentifiedImageError:
             messages.error(request, "Invalid image file. Please upload a real image.")
-            return redirect('my_profile')
+            return redirect("my_profile")
 
-        profile = request.user.profile
+        profile = get_object_or_404(UserProfile, user=request.user)
         profile.profile_picture = image_file
         profile.save()
         messages.success(request, "Profile picture updated successfully.")
+    return redirect("my_profile")
 
-    return redirect('my_profile')
 
-
-@login_required
 @require_POST
+@login_required
 def remove_profile_picture(request):
-    """
-    Remove the current user's profile picture.
-    - Requires POST (prevents accidental deletes via link crawlers)
-    - Deletes the file from storage and clears the field
-    - Shows a success/info message
-    - Redirects to the correct dashboard based on role
-    """
-    profile = request.user.profile
-
+    profile = get_object_or_404(UserProfile, user=request.user)
     if profile.profile_picture:
-        # Delete the file from storage without saving yet
         profile.profile_picture.delete(save=False)
-        # Clear the field and persist to DB
         profile.profile_picture = None
         profile.save(update_fields=["profile_picture"])
         messages.success(request, "Your profile picture has been removed.")
     else:
         messages.info(request, "You don't have a profile picture set.")
-
-    # Role-aware redirect
-    return redirect('employer_dashboard' if is_employer(request.user) else 'dashboard:user_dashboard')
-
-
-@login_required
-def edit_personal_info(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/user_profile.html', {
-        'profile': profile,
-        'US_STATES': US_STATES,
-    })
-
-
-@login_required
-def edit_emergency_contact(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/user_profile.html', {
-        'profile': profile,
-    })
-
-
-@login_required
-def edit_employment(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/user_profile.html', {
-        'profile': profile,
-    })
-
-
-@login_required
-def edit_demographics(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profiles/user_profile.html', {
-        'profile': profile,
-        'ETHNICITY_CHOICES': ETHNICITY_CHOICES,
-    })
-
-
-@login_required
-def edit_skills(request):
-    """Render skills editor with M2M list (no string splitting)."""
-    resume = Resume.objects.filter(user=request.user).order_by('-created_at').first()
-    skills_json = json.dumps([s.name for s in resume.skills.all()]) if resume else json.dumps([])
-
-    return render(request, 'profiles/user_profile.html', {
-        'resume': resume,
-        'skills_json': skills_json,
-    })
+    return redirect("my_profile")

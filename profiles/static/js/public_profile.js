@@ -1,397 +1,263 @@
-/* =============================================================
-   ReRoute — Public Profile JS (Improved)
-   Date: Aug 11, 2025
-   What’s new:
-   - Robust CSRF for Django AJAX (POST)
-   - SlidePanel helper (open/close, ESC + click-outside, body scroll lock)
-   - Accessible tabs + suggestions (ARIA roles)
-   - Safer DOM ops (no innerHTML for user data)
-   - Debounced search, better error handling, DRY helpers
-   - Initializes toggle buttons from saved values
-   - Closes suggestions on outside click / ESC
-   -------------------------------------------------------------
-   Drop-in: Replace your existing public_profile.js with this file.
-   Make sure your HTML IDs match those used below (same as your file).
-   ============================================================= */
+/* ============================================================================
+ * ReRoute — Public Profile JS (Employer-facing, read-only)
+ * Purpose:
+ *   - Accessible tab switching for public profile sections
+ *   - Small UI niceties: copy-to-clipboard, simple POST actions (e.g., shortlist)
+ *   - Zero overlap with owner slide-in edit logic (handled by profile_panels.js)
+ *
+ * Assumptions:
+ *   - Tabs use ARIA roles: [role="tablist"] > [role="tab"] with aria-controls -> [role="tabpanel"]
+ *   - Optional action buttons use data-action + data-url, e.g.:
+ *       <button data-action="shortlist" data-url="/profiles/123/shortlist/">Shortlist</button>
+ *   - Copy buttons use data-copy pointing at a selector:
+ *       <button data-copy="#emailText">Copy email</button><span id="emailText">user@mail.com</span>
+ *   - CSRF cookie is named "csrftoken" (Django default)
+ * ========================================================================== */
 
-(function () {
-  'use strict';
+(() => {
+  // ---------------------------------------------------------------------------
+  // Small utilities
+  // ---------------------------------------------------------------------------
 
-  // ----------------------------
-  // Tiny DOM + CSRF utilities
-  // ----------------------------
-  const qs = (sel, el = document) => el.querySelector(sel);
-  const qsa = (sel, el = document) => Array.from(el.querySelectorAll(sel));
-  const on = (el, evt, cb, opt) => el && el.addEventListener(evt, cb, opt);
+  /**
+   * Query helper (single element).
+   */
+  const qs = (sel, root = document) => root.querySelector(sel);
 
-  function getCookie(name) {
-    // Standard Django cookie parser
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
-  const CSRF = () => getCookie('csrftoken');
+  /**
+   * Query helper (NodeList to Array).
+   */
+  const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  // Debounce helper for input events
-  function debounce(fn, wait = 200) {
-    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null, args), wait); };
-  }
+  /**
+   * Event helper.
+   */
+  const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
 
-  // Central registry for open panels (ensures only one open at a time)
-  const OpenPanels = new Set();
+  /**
+   * Read csrftoken from cookie (Django standard).
+   */
+  const getCSRF = () => {
+    const name = "csrftoken";
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift());
+    return null;
+  };
 
-  // ------------------------------------
-  // SlidePanel: open/close + accessibility
-  // ------------------------------------
-  class SlidePanel {
-    /**
-     * @param {Object} cfg
-     * @param {string} cfg.triggerId - Button that opens the panel
-     * @param {string} cfg.panelId - Panel element id
-     * @param {string} cfg.cancelId - Button that closes the panel
-     * @param {string} cfg.formId - Form inside the panel
-     * @param {string} cfg.saveBtnId - Save button id (spinner/text children optional)
-     */
-    constructor(cfg) {
-      this.trigger = qs('#' + cfg.triggerId);
-      this.panel = qs('#' + cfg.panelId);
-      this.cancelBtn = qs('#' + cfg.cancelId);
-      this.form = qs('#' + cfg.formId);
-      this.saveBtn = qs('#' + cfg.saveBtnId);
-      this.btnText = this.saveBtn ? this.saveBtn.querySelector('.btn-text') : null;
-      this.spinner = this.saveBtn ? this.saveBtn.querySelector('.spinner') : null;
-
-      // Set ARIA attributes for better a11y (if markup allows)
-      if (this.panel) {
-        this.panel.setAttribute('role', 'dialog');
-        this.panel.setAttribute('aria-modal', 'true');
-        this.panel.setAttribute('aria-hidden', 'true');
-      }
-
-      this.bind();
+  /**
+   * POST JSON helper for tiny actions (e.g., shortlist). Returns parsed JSON or throws.
+   * NOTE: Response shape is expected as: { ok: true, ... } (matches our views).
+   */
+  async function postJSON(url, data = {}) {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRF() || "",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify(data),
+    });
+    let payload = {};
+    try { payload = await resp.json(); } catch (_) {}
+    if (!resp.ok || payload.ok !== true) {
+      const message = (payload && (payload.message || payload.error)) || "Request failed";
+      throw new Error(message);
     }
+    return payload;
+  }
 
-    bind() {
-      on(this.trigger, 'click', () => this.open());
-      on(this.cancelBtn, 'click', () => this.close());
+  /**
+   * Lightweight toast (optional). If you already have a sitewide toast, this will
+   * defer to window.showToast. Otherwise, it uses alert as a minimal fallback.
+   */
+  function toast(msg) {
+    if (typeof window.showToast === "function") {
+      window.showToast(msg);
+    } else {
+      // Minimal fallback — replace with a nicer inline UI if you prefer
+      // eslint-disable-next-line no-alert
+      alert(msg);
+    }
+  }
 
-      // Close on ESC and click-outside
-      on(document, 'keydown', (e) => {
-        if (e.key === 'Escape' && this.isOpen()) this.close();
-      });
-      on(document, 'click', (e) => {
-        if (!this.isOpen()) return;
-        if (this.panel && !this.panel.contains(e.target) && e.target !== this.trigger) this.close();
-      });
+  // ---------------------------------------------------------------------------
+  // Accessible Tabs (public profile sections)
+  // ---------------------------------------------------------------------------
+  function initTabs() {
+    // Find each tablist on the page (you may have only one)
+    qsa('[role="tablist"]').forEach((tablist) => {
+      const tabs = qsa('[role="tab"]', tablist);
+      const panels = qsa('[role="tabpanel"]', tablist.parentElement || document);
 
-      // AJAX form submit with CSRF
-      if (this.form) {
-        on(this.form, 'submit', (e) => {
-          e.preventDefault();
-          this.toggleSaving(true);
-
-          fetch(this.form.action, {
-            method: 'POST',
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'X-CSRFToken': CSRF() || '',
-            },
-            credentials: 'same-origin',
-            body: new FormData(this.form),
-          })
-            .then(async (res) => {
-              // Handle non-200s gracefully
-              if (!res.ok) {
-                const text = await res.text().catch(() => '');
-                throw new Error(text || `Request failed (${res.status})`);
-              }
-              return res.json().catch(() => ({}));
-            })
-            .then((data) => {
-              if (data && data.success) {
-                this.close();
-                // Be pragmatic: reload so server is truthy.
-                // Swap to in-place DOM updates later if needed.
-                window.location.reload();
-              } else {
-                alert('❌ Failed to save. Please try again.');
-              }
-            })
-            .catch((err) => {
-              console.error(err);
-              alert('❌ Server error while saving.');
-            })
-            .finally(() => this.toggleSaving(false));
+      // Helper: show a specific tab + associated panel
+      function activateTab(tab) {
+        // Deactivate all
+        tabs.forEach((t) => {
+          t.setAttribute("aria-selected", "false");
+          t.tabIndex = -1;
         });
+        panels.forEach((p) => p.setAttribute("hidden", "true"));
+
+        // Activate current
+        tab.setAttribute("aria-selected", "true");
+        tab.removeAttribute("tabindex");
+
+        const panelId = tab.getAttribute("aria-controls");
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (panel) panel.removeAttribute("hidden");
+        tab.focus({ preventScroll: true });
       }
-    }
 
-    isOpen() { return this.panel && this.panel.classList.contains('visible'); }
+      // Click handling
+      tabs.forEach((tab) => {
+        on(tab, "click", (e) => {
+          e.preventDefault();
+          activateTab(tab);
+        });
 
-    open() {
-      // Close other panels
-      OpenPanels.forEach((p) => p !== this && p.close());
-      OpenPanels.add(this);
+        // Keyboard navigation: Left/Right arrows move across tabs
+        on(tab, "keydown", (e) => {
+          const i = tabs.indexOf(tab);
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            activateTab(tabs[(i + 1) % tabs.length]);
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            activateTab(tabs[(i - 1 + tabs.length) % tabs.length]);
+          }
+        });
+      });
 
-      if (!this.panel) return;
-      this.panel.classList.add('visible');
-      this.panel.style.right = '0';
-      this.panel.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('no-scroll');
-
-      // Focus first focusable element for accessibility
-      const firstFocusable = this.panel.querySelector('input, select, textarea, button, [tabindex]');
-      if (firstFocusable) firstFocusable.focus({ preventScroll: true });
-    }
-
-    close() {
-      if (!this.panel) return;
-      this.panel.classList.remove('visible');
-      this.panel.style.right = '-100%';
-      this.panel.setAttribute('aria-hidden', 'true');
-      document.body.classList.remove('no-scroll');
-      OpenPanels.delete(this);
-    }
-
-    toggleSaving(isSaving) {
-      if (this.spinner) this.spinner.style.display = isSaving ? 'inline-block' : 'none';
-      if (this.btnText) this.btnText.style.display = isSaving ? 'none' : 'inline';
-      if (this.saveBtn) this.saveBtn.disabled = !!isSaving;
-    }
+      // Ensure exactly one tab starts as selected; if none, select first
+      const selected = tabs.find((t) => t.getAttribute("aria-selected") === "true");
+      activateTab(selected || tabs[0]);
+    });
   }
 
-  // ----------------------------
-  // Init on DOMContentLoaded
-  // ----------------------------
-  document.addEventListener('DOMContentLoaded', () => {
-    // ===== Tabs =====
-    const tabButtons = qsa('.tab-button');
-    const tabSections = qsa('.tab-section');
+  // ---------------------------------------------------------------------------
+  // Copy-to-clipboard buttons (email, phone, etc.)
+  // ---------------------------------------------------------------------------
+  function initCopyButtons() {
+    qsa("[data-copy]").forEach((btn) => {
+      on(btn, "click", async () => {
+        const targetSel = btn.getAttribute("data-copy");
+        if (!targetSel) return;
 
-    // Add basic ARIA semantics if not present
-    const tablist = qs('[data-role="tablist"]') || qs('.tab-container');
-    if (tablist) tablist.setAttribute('role', 'tablist');
+        const target = qs(targetSel);
+        const text = target ? (target.value || target.textContent || "").trim() : "";
+        if (!text) return;
 
-    tabButtons.forEach((btn) => {
-      btn.setAttribute('role', 'tab');
-      on(btn, 'click', () => {
-        tabSections.forEach((s) => { s.style.display = 'none'; s.setAttribute('aria-hidden', 'true'); });
-        tabButtons.forEach((b) => { b.classList.remove('active-tab'); b.setAttribute('aria-selected', 'false'); });
-
-        const section = qs('#' + btn.dataset.target);
-        if (section) {
-          section.style.display = 'block';
-          section.setAttribute('aria-hidden', 'false');
-          btn.classList.add('active-tab');
-          btn.setAttribute('aria-selected', 'true');
+        try {
+          await navigator.clipboard.writeText(text);
+          toast("Copied to clipboard");
+        } catch {
+          // Fallback for older browsers
+          const tmp = document.createElement("textarea");
+          tmp.value = text;
+          document.body.appendChild(tmp);
+          tmp.select();
+          try {
+            document.execCommand("copy");
+            toast("Copied to clipboard");
+          } catch {
+            toast("Copy failed");
+          } finally {
+            document.body.removeChild(tmp);
+          }
         }
       });
     });
+  }
 
-    // ===== Slide Panels =====
-    [
-      { triggerId: 'editSlideTrigger', panelId: 'slideEditor', cancelId: 'cancelSlide', formId: 'personalSlideForm', saveBtnId: 'saveSlide' },
-      { triggerId: 'editEmploymentTrigger', panelId: 'employmentSlideEditor', cancelId: 'cancelEmploymentSlide', formId: 'employmentSlideForm', saveBtnId: 'saveEmploymentSlide' },
-      { triggerId: 'editSkillsTrigger', panelId: 'skillsSlidePanel', cancelId: 'cancelSkillsSlide', formId: 'skillsSlideForm', saveBtnId: 'saveSkillsSlide' },
-      { triggerId: 'editEmergencyTrigger', panelId: 'emergencySlidePanel', cancelId: 'cancelEmergencySlide', formId: 'emergencySlideForm', saveBtnId: 'saveEmergencySlide' },
-      { triggerId: 'editDemographicsTrigger', panelId: 'demographicsSlidePanel', cancelId: 'cancelDemographicsSlide', formId: 'demographicsSlideForm', saveBtnId: 'saveDemographicsSlide' },
-    ].forEach(cfg => new SlidePanel(cfg));
+  // ---------------------------------------------------------------------------
+  // Lightweight public actions (no overlap with owner editing)
+  //   Examples: shortlist / save candidate, request contact, flag profile, etc.
+  //   Buttons require data-action and data-url; we POST {action} and toggle UI.
+  // ---------------------------------------------------------------------------
+  function initPublicActions() {
+    qsa("[data-action][data-url]").forEach((btn) => {
+      on(btn, "click", async () => {
+        const action = btn.getAttribute("data-action");
+        const url = btn.getAttribute("data-url");
+        if (!action || !url) return;
 
-    // ===== Skills UI =====
-    const skillInput = qs('#skillInput');
-    const selectedSkillsDiv = qs('#selectedSkills');
-    const addSkillsInput = qs('#addSkillsInput');
-    const removeSkillsInput = qs('#removeSkillsInput');
-    const suggestionsDiv = qs('#suggestions');
-    const suggestedContainer = qs('#suggestedSkillsContainer');
-    const refreshBtn = qs('#refreshSuggestionsBtn');
+        // Optimistic UI: disable while posting
+        const originalText = btn.textContent;
+        btn.disabled = true;
 
-    const selectedSkills = new Map(); // key: lowercase, value: original case
-    const removedSkills = new Set();
-    let allSkills = [];
-
-    // Preload existing skills from <script id="skillData" type="application/json">["...", ...]</script>
-    const skillData = qs('#skillData');
-    if (skillData) {
-      try {
-        const initialSkills = JSON.parse(skillData.textContent || '[]');
-        initialSkills.forEach((sk) => {
-          const lower = String(sk).toLowerCase();
-          if (!selectedSkills.has(lower)) selectedSkills.set(lower, String(sk));
-        });
-        renderChips();
-        updateHiddenInputs();
-      } catch (e) {
-        console.error('Failed to parse skillData JSON', e);
-      }
-    }
-
-    function updateHiddenInputs() {
-      // Server splits by comma and trims; keep it lean without trailing spaces
-      if (addSkillsInput) addSkillsInput.value = Array.from(selectedSkills.values()).join(',');
-      if (removeSkillsInput) removeSkillsInput.value = Array.from(removedSkills).join(',');
-    }
-
-    function renderChips() {
-      if (!selectedSkillsDiv) return;
-      selectedSkillsDiv.innerHTML = '';
-      selectedSkills.forEach((original, lower) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip';
-
-        const text = document.createElement('span');
-        text.className = 'chip-text';
-        text.textContent = original; // ✅ safe textContent
-
-        const x = document.createElement('button');
-        x.type = 'button';
-        x.className = 'remove-btn';
-        x.setAttribute('aria-label', `Remove ${original}`);
-        x.dataset.skill = lower;
-        x.textContent = '×';
-        on(x, 'click', () => {
-          removedSkills.add(lower);
-          selectedSkills.delete(lower);
-          renderChips();
-          updateHiddenInputs();
-          // keep suggestions coherent
-          if (suggestionsDiv) suggestionsDiv.style.display = 'none';
-        });
-
-        chip.appendChild(text);
-        chip.appendChild(x);
-        selectedSkillsDiv.appendChild(chip);
-      });
-    }
-
-    function filterSuggestions(text) {
-      if (!suggestionsDiv) return;
-      suggestionsDiv.innerHTML = '';
-      if (!text) return (suggestionsDiv.style.display = 'none');
-
-      const q = text.toLowerCase();
-      const filtered = allSkills.filter((s) => s.toLowerCase().includes(q) && !selectedSkills.has(s.toLowerCase()));
-      if (filtered.length === 0) return (suggestionsDiv.style.display = 'none');
-
-      // ARIA listbox for suggestions
-      suggestionsDiv.setAttribute('role', 'listbox');
-
-      filtered.slice(0, 10).forEach((skill) => {
-        const opt = document.createElement('div');
-        opt.setAttribute('role', 'option');
-        opt.tabIndex = 0;
-        opt.textContent = skill;
-        on(opt, 'click', () => addSkill(skill));
-        on(opt, 'keydown', (e) => { if (e.key === 'Enter') addSkill(skill); });
-        suggestionsDiv.appendChild(opt);
-      });
-
-      suggestionsDiv.style.display = 'block';
-    }
-
-    const debouncedSuggest = debounce((val) => filterSuggestions(val), 180);
-
-    function addSkill(skill) {
-      const lower = skill.toLowerCase();
-      if (!selectedSkills.has(lower)) {
-        selectedSkills.set(lower, skill);
-        removedSkills.delete(lower);
-        if (skillInput) skillInput.value = '';
-        renderChips();
-        updateHiddenInputs();
-        if (suggestionsDiv) suggestionsDiv.style.display = 'none';
-      }
-    }
-
-    on(skillInput, 'input', (e) => debouncedSuggest(e.target.value));
-
-    on(skillInput, 'keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const val = (skillInput.value || '').trim();
-        if (val) addSkill(val);
-      } else if (e.key === 'Escape') {
-        if (suggestionsDiv) suggestionsDiv.style.display = 'none';
-      }
-    });
-
-    // Close suggestions if clicking anywhere else
-    on(document, 'click', (e) => {
-      if (!suggestionsDiv || !skillInput) return;
-      if (!suggestionsDiv.contains(e.target) && e.target !== skillInput) {
-        suggestionsDiv.style.display = 'none';
-      }
-    });
-
-    // Load predefined skills from backend (expects JSON array of strings)
-    function loadSuggestedSkills() {
-      if (!suggestedContainer) return;
-      suggestedContainer.innerHTML = '';
-
-      fetch('/api/skills/', { credentials: 'same-origin' })
-        .then(async (res) => {
-          if (!res.ok) throw new Error(`GET /api/skills/ failed (${res.status})`);
-          const data = await res.json();
-          // Normalize: accept ["Skill"] or [{name:"Skill"}]
-          allSkills = Array.isArray(data)
-            ? data.map((d) => (typeof d === 'string' ? d : (d && d.name) || '')).filter(Boolean)
-            : [];
-
-          // Remove already selected
-          const pool = allSkills.filter((s) => !selectedSkills.has(s.toLowerCase()));
-          // Shuffle a copy (Fisher–Yates)
-          for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
+        try {
+          const data = await postJSON(url, { action });
+          // You can switch on action names to adjust UI
+          switch (action) {
+            case "shortlist": {
+              btn.classList.toggle("is-active");
+              btn.textContent = btn.classList.contains("is-active") ? "Shortlisted" : "Shortlist";
+              toast("Updated shortlist");
+              break;
+            }
+            case "request-contact": {
+              btn.textContent = "Requested";
+              toast("Contact request sent");
+              break;
+            }
+            case "flag-profile": {
+              toast("Profile flagged for review");
+              break;
+            }
+            default: {
+              // For unknown actions, just acknowledge success
+              toast("Action completed");
+            }
           }
-          const top = pool.slice(0, 9);
-
-          top.forEach((skill) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'suggested-skill-btn';
-            btn.textContent = skill;
-            on(btn, 'click', () => { addSkill(skill); btn.remove(); });
-            suggestedContainer.appendChild(btn);
-          });
-        })
-        .catch((err) => {
-          console.warn('Skill suggestions unavailable:', err);
-        });
-    }
-
-    loadSuggestedSkills();
-    on(refreshBtn, 'click', loadSuggestedSkills);
-
-    // ===== Toggle groups (init from saved values) =====
-    qsa('.btn-toggle-group').forEach((group) => {
-      const input = group.nextElementSibling; // hidden input with the value
-      if (!input) return;
-
-      // Initialize active state from current value
-      const current = (input.value || '').toLowerCase();
-      qsa('button', group).forEach((btn) => {
-        const val = (btn.dataset.value || '').toLowerCase();
-        if (val && val === current) btn.classList.add('active');
-        on(btn, 'click', () => {
-          qsa('button', group).forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
-          input.value = btn.dataset.value || '';
-        });
+        } catch (err) {
+          // Restore original label on failure
+          btn.textContent = originalText;
+          toast(err.message || "Something went wrong");
+        } finally {
+          btn.disabled = false;
+        }
       });
     });
+  }
 
-    // ===== Phone number formatting (lightweight) =====
-    const formatPhone = (input) => {
-      // Preserve digits and apply 3-3-4 mask; defer complex caret mgmt for now
-      const digits = (input.value || '').replace(/\D/g, '').slice(0, 10);
-      const parts = [];
-      if (digits.length > 0) parts.push(digits.slice(0, 3));
-      if (digits.length > 3) parts.push(digits.slice(3, 6));
-      if (digits.length > 6) parts.push(digits.slice(6, 10));
-      input.value = parts.join('-');
-    };
+  // ---------------------------------------------------------------------------
+  // Optional: simple accordions for read-only sections (e.g., skills list)
+  //   Markup example:
+  //     <button class="accordion-toggle" aria-expanded="false" aria-controls="skillsPanel">Skills</button>
+  //     <div id="skillsPanel" hidden> ... </div>
+  // ---------------------------------------------------------------------------
+  function initAccordions() {
+    qsa(".accordion-toggle[aria-controls]").forEach((toggle) => {
+      const panelId = toggle.getAttribute("aria-controls");
+      const panel = panelId ? document.getElementById(panelId) : null;
+      if (!panel) return;
 
-    on(qs('#phone_number'), 'input', (e) => formatPhone(e.target));
-    on(qs('#emergency_contact_phone'), 'input', (e) => formatPhone(e.target));
+      function setOpen(isOpen) {
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        if (isOpen) panel.removeAttribute("hidden");
+        else panel.setAttribute("hidden", "true");
+      }
+
+      on(toggle, "click", () => {
+        const isOpen = toggle.getAttribute("aria-expanded") === "true";
+        setOpen(!isOpen);
+      });
+
+      // Ensure an initial state (collapsed unless aria-expanded="true")
+      const startOpen = toggle.getAttribute("aria-expanded") === "true";
+      setOpen(startOpen);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Init on DOM ready
+  // ---------------------------------------------------------------------------
+  document.addEventListener("DOMContentLoaded", () => {
+    initTabs();           // Section tabs (Overview, Resume, etc.)
+    initCopyButtons();    // Copy email/phone, etc.
+    initPublicActions();  // Shortlist / request contact / flag
+    initAccordions();     // Optional collapsible sections
   });
 })();

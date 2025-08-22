@@ -1,32 +1,25 @@
-from django.shortcuts import redirect
+# profiles/urls.py
 from django.urls import path
 from . import views
-from .views import user_profile_view, public_profile_view, remove_profile_picture, update_personal_info
-from .views import update_profile_picture
 
-
+app_name = "profiles"
 
 urlpatterns = [
-    # Public profile views
-    path('view/<str:username>/', public_profile_view, name='public_profile'),
-    path('profile/<str:username>/', public_profile_view, name='profile'),
+    # Owner's profile
+    path("", views.user_profile_view, name="my_profile"),
 
-    # 🔥 Logged-in user's personal profile
-    path('', user_profile_view, name='my_profile'),  # <-- ✅ This is what you asked for
+    # Public profile (employer view)
+    path("view/<str:username>/", views.public_profile_view, name="public_profile"),
 
-    path('profile/step1/', lambda request: redirect('resumes:resume_contact_info')),
+    # Updates (slide-in panels)
+    path("update/personal/", views.update_personal_info, name="update_personal_info"),
+    path("update/employment/", views.update_employment_info, name="update_employment_info"),
+    path("update/emergency/", views.update_emergency_contact, name="update_emergency_contact"),
+    path("update/demographics/", views.update_demographics, name="update_demographics"),
+    path("update/bio/", views.update_bio, name="update_bio"),
+    path("update/skills/", views.update_skills, name="update_skills"),
 
-    # Profile update routes
-    path('update/', views.update_profile, name='update_profile'),
-    path('update-profile/', views.update_profile, name='update_profile'),
-    path('update-picture/', update_profile_picture, name='update_profile_picture'),
-    path('update/personal-info/', update_personal_info, name='update_personal_info'),
-    path('update/employment/', views.update_employment_info, name='update_employment_info'),
-    path('profile/update/emergency/', views.update_emergency_contact, name='update_emergency_contact'),
-    path('profile/update/demographics/', views.update_demographics, name='update_demographics'),
-    path('profile/update/skills/', views.update_skills, name='update_skills'),
-    path('profile/edit/skills/', views.edit_skills, name='edit_skills'),
-    path('profile/remove-picture/', remove_profile_picture, name='remove_profile_picture'),
-    path('profile/update/bio/', views.update_bio, name='update_bio'),
-    # path('delete-picture/', views.delete_profile_picture, name='delete_profile_picture'),
+    # Profile picture
+    path("update-picture/", views.update_profile_picture, name="update_profile_picture"),
+    path("remove-picture/", views.remove_profile_picture, name="remove_profile_picture"),
 ]
