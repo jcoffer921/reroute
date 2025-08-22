@@ -150,6 +150,12 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
 /* ========== HAMBURGER & MOBILE MENU ========== */
 .hamburger { display: none; }
 .mobile-menu { display: none; }
+.mobile-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 1999;
+  display: none;                          /* JS shows/hides */
+}
 
 @media (max-width: 768px) {
   /* Navbar compresses on mobile */

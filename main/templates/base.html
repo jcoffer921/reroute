@@ -81,7 +81,7 @@
                 {% endif %}
 
                 <!-- ---------- Mobile hamburger ---------- -->
-                <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Open menu">☰</button>
+                <button class="hamburger" aria-controls="mobileMenu" aria-expanded="false" aria-label="Open menu">☰</button>
             </div>
         </nav>
 
@@ -138,41 +138,52 @@
     </div>
 
     <!-- =================== MOBILE MENU (slide-in) =================== -->
-    <div id="mobileMenu" class="mobile-menu" aria-hidden="true">
-        <div class="mobile-menu-header">
-            <span class="mobile-logo">
-                <img src="{% static 'images/reroute-logo.png' %}" alt="ReRoute Logo" height="36">
-            </span>
-            <button class="close-btn" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
-        </div>
+    {# Optional backdrop; JS will also auto-create one if you omit this #}
+    <div id="mobileBackdrop" class="mobile-backdrop" hidden></div>
 
-        <ul class="mobile-nav-links">
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
-            <li><a href="{% url 'about_us' %}">About Us</a></li>
-            {% if user.is_authenticated %}
-                <li><a href="{{ DASHBOARD_URL }}">Dashboard</a></li>
-            {% else %}
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'signup' %}">Get Started</a></li>
-            {% endif %}
-        </ul>
+    <div id="mobileMenu"
+        class="mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        aria-labelledby="mobileMenuTitle"
+        tabindex="-1">
+    <div class="mobile-menu-header">
+        <span class="mobile-logo">
+        <img src="{% static 'images/reroute-logo.png' %}" alt="ReRoute Logo" height="36">
+        </span>
+        <button class="close-btn" data-close-mobile aria-label="Close menu">✕</button>
+    </div>
 
+    <h2 id="mobileMenuTitle" class="sr-only">Main menu</h2>
+
+    <ul class="mobile-nav-links">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
+        <li><a href="{% url 'about_us' %}">About Us</a></li>
         {% if user.is_authenticated %}
-        <div class="mobile-user-footer">
-            <div class="user-initials-circle">
-                {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
-            </div>
-            <span class="mobile-user-name">{{ user.first_name|default:user.username }}</span>
-            <form method="POST" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="logout-btn">Sign out</button>
-            </form>
-        </div>
+        <li><a href="{{ DASHBOARD_URL }}">Dashboard</a></li>
+        {% else %}
+        <li><a href="{% url 'login' %}">Login</a></li>
+        <li><a href="{% url 'signup' %}">Get Started</a></li>
         {% endif %}
+    </ul>
+
+    {% if user.is_authenticated %}
+    <div class="mobile-user-footer">
+        <div class="user-initials-circle">
+        {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
+        </div>
+        <span class="mobile-user-name">{{ user.first_name|default:user.username }}</span>
+        <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">Sign out</button>
+        </form>
+    </div>
+    {% endif %}
     </div>
 
     <!-- Base scripts -->
-    <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/base.js' %}" defer></script>
 </body>
 </html>

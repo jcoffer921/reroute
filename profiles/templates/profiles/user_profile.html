@@ -108,16 +108,16 @@
 
   <div class="info-pair-grid">
     <div class="info-label">Phone:</div>
-    <div class="info-value">{{ profile.phone_number }}</div>
+    <div class="info-value">{{ profile.phone_number|default:"" }}</div>
 
     <div class="info-label">Email:</div>
-    <div class="info-value">{{ profile.personal_email }}</div>
+    <div class="info-value">{{ profile.personal_email|default:"" }}</div>
 
     <div class="info-label">Location:</div>
-    <div class="info-value">{{ profile.city }}, {{ profile.state }}</div>
+    <div class="info-value">{{ profile.city|default_if_none:""|default:"" }}{{ profile.city|yesno:", " }}{{ profile.state|default_if_none:""|default:"" }}</div>
 
     <div class="info-label">Date of Birth:</div>
-    <div class="info-value">{{ profile.birthdate|date:"F j, Y" }}</div>
+    <div class="info-value">{{ profile.birthdate|date:"F j, Y"|default:"" }}</div>
 
     <div class="info-label">Gender:</div>
     <div class="info-value">{{ profile.gender }}</div>
@@ -132,7 +132,7 @@
      <!-- Personal Info Section -->
       <div class="info-header">
         <h3 class="section-title">Personal Info</h3>
-        <button id="editSlideTrigger" class="edit-btn">Edit</button>
+        <button class="edit-btn" data-panel-open="#slideEditor" type="button">Edit</button>
       </div>
       <div class="info-grid">
         <div class="info-item">
@@ -166,7 +166,7 @@
       <!-- Employment Info Section -->
       <div class="info-header">
         <h3 class="section-title">Employment Info</h3>
-        <button id="editEmploymentTrigger" class="edit-btn">Edit</button>
+        <button class="edit-btn" data-panel-open="#employmentSlideEditor" type="button">Edit</button>
       </div>
       <div class="info-grid">
         <div class="info-item">
@@ -200,7 +200,7 @@
       <!-- Emergency Contact Section -->
       <div class="info-header">
         <h3 class="section-title">Emergency Contact</h3>
-        <button id="editEmergencyTrigger" class="edit-btn">Edit</button>
+        <button class="edit-btn" data-panel-open="#emergencySlidePanel" type="button">Edit</button>
       </div>
       <div class="info-grid">
         <div class="info-item">
@@ -230,7 +230,7 @@
       <!-- Demographics Section -->
       <div class="info-header">
         <h3 class="section-title">Demographics</h3>
-        <button id="editDemographicsTrigger" class="edit-btn">Edit</button>
+        <button class="edit-btn" data-panel-open="#demographicsSlidePanel" type="button">Edit</button>
       </div>
       <div class="info-grid">
         <div class="info-item">
@@ -265,7 +265,7 @@
   <div class="profile-display">
     <div class="info-header">
       <h3 class="section-title">Skills</h3>
-      {% if is_owner %}<button id="editSkillsTrigger" class="edit-btn">Edit</button>{% endif %}
+      {% if is_owner %}<button class="edit-btn" data-panel-open="#skillsSlidePanel" type="button">Edit</button>{% endif %}
     </div>
 
     {% if resume and resume.skills.exists %}
@@ -282,7 +282,7 @@
 
   <!-- Slide-In Editor -->
   <div id="slideEditor" class="slide-panel">
-    <form id="personalSlideForm" method="POST" action="{% url 'update_personal_info' %}">
+    <form id="personalSlideForm" method="POST" action="{% url 'update_personal_info' %}" data-profile-form="personal">
       {% csrf_token %}
       <h3>Edit Personal Info</h3>
       <hr>
@@ -314,10 +314,10 @@
       <input type="date" id="birthdate" name="birthdate" value="{{ profile.birthdate|date:"Y-m-d" }}">
 
       <div class="form-actions">
-        <button type="button" id="cancelSlide" class="cancel-btn">Cancel</button>
-        <button type="submit" id="saveSlide" class="save-btn">
+        <button type="button" class="cancel-btn" data-panel-close>Cancel</button>
+        <button type="submit" class="save-btn">
           <span class="btn-text">Save</span>
-          <span class="spinner" style="display: none;"></span>
+          <span class="spinner" style="display:none;"></span>
         </button>
       </div>
     </form>
@@ -325,7 +325,7 @@
 
   <!-- Employment Info Slide Panel -->
   <div id="employmentSlideEditor" class="slide-panel">
-    <form id="employmentSlideForm" action="{% url 'update_employment_info' %}" method="post">
+    <form id="employmentSlideForm" action="{% url 'update_employment_info' %}" method="post" data-profile-form="employment">
       {% csrf_token %}
       <h3 class="panel-title">Edit Employment Information</h3>
 
@@ -410,17 +410,17 @@
 
       <!-- BUTTONS -->
       <div class="slide-panel-actions">
-        <button type="button" id="cancelEmploymentSlide" class="btn-secondary">Cancel</button>
-        <button type="submit" id="saveEmploymentSlide" class="btn-primary">
+        <button type="button" class="btn-secondary" data-panel-close>Cancel</button>
+        <button type="submit" class="btn-primary">
           <span class="btn-text">Save</span>
-          <span class="spinner" style="display: none;"></span>
+          <span class="spinner" style="display:none;"></span>
         </button>
       </div>
     </form>
   </div>
 
   <div id="emergencySlidePanel" class="slide-panel">
-    <form method="POST" action="{% url 'update_emergency_contact' %}">
+    <form method="POST" action="{% url 'update_emergency_contact' %}" data-profile-form="emergency">
       {% csrf_token %}
       <h3>Edit Emergency Contact</h3>
       <hr>
@@ -446,7 +446,7 @@
             value="{{ profile.emergency_contact_email }}">
 
       <div class="form-actions">
-        <button type="button" class="cancel-btn" onclick="closePanel('emergencySlidePanel')">Cancel</button>
+        <button type="button" class="cancel-btn" data-panel-close>Cancel</button>
         <button type="submit" class="save-btn">Save</button>
       </div>
     </form>
@@ -454,7 +454,7 @@
 
 
   <div id="demographicsSlidePanel" class="slide-panel">
-    <form method="POST" action="{% url 'update_demographics' %}">
+    <form method="POST" action="{% url 'update_demographics' %}" data-profile-form="demographics">
       {% csrf_token %}
       <h3>Edit Demographics</h3>
       <hr>
@@ -484,14 +484,14 @@
       <textarea id="veteran_explanation" name="veteran_explanation">{{ profile.veteran_explanation }}</textarea>
 
       <div class="form-actions">
-        <button type="button" class="cancel-btn" onclick="closePanel('demographicsSlidePanel')">Cancel</button>
+        <button type="button" class="cancel-btn" data-panel-close>Cancel</button>
         <button type="submit" class="save-btn">Save</button>
       </div>
     </form>
   </div>
 
   <div id="skillsSlidePanel" class="slide-panel">
-    <form method="POST" action="{% url 'update_skills' %}" id="skillsSlideForm">
+    <form method="POST" action="{% url 'update_skills' %}" id="skillsSlideForm" data-profile-form="skills">
       {% csrf_token %}
       <h3>Edit Skills</h3>
       <hr>
@@ -524,7 +524,7 @@
 
       <!-- Buttons -->
       <div class="form-actions">
-        <button type="button" class="cancel-btn" onclick="closePanel('skillsSlidePanel')">Cancel</button>
+        <button type="button" class="cancel-btn" data-panel-close>Cancel</button>
         <button type="submit" class="save-btn">Save</button>
       </div>
     </form>
