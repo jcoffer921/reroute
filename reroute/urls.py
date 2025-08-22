@@ -2,12 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from profiles.views import user_profile_view   
-
 
 # project urls.py (add these imports)
 from main import views as main_views                   # for dashboard view
-from profiles.views import user_profile_view           # for owner profile
+from profiles.views import update_demographics, update_emergency_contact, update_employment_info, update_personal_info, update_skills, user_profile_view           # for owner profile
 from profiles.views import user_profile_view, update_profile_picture, remove_profile_picture, update_bio
 
 
@@ -15,10 +13,16 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
 
+    # Aliases (exact paths for convenience) --> NEEDED
     path('profile/', user_profile_view, name='my_profile'),  # exact-path alias
     path('profile/update-picture/', update_profile_picture, name='update_profile_picture'),
     path('profile/remove-picture/', remove_profile_picture, name='remove_profile_picture'),
     path('profile/update-bio/', update_bio, name='update_bio'), 
+    path('profile/update/personal/',     update_personal_info,    name='update_personal_info'),
+    path('profile/update/employment/',   update_employment_info,  name='update_employment_info'),
+    path('profile/update/emergency/',    update_emergency_contact,name='update_emergency_contact'),
+    path('profile/update/demographics/', update_demographics,     name='update_demographics'),
+    path('profile/update/skills/',       update_skills,           name='update_skills'),
 
     # --- EXACT-PATH ALIASES (these create the names your templates use) ---
     path('profile/',   user_profile_view,         name='my_profile'),  # /profile/ resolves by name
