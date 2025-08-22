@@ -8,10 +8,16 @@ from profiles.views import user_profile_view
 # project urls.py (add these imports)
 from main import views as main_views                   # for dashboard view
 from profiles.views import user_profile_view           # for owner profile
+from profiles.views import user_profile_view, update_profile_picture, remove_profile_picture
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
+
+    path('profile/', user_profile_view, name='my_profile'),  # exact-path alias
+    path('profile/update-picture/', update_profile_picture, name='update_profile_picture'),
+    path('profile/remove-picture/', remove_profile_picture, name='remove_profile_picture'),
 
     # --- EXACT-PATH ALIASES (these create the names your templates use) ---
     path('profile/',   user_profile_view,         name='my_profile'),  # /profile/ resolves by name

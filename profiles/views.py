@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-
+from PIL import Image, UnidentifiedImageError
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -273,11 +273,17 @@ def update_skills(request):
 # ----------------------------- Profile picture -------------------------
 @login_required
 def update_profile_picture(request):
+    """
+    Handle profile picture upload.
+    - Validates image header via Pillow.
+    - Saves to UserProfile.profile_picture.
+    - On non-AJAX, redirects back to /profile/.
+    """
     if request.method == "POST" and "profile_picture" in request.FILES:
         image_file = request.FILES["profile_picture"]
         try:
             img = Image.open(image_file)
-            img.verify()
+            img.verify()  # quick header check
             if img.format and img.format.lower() not in {"jpeg", "jpg", "png", "gif"}:
                 messages.error(request, "Unsupported image format. Use JPEG, PNG, or GIF.")
                 return redirect("my_profile")
@@ -292,9 +298,11 @@ def update_profile_picture(request):
     return redirect("my_profile")
 
 
-@require_POST
 @login_required
 def remove_profile_picture(request):
+    """
+    Remove current user's profile picture and return to profile.
+    """
     profile = get_object_or_404(UserProfile, user=request.user)
     if profile.profile_picture:
         profile.profile_picture.delete(save=False)
