@@ -12,11 +12,11 @@ urlpatterns = [
     path("view/<str:username>/", views.public_profile_view, name="public_profile"),
 
     # Updates (slide-in panels)
+    path("update/bio/", views.update_bio, name="update_bio"),
     path("update/personal/", views.update_personal_info, name="update_personal_info"),
     path("update/employment/", views.update_employment_info, name="update_employment_info"),
     path("update/emergency/", views.update_emergency_contact, name="update_emergency_contact"),
     path("update/demographics/", views.update_demographics, name="update_demographics"),
-    path("update/bio/", views.update_bio, name="update_bio"),
     path("update/skills/", views.update_skills, name="update_skills"),
 
     # Profile picture

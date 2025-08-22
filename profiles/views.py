@@ -230,6 +230,8 @@ def update_demographics(request):
 @require_POST
 @login_required
 def update_bio(request):
+    if request.method != "POST":
+        return redirect("my_profile")
     profile = get_object_or_404(UserProfile, user=request.user)
     bio = (request.POST.get("bio") or "").strip()
     profile.bio = bio

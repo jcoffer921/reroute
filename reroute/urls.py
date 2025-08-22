@@ -8,7 +8,7 @@ from profiles.views import user_profile_view
 # project urls.py (add these imports)
 from main import views as main_views                   # for dashboard view
 from profiles.views import user_profile_view           # for owner profile
-from profiles.views import user_profile_view, update_profile_picture, remove_profile_picture
+from profiles.views import user_profile_view, update_profile_picture, remove_profile_picture, update_bio
 
 
 urlpatterns = [
@@ -18,6 +18,7 @@ urlpatterns = [
     path('profile/', user_profile_view, name='my_profile'),  # exact-path alias
     path('profile/update-picture/', update_profile_picture, name='update_profile_picture'),
     path('profile/remove-picture/', remove_profile_picture, name='remove_profile_picture'),
+    path('profile/update-bio/', update_bio, name='update_bio'), 
 
     # --- EXACT-PATH ALIASES (these create the names your templates use) ---
     path('profile/',   user_profile_view,         name='my_profile'),  # /profile/ resolves by name
