@@ -1,6 +1,5 @@
 # profiles/urls.py
 from django.urls import path
-from profiles.views import user_profile_view   
 from . import views
 
 app_name = "profiles"
