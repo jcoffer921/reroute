@@ -7,16 +7,17 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/public_profile.css' %}">
 
+<!-- ==== Hero Section ==== -->
 <section class="profile-hero">
   <div class="profile-hero-content">
     <h1>Who You Are</h1>
     <p>Joined: {{ user.date_joined|date:"F j, Y" }}</p>
     <p>Status: <span class="account-status">{{ profile.account_status|capfirst }}</span></p>
-    
   </div>
 </section>
 
-<div class="profile-container">
+<!-- Add .profile--owner so avatar “Update” appears only for owners -->
+<div class="profile-container{% if user == request.user %} profile--owner{% endif %}">
   <div class="profile-header">
 
     <!-- Center: Picture + Name + Badge + ID -->
@@ -73,35 +74,37 @@
   </div>
 
   <div class="profile-bio">
-  <h3><strong>About:</strong></h3>
+    <h3><strong>About:</strong></h3>
 
-  <!-- Bio Display -->
-  <p id="bioPreview">
-    {% if profile.bio %}
-      {{ profile.bio|truncatechars:200 }}
-      {% if profile.bio|length > 200 %}
-        <span id="showMoreBtn" style="color: blue; cursor: pointer;" onclick="toggleBio()">Show more</span>
+    <!-- Bio Display -->
+    <p id="bioPreview">
+      {% if profile.bio %}
+        {{ profile.bio|truncatechars:200 }}
+        {% if profile.bio|length > 200 %}
+          <span id="showMoreBtn" style="color: blue; cursor: pointer;" onclick="toggleBio()">Show more</span>
+        {% endif %}
+      {% else %}
+        <em>No bio yet.</em>
       {% endif %}
-    {% else %}
-      <em>No bio yet.</em>
+    </p>
+
+    <!-- Hidden full bio -->
+    <p id="fullBio" style="display: none;">{{ profile.bio }}</p>
+
+    <!-- Edit Bio Button (Only show if it's the user's profile) -->
+    {% if user == request.user %}
+      <!-- ✅ Added class for CSS -->
+      <button class="edit-bio-btn" onclick="toggleBioEdit()">Edit Bio</button>
+
+      <!-- Hidden form for editing bio -->
+      <form id="editBioForm" method="POST" action="{% url 'update_bio' %}" style="display: none;">
+        {% csrf_token %}
+        <textarea name="bio" rows="4" cols="50">{{ profile.bio }}</textarea><br>
+        <button type="submit" class="save-btn">Save</button>
+        <button type="button" class="cancel-btn" onclick="toggleBioEdit()">Cancel</button>
+      </form>
     {% endif %}
-  </p>
-
-  <!-- Hidden full bio -->
-  <p id="fullBio" style="display: none;">{{ profile.bio }}</p>
-
-  <!-- Edit Bio Button (Only show if it's the user's profile) -->
-  {% if user == request.user %}
-    <button onclick="toggleBioEdit()">Edit Bio</button>
-
-    <!-- Hidden form for editing bio -->
-    <form id="editBioForm" method="POST" action="{% url 'update_bio' %}" style="display: none;">
-      {% csrf_token %}
-      <textarea name="bio" rows="4" cols="50">{{ profile.bio }}</textarea><br>
-      <button type="submit">Save</button>
-      <button type="button" onclick="toggleBioEdit()">Cancel</button>
-    </form>
-  {% endif %}
+  </div>
 </div>
 
   <hr>
@@ -490,6 +493,7 @@
     </form>
   </div>
 
+  <!-- Skills Slide Panel -->
   <div id="skillsSlidePanel" class="slide-panel">
     <form method="POST" action="{% url 'update_skills' %}" id="skillsSlideForm" data-profile-form="skills">
       {% csrf_token %}
@@ -539,5 +543,74 @@
 <script src="{% static 'js/profile_panels.js' %}" defer></script>
 <script type="application/json" id="skillData">
   {{ skills_json|safe }}
+</script>
+<script>
+/* Fallback: only runs if the external profile_panels.js did NOT load.
+   It wires slide-panel open/close using data attributes or aria-controls. */
+(function () {
+  if (window.__profilePanelsLoaded) return; // external JS already active
+
+  // --- helpers ---
+  function openPanel(sel) {
+    const p = document.querySelector(sel);
+    if (!p) { console.warn('Panel not found:', sel); return; }
+    p.classList.add('open');              // your CSS can respond to .open
+    p.classList.add('visible');           // or .visible (covers both)
+    p.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('no-scroll');
+    const first = p.querySelector('input,select,textarea,button,[tabindex]:not([tabindex="-1"])');
+    if (first) first.focus({ preventScroll: true });
+  }
+  function closePanel(el) {
+    const p = el.closest('.slide-panel') || el;
+    if (!p) return;
+    p.classList.remove('open', 'visible');
+    p.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('no-scroll');
+  }
+
+  // Map legacy IDs → panel IDs if data attributes are missing
+  const idMap = {
+    '#editSlideTrigger':        '#slideEditor',
+    '#editEmploymentTrigger':   '#employmentSlideEditor',
+    '#editEmergencyTrigger':    '#emergencySlidePanel',
+    '#editDemographicsTrigger': '#demographicsSlidePanel',
+    '#editSkillsTrigger':       '#skillsSlidePanel',
+  };
+  Object.entries(idMap).forEach(([btnSel, panelSel]) => {
+    const btn = document.querySelector(btnSel);
+    if (btn && !btn.hasAttribute('data-panel-open') && !btn.hasAttribute('aria-controls')) {
+      btn.setAttribute('data-panel-open', panelSel); // add hook if missing
+      btn.type = btn.type || 'button';               // avoid accidental form submits
+    }
+  });
+
+  // Openers: [data-panel-open] OR [aria-controls]
+  document.addEventListener('click', function (e) {
+    const opener = e.target.closest('[data-panel-open],[aria-controls]');
+    if (opener) {
+      e.preventDefault();
+      const targetSel = opener.getAttribute('data-panel-open') || ('#' + opener.getAttribute('aria-controls'));
+      if (targetSel) openPanel(targetSel);
+      return;
+    }
+    // Closers: any element with [data-panel-close]
+    const closer = e.target.closest('[data-panel-close]');
+    if (closer) {
+      e.preventDefault();
+      closePanel(closer);
+    }
+  });
+
+  // Esc closes any open panel
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.slide-panel.open, .slide-panel.visible').forEach(closePanel);
+    }
+  });
+
+  // Mark fallback as active
+  window.__profilePanelsLoaded = true;
+})();
 </script>
 {% endblock %}
