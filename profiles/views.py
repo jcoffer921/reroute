@@ -82,8 +82,6 @@ def public_profile_view(request, username: str):
             "user": target_user,
             "profile": profile,
             "resume": resume,
-            "US_STATES": US_STATES,
-            "ETHNICITY_CHOICES": ETHNICITY_CHOICES,
             "is_owner": False,
         },
     )
@@ -108,6 +106,8 @@ def user_profile_view(request):
             "user": request.user,
             "profile": profile,
             "resume": resume,
+            "US_STATES": US_STATES,
+            "ETHNICITY_CHOICES": ETHNICITY_CHOICES,
             "skills_json": skills_json,
             "is_owner": True,
         },
