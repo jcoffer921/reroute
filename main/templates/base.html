@@ -31,13 +31,13 @@
 
                     {% if user.is_authenticated %}
                         {# ✅ Role-aware: always points to the correct dashboard #}
-                        <a href="{{ DASHBOARD_URL }}">Dashboard</a>
+                        <a href="{% url 'dashboard' %}">Dashboard</a>
 
                         {# Left (optional) menu block, kept for parity with original layout #}
                         <div class="user-menu-container">
                             <div class="user-dropdown" id="userDropdownLeft">
                                 <a href="{% url 'my_profile' %}">Profile</a>
-                                <a href="{{ DASHBOARD_URL }}">Dashboard</a>
+                                <a href="{% url 'dashboard' %}">Dashboard</a>
                                 <a href="{% url 'contact' %}">Report Issues</a>
                                 <a href="{% url 'settings' %}">Settings</a>
                                 <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
@@ -69,7 +69,7 @@
                     </button>
                     <div class="user-dropdown" id="userDropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{% url 'my_profile' %}">Profile</a>
-                        <a href="{{ DASHBOARD_URL }}">Dashboard</a>
+                        <a href="{% url 'dashboard' %}">Dashboard</a>
                         <a href="{% url 'contact' %}">Report Issues</a>
                         <a href="{% url 'settings' %}">Settings</a>
                         <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
@@ -163,7 +163,7 @@
         <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
         <li><a href="{% url 'about_us' %}">About Us</a></li>
         {% if user.is_authenticated %}
-        <li><a href="{{ DASHBOARD_URL }}">Dashboard</a></li>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
         {% else %}
         <li><a href="{% url 'login' %}">Login</a></li>
         <li><a href="{% url 'signup' %}">Get Started</a></li>
