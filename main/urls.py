@@ -33,7 +33,7 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
     path('resumes/', include('resumes.urls')),
     path('profile/', include('profiles.urls')),     # includes user_profile route
-    path('dashboard/', include('dashboard.urls')),  # role router + role dashboards
+    path('dashboard/', include(('dashboard.urls', 'dashboard'), namespace='dashboard')),
 
     # ================ User-side Job Board (prefixed) ================
     path('opportunities/', user_views.opportunities_view, name='opportunities'),

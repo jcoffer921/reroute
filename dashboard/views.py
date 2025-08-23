@@ -1,45 +1,108 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from job_list.models import Job
-from profiles.models import UserProfile
-from resumes.models import Education, Experience, Resume
-from job_list.matching import match_jobs_for_user
-from resumes.models import Application  # Change 'resumes' to the correct app name if needed
-from job_list.models import SavedJob  # assuming you track saved jobs
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
+# dashboard/views.py
+
 from datetime import timedelta
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 from django.utils import timezone
 
+# ===== Domain imports (align to your actual apps) =====
+# Jobs live in job_list; bring Job, SavedJob, Application from there for consistency.
+from job_list.models import Job, SavedJob, Application
+from job_list.matching import match_jobs_for_user
 
+# Profiles & resumes
+from profiles.models import UserProfile
+from resumes.models import Education, Experience, Resume  # your resumes app owns these
+
+
+# =========================
+# Role helpers
+# =========================
 def is_employer(user):
     """Return True if the user is in the Employer group."""
     return user.is_authenticated and user.groups.filter(name='Employer').exists()
 
+def is_admin(user):
+    """True if user is staff or superuser (your choice to treat both as admin)."""
+    return user.is_authenticated and (user.is_superuser or user.is_staff)
+
+
+# =========================
+# Utilities
+# =========================
+def extract_resume_skills(resume):
+    """
+    Return a list of skill strings from a resume, regardless of storage:
+    - If ManyToMany: map objects → .name (or str())
+    - If TextField: split by commas
+    - If nothing present: []
+    """
+    if not resume:
+        return []
+
+    # Case A: ManyToMany-like (has .all attr)
+    if hasattr(resume, "skills") and hasattr(getattr(resume, "skills"), "all"):
+        return [
+            (getattr(s, "name", str(s)) or "").strip()
+            for s in resume.skills.all()
+            if (getattr(s, "name", str(s)) or "").strip()
+        ]
+
+    # Case B: Text field
+    raw = getattr(resume, "skills", "") or ""
+    return [s.strip() for s in raw.split(",") if s.strip()]
+
+
+# =========================
+# Router / Redirect
+# =========================
 @login_required
 def dashboard_redirect(request):
     """
-    Small helper so any legacy links to /dashboard/ still work.
-    Sends users to the correct dashboard based on role.
+    Legacy-safe: send /dashboard/ hits to the correct destination.
+    Priority: Admin > Employer > User.
     """
+    if is_admin(request.user):
+        return redirect('dashboard:admin')      # namespaced dashboard app
     if is_employer(request.user):
-        return redirect('employer_dashboard')
-    return redirect('user_dashboard')
+        return redirect('dashboard:employer')
+    return redirect('dashboard:user')
 
 
+# =========================
+# User Dashboard
+# =========================
 @login_required
 def user_dashboard(request):
-    # Get or create user profile
+    """
+    Loads the user's profile, resume, applications, and suggested jobs
+    (only if we can detect at least one skill).
+    """
+    # Ensure a profile exists to avoid template conditionals blowing up
     user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    imported_resume = Resume.objects.filter(user=request.user, is_imported=True).order_by("-created_at").first()
 
-    # Get user's resume and applications
-    resume = Resume.objects.filter(user=request.user).first()
+    # Latest imported resume (guard in case 'is_imported' doesn't exist)
+    try:
+        imported_resume = (
+            Resume.objects.filter(user=request.user, is_imported=True)
+            .order_by("-created_at")
+            .first()
+        )
+    except Exception:
+        imported_resume = None
+
+    # Canonical "latest" resume for other sections
+    resume = Resume.objects.filter(user=request.user).order_by("-created_at").first()
+
+    # Children of resume (OK if resume is None)
     education_entries = Education.objects.filter(resume=resume) if resume else []
     experience_entries = Experience.objects.filter(resume=resume) if resume else []
+
+    # User's job applications
     applications = Application.objects.filter(applicant=request.user)
 
-    # Track progress for profile completion (3 key steps)
+    # Profile completeness (MVP: 3 signals)
     steps = {
         "has_resume": bool(resume),
         "has_picture": bool(user_profile.profile_picture),
@@ -48,62 +111,69 @@ def user_dashboard(request):
     steps_completed = sum(steps.values())
     completion_percentage = int((steps_completed / 3) * 100)
 
-    # Suggested jobs — only if resume + skills exist
-    if resume and resume.skills.exists():
-        suggested_jobs = match_jobs_for_user(request.user)[:10]
-    else:
-        suggested_jobs = []
+    # Suggested jobs: only attempt if we detect skills
+    skills_list = extract_resume_skills(resume)
+    suggested_jobs = match_jobs_for_user(request.user)[:10] if skills_list else []
 
-    # Format user join date
-    formatted_joined_date = (
-        request.user.date_joined.strftime("%b %d, %Y") if request.user.date_joined else None
-    )
+    # Friendly join date string
+    joined_date = request.user.date_joined.strftime("%b %d, %Y") if request.user.date_joined else None
 
-    # Render the dashboard template
     return render(request, 'dashboard/user_dashboard.html', {
         'profile': user_profile,
         'resume': resume,
+        'imported_resume': imported_resume,
+        'education_entries': education_entries,
+        'experience_entries': experience_entries,
         'applications': applications,
         'completion_percentage': completion_percentage,
         'steps_completed': steps_completed,
-        'joined_date': formatted_joined_date,
+        'joined_date': joined_date,
         'suggested_jobs': suggested_jobs,
-        'imported_resume': imported_resume,
-        'education_entries': education_entries,   
-        'experience_entries': experience_entries
     })
 
+
+# =========================
+# Saved & Matched Jobs
+# =========================
 @login_required
 def saved_jobs_view(request):
+    """Simple list of saved jobs for the current user."""
     saved_jobs = SavedJob.objects.filter(user=request.user).select_related('job')
     return render(request, 'dashboard/saved_jobs.html', {'saved_jobs': saved_jobs})
 
 @login_required
 def matched_jobs_view(request):
+    """Render matched jobs (uses your current matching module)."""
     matched_jobs = match_jobs_for_user(request.user)
-    return render(request, 'dashboard/matched_jobs.html', {
-        'matches': matched_jobs
-    })
+    return render(request, 'dashboard/matched_jobs.html', {'matches': matched_jobs})
 
 
+# =========================
+# Employer Dashboard & Analytics
+# =========================
 @login_required
 def employer_dashboard(request):
-    jobs = Job.objects.filter(employer=request.user.username)
-    matched_seekers = UserProfile.objects.all()[:3]  # Replace with real logic
-    notifications = []  # Optional logic later
-    interviews = []     # Optional logic later
+    """
+    MVP employer dashboard.
+    NOTE: Your Job.employer is currently a string (username), not a FK(User).
+    Until you migrate, always filter with request.user.username.
+    """
+    employer_username = request.user.username
 
-    # --- Analytics Logic ---
-    one_week_ago = timezone.now() - timedelta(days=7)
-    recent_applications = Application.objects.filter(job__in=jobs, created_at__gte=one_week_ago)
+    # Jobs "owned" by this employer (by username)
+    jobs = Job.objects.filter(employer=employer_username).order_by('-id')
 
-    latest_job = jobs.order_by('-id').first()  # Or use created_at if available
+    # (Placeholder) You can replace with real seeker matching logic later
+    matched_seekers = UserProfile.objects.all()[:3]
+    notifications = []
+    interviews = []
 
+    # Basic analytics (safe to run with current schema)
     analytics = {
-        "total_applicants": Application.objects.filter(job__employer=request.user).count(),
-        "jobs_posted": Job.objects.filter(employer=request.user).count(),
-        "active_jobs": Job.objects.filter(employer=request.user, is_active=True).count(),
-        "jobs_filled": Application.objects.filter(job__employer=request.user, status="filled").count(),
+        "jobs_posted": Job.objects.filter(employer=employer_username).count(),
+        "active_jobs": Job.objects.filter(employer=employer_username, is_active=True).count(),
+        "total_applicants": Application.objects.filter(job__employer=employer_username).count(),
+        "jobs_filled": Application.objects.filter(job__employer=employer_username, status__iexact="filled").count(),
     }
 
     return render(request, 'dashboard/employer_dashboard.html', {
@@ -114,18 +184,22 @@ def employer_dashboard(request):
         'analytics': analytics,
     })
 
+
 @login_required
 def employer_analytics(request):
-    # Assume employer's username is used as the job.employer field for now
-    jobs = Job.objects.filter(employer=request.user.username)
+    """
+    Simple employer analytics page.
+    """
+    employer_username = request.user.username
+    jobs = Job.objects.filter(employer=employer_username).order_by('-id')
 
     job_data = []
     for job in jobs:
-        applications = Application.objects.filter(job=job)
+        num_apps = Application.objects.filter(job=job).count()
         job_data.append({
             'title': job.title,
             'location': job.location,
-            'num_applicants': applications.count(),
+            'num_applicants': num_apps,
         })
 
     return render(request, 'dashboard/employer_analytics.html', {
@@ -133,6 +207,14 @@ def employer_analytics(request):
         'job_data': job_data
     })
 
+
+# =========================
+# Admin Dashboard (custom)
+# =========================
 @login_required
 def admin_dashboard(request):
+    """
+    Custom admin dashboard (separate from Django /admin/).
+    Flesh out with KPIs as you go.
+    """
     return render(request, 'dashboard/admin_dashboard.html')
