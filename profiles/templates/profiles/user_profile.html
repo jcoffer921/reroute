@@ -105,7 +105,6 @@
       </form>
     {% endif %}
   </div>
-</div>
 
   <hr>
 
@@ -271,7 +270,7 @@
       {% if is_owner %}<button class="edit-btn" data-panel-open="#skillsSlidePanel" type="button">Edit</button>{% endif %}
     </div>
 
-    {% if resume and resume.skills.exists %}
+    {% if resume and resume.skills %}
       <ul class="skill-list">
         {% for skill in resume.skills.all %}
           <li class="skill-item">{{ skill.name }}</li>

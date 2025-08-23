@@ -178,6 +178,15 @@
 .refresh-btn { width: 150px; height: 40px; font-size: 1rem; background: #f3f4f6; border: none; border-radius: 6px; cursor: pointer; transition: background .2s ease; margin-top: .5rem; }
 .refresh-btn:hover { background: #e2e4e7; }
 
+/* Minimal dropdown styling */
+#suggestions.dropdown-list { position: relative; margin-top: .25rem; }
+#suggestions .dropdown-item {
+  background: #fff; border: 1px solid #e5e7eb; padding: .5rem .75rem; cursor: pointer;
+}
+#suggestions .dropdown-item + .dropdown-item { border-top: none; }
+#suggestions .dropdown-item:hover { background: #f9fafb; }
+
+
 /* Misc */
 hr { border: none; height: 1px; background: linear-gradient(to right, #ccc, #eee, #ccc); margin: 2rem 0; }
 

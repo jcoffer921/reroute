@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.utils.safestring import mark_safe
 
 from PIL import Image, UnidentifiedImageError
 
@@ -90,29 +91,62 @@ def public_profile_view(request, username: str):
 # ----------------------------- Own profile ------------------------------
 @login_required
 def user_profile_view(request):
+    """
+    Own profile view.
+    - Produces `skills_json` for the slide-out panel:
+      {"selected": [...], "suggested": [...]}
+    - Supports both TextField (comma-separated) and ManyToMany for resume.skills.
+    """
+    # Get the user’s profile (404 if the profile truly doesn’t exist)
     profile = get_object_or_404(UserProfile, user=request.user)
 
-    resume = None
-    skills_json = "[]"
-    if Resume:
-        resume = Resume.objects.filter(user=request.user).order_by("-created_at").first()
-        if resume and hasattr(resume, "skills"):
-            skills_json = json.dumps([s.name for s in resume.skills.all()])
+    # Latest resume for this user (ok if None)
+    resume = Resume.objects.filter(user=request.user).order_by("-created_at").first()
 
-    return render(
-        request,
-        "profiles/user_profile.html",
-        {
-            "user": request.user,
-            "profile": profile,
-            "resume": resume,
-            "US_STATES": US_STATES,
-            "ETHNICITY_CHOICES": ETHNICITY_CHOICES,
-            "skills_json": skills_json,
-            "is_owner": True,
-        },
-    )
+    # ---- Build selected skills ----
+    selected_skills = []
 
+    if resume:
+        # Case A: ManyToMany-like (has .all attribute)
+        if hasattr(resume, "skills") and hasattr(getattr(resume, "skills"), "all"):
+            # Convert related objects to plain strings
+            selected_skills = [str(getattr(s, "name", s)).strip()
+                               for s in resume.skills.all()
+                               if str(getattr(s, "name", s)).strip()]
+        else:
+            # Case B: TextField (comma-separated)
+            raw = getattr(resume, "skills", "") or ""
+            selected_skills = [s.strip() for s in raw.split(",") if s.strip()]
+
+    # ---- Suggested skills (fallback list; replace with DB-driven if you have one) ----
+    suggested_skills = [
+        "Customer Service", "Sales", "Scheduling",
+        "Microsoft Excel", "Python", "Teamwork",
+        "Communication", "Problem Solving"
+    ]
+
+    # Deduplicate + don’t suggest ones already selected
+    selected_set = {s.lower() for s in selected_skills}
+    suggested_clean = [s for s in suggested_skills if s.lower() not in selected_set]
+
+    # JSON the shape the front-end expects
+    skills_payload = {
+        "selected": selected_skills,
+        "suggested": suggested_clean
+    }
+    # mark_safe because you render with {{ skills_json|safe }} into a <script> tag
+    skills_json = mark_safe(json.dumps(skills_payload))
+
+    context = {
+        "user": request.user,
+        "profile": profile,
+        "resume": resume,
+        "US_STATES": US_STATES,
+        "ETHNICITY_CHOICES": ETHNICITY_CHOICES,
+        "skills_json": skills_json,
+        "is_owner": True,  # you’re in the owner view
+    }
+    return render(request, "profiles/user_profile.html", context)
 
 # ----------------------------- Updates: Personal ------------------------
 @require_POST

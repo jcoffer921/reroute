@@ -191,12 +191,20 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
   .mobile-nav-links a:active { background: #f2f2f2; }
 
   .mobile-user-footer { display: flex; flex-direction: column; align-items: center; padding-top: 1rem; border-top: 1px solid #eee; }
+  .mobile-user-footer.guest { justify-content: space-between; }
   .user-initials-circle {
     background: var(--accent-cyan); color: #fff; font-weight: 700; border-radius: 50%;
     width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: .5rem;
   }
-  .mobile-user-name { font-weight: 600; margin-bottom: .5rem; }
+  .user-initials-circle.disabled { opacity: .5; pointer-events: none; }
+  .mobile-user-name { font-weight:600; text-decoration:none; color: inherit; }
+  .logout-form { margin-left:auto; }
+  .logout-btn, .login-btn, .signup-btn {
+    background:#3b82f6; color:#fff; border:none; padding:.5rem .9rem; border-radius:6px; text-decoration:none; display:inline-block;
+  }
   .mobile-menu .logout-btn { background: #ffecec; color: #b20000; border: none; padding: 10px 16px; font-weight: 700; border-radius: 6px; cursor: pointer; }
+  .signup-btn { background:#10b981; }
+
 
   /* Optional: prevent page scroll when menu open (toggle .no-scroll on <body> in JS) */
   body.no-scroll { overflow: hidden; }

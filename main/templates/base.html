@@ -159,6 +159,7 @@
 
     <ul class="mobile-nav-links">
         <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'resource_list' %}">Resources</a></li>
         <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
         <li><a href="{% url 'about_us' %}">About Us</a></li>
         {% if user.is_authenticated %}
@@ -169,21 +170,42 @@
         {% endif %}
     </ul>
 
+    {# =================== MOBILE USER FOOTER =================== #}
     {% if user.is_authenticated %}
     <div class="mobile-user-footer">
-        <div class="user-initials-circle">
+        {# ✅ Make the profile circle clickable to the profile page #}
+        <a href="{% url 'user_profile' %}" class="user-initials-circle" aria-label="Go to your profile">
         {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
-        </div>
-        <span class="mobile-user-name">{{ user.first_name|default:user.username }}</span>
-        <form method="POST" action="{% url 'logout' %}">
+        </a>
+
+        {# (Optional) Make the name clickable too #}
+        <a href="{% url 'user_profile' %}" class="mobile-user-name">
+        {{ user.first_name|default:user.username }}
+        </a>
+
+        {# ✅ Logout must be POST — works on mobile, includes CSRF #}
+        <form method="POST" action="{% url 'logout' %}" class="logout-form">
         {% csrf_token %}
         <button type="submit" class="logout-btn">Sign out</button>
         </form>
     </div>
-    {% endif %}
+    {% else %}
+    {# =================== GUEST (NOT LOGGED IN) =================== #}
+    <div class="mobile-user-footer guest">
+        <div class="user-initials-circle disabled" aria-hidden="true">?</div>
+        <span class="mobile-user-name">Guest</span>
+
+        {# ✅ Clear call-to-action for mobile users #}
+        <a href="{% url 'login' %}" class="login-btn" data-close-mobile-menu>Sign in</a>
+        {# Optional: show signup too #}
+        <a href="{% url 'signup' %}" class="signup-btn" data-close-mobile-menu>Create account</a>
     </div>
+    {% endif %}
+
 
     <!-- Base scripts -->
     <script src="{% static 'js/base.js' %}" defer></script>
+    <script src="{% static 'js/mobile_menu.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

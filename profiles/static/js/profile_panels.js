@@ -268,23 +268,205 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   })();
 
-  // SKILLS (#skillsSlideForm)
+  /* ---------- SKILLS (#skillsSlideForm) — render + submit ---------- */
   (function wireSkills() {
-    const form = qs('#skillsSlideForm');
-    if (!form) return;
+    const form         = qs('#skillsSlideForm');
+    const dataNode     = qs('#skillData'); // <script type="application/json" id="skillData">…</script>
+    const selectedWrap = qs('#selectedSkills');
+    const suggestedWrap= qs('#suggestedSkillsContainer');
+    const input        = qs('#skillInput');
+    const addHidden    = qs('#addSkillsInput');
+    const removeHidden = qs('#removeSkillsInput');
+    const refreshBtn   = qs('#refreshSuggestionsBtn');
+    const dropdown     = qs('#suggestions');
 
+    if (!form || !dataNode || !selectedWrap || !input || !addHidden || !removeHidden) return;
+
+    /* ---------------- State ---------------- */
+    const parsed = safeParseJSON(dataNode.textContent);
+    // Accept either: {"selected":[...], "suggested":[...]} OR ["a","b",...]
+    const initialSelected  = Array.isArray(parsed) ? parsed : (parsed?.selected || []);
+    const initialSuggested = Array.isArray(parsed) ? []     : (parsed?.suggested || []);
+
+    const norm             = (s) => (s || '').trim();
+    const selected         = new Set(initialSelected.map(norm));
+    const addedThisSession = new Set();
+    const removedThisSession = new Set();
+    const initialSet       = new Set(initialSelected.map(s => s.toLowerCase()));
+
+    // master suggestion pool (server + safe fallback)
+    const masterSuggestionPool = Array.from(new Set(
+      (initialSuggested || [])
+        .concat(initialSelected || [])
+        .concat([
+          'Leadership','Time Management','Excel','Word','PowerPoint','Python',
+          'JavaScript','Teamwork','Communication','Problem Solving'
+        ])
+    ));
+
+    /* ---------------- Render helpers ---------------- */
+    function chip(text) {
+      const pill = document.createElement('span');
+      pill.className = 'skill-tag';
+      pill.textContent = text;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Remove ${text}`);
+      btn.textContent = '×';
+      btn.addEventListener('click', () => removeSkill(text));
+
+      pill.appendChild(btn);
+      return pill;
+    }
+
+    function renderSelected() {
+      selectedWrap.innerHTML = '';
+      if (selected.size === 0) {
+        selectedWrap.innerHTML = '<em>No skills selected yet.</em>';
+        return;
+      }
+      selected.forEach(skill => selectedWrap.appendChild(chip(skill)));
+    }
+
+    function renderSuggested(list) {
+      if (!suggestedWrap) return;
+      suggestedWrap.innerHTML = '';
+      (list || []).forEach(s => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'suggested-skill-btn';
+        btn.textContent = s;
+        btn.addEventListener('click', () => addSkill(s));
+        suggestedWrap.appendChild(btn);
+      });
+    }
+
+    function syncHidden() {
+      addHidden.value = JSON.stringify(Array.from(addedThisSession));
+      removeHidden.value = JSON.stringify(Array.from(removedThisSession));
+    }
+
+    /* ---------------- Mutators ---------------- */
+    function addSkill(raw) {
+      const s = norm(raw);
+      if (!s) return;
+
+      // If user re-adds something they marked for removal, unmark it
+      if (removedThisSession.has(s)) removedThisSession.delete(s);
+
+      // Only mark as added if it wasn’t part of initial selection
+      if (!initialSet.has(s.toLowerCase())) addedThisSession.add(s);
+
+      selected.add(s);
+      renderSelected();
+      syncHidden();
+      hideDropdown();
+    }
+
+    function removeSkill(raw) {
+      const s = norm(raw);
+      if (!s) return;
+
+      selected.delete(s);
+
+      // If it was newly added this session, cancel that addition…
+      if (addedThisSession.has(s)) {
+        addedThisSession.delete(s);
+      } else if (initialSet.has(s.toLowerCase())) {
+        // …otherwise, it existed initially → mark as removed
+        removedThisSession.add(s);
+      }
+
+      renderSelected();
+      syncHidden();
+    }
+
+    /* ---------------- Typeahead ---------------- */
+    function filterSuggestions(q) {
+      const query = norm(q).toLowerCase();
+      if (!query) return [];
+      return masterSuggestionPool
+        .filter(s => s.toLowerCase().includes(query))
+        .filter(s => !selected.has(norm(s)))
+        .slice(0, 6);
+    }
+
+    function showDropdown(items) {
+      if (!dropdown) return;
+      dropdown.innerHTML = '';
+      if (!items.length) { dropdown.style.display = 'none'; return; }
+      items.forEach(it => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-item';
+        div.textContent = it;
+        div.addEventListener('click', () => { addSkill(it); input.value=''; });
+        dropdown.appendChild(div);
+      });
+      dropdown.style.display = 'block';
+    }
+
+    function hideDropdown() {
+      if (dropdown) dropdown.style.display = 'none';
+    }
+
+    /* ---------------- Events ---------------- */
+    input.addEventListener('input', () => {
+      const items = filterSuggestions(input.value);
+      showDropdown(items);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = norm(input.value);
+        if (val) addSkill(val);
+        input.value = '';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown) return;
+      if (!dropdown.contains(e.target) && e.target !== input) hideDropdown();
+    });
+
+    if (refreshBtn && suggestedWrap) {
+      refreshBtn.addEventListener('click', () => {
+        // simple re-shuffle for now (replace with server fetch if needed)
+        const shuffled = masterSuggestionPool
+          .filter(s => !selected.has(norm(s)))
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 10);
+        renderSuggested(shuffled);
+      });
+    }
+
+    /* ---------------- Submit (keeps your existing AJAX behavior) ---------------- */
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       submitPanelForm(form, {
         onSuccess: (u) => {
+          // Update on-page Skills list if backend returns skills array
           const ul = qs('.skill-list');
           if (ul && Array.isArray(u.skills)) {
             ul.innerHTML = u.skills.map(s => `<li class="skill-item">${s}</li>`).join('');
           }
+          // Reset session diff after successful save
+          addedThisSession.clear();
+          removedThisSession.clear();
+          syncHidden();
         }
       });
     });
+
+    /* ---------------- Boot ---------------- */
+    renderSelected();
+    renderSuggested(initialSuggested);
+
+    /* ---------------- Utils ---------------- */
+    function safeParseJSON(txt) { try { return JSON.parse(txt || ''); } catch { return null; } }
   })();
+
 
   /* ---------- Bio toggles (your template calls these) ---------- */
 
