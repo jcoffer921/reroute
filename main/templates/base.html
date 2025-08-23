@@ -174,12 +174,12 @@
     {% if user.is_authenticated %}
     <div class="mobile-user-footer">
         {# ✅ Make the profile circle clickable to the profile page #}
-        <a href="{% url 'user_profile' %}" class="user-initials-circle" aria-label="Go to your profile">
+        <a href="{% url 'my_profile' %}" class="user-initials-circle" aria-label="Go to your profile">
         {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
         </a>
 
         {# (Optional) Make the name clickable too #}
-        <a href="{% url 'user_profile' %}" class="mobile-user-name">
+        <a href="{% url 'my_profile' %}" class="mobile-user-name">
         {{ user.first_name|default:user.username }}
         </a>
 
