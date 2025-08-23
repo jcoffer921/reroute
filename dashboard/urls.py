@@ -6,7 +6,7 @@ app_name = 'dashboard'
 
 urlpatterns = [
     # ===== Router (decides user/employer/admin) =====
-    path('', views.dashboard_router, name='my_dashboard'),  # /dashboard/
+    path('', views.dashboard_redirect, name='my_dashboard'),  # /dashboard/
 
     # ===== Role dashboards =====
     path('user/', views.user_dashboard, name='user'),
