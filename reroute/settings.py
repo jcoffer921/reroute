@@ -72,16 +72,18 @@ def _csv_env(name, default):
     raw = os.getenv(name, default)
     return [h.strip() for h in raw.split(",") if h.strip()]
 
-ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', 'localhost', '127.0.0.1', '10.220.68.190', '10.220.71.47']
+ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', "www.reroutejobs.com", 'localhost', '127.0.0.1', '10.220.68.190', '10.220.71.47']
 
 CSRF_TRUSTED_ORIGINS = [
     "https://reroute-backend.onrender.com",
     "https://reroutejobs.com",
+    "https://www.reroutejobs.com",
     "http://localhost",
     "http://127.0.0.1",
 ]
 # Behind Render’s proxy:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
 # ---------- APPS ----------
 INSTALLED_APPS = [
