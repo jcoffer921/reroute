@@ -155,13 +155,12 @@ def matched_jobs_view(request):
 def employer_dashboard(request):
     """
     MVP employer dashboard.
-    NOTE: Your Job.employer is currently a string (username), not a FK(User).
-    Until you migrate, always filter with request.user.username.
+    Job.employer is a ForeignKey to User, so filter directly with request.user.
     """
-    employer_username = request.user.username
+    employer_user = request.user
 
-    # Jobs "owned" by this employer (by username)
-    jobs = Job.objects.filter(employer=employer_username).order_by('-id')
+    # Jobs "owned" by this employer
+    jobs = Job.objects.filter(employer=employer_user).order_by('-id')
 
     # (Placeholder) You can replace with real seeker matching logic later
     matched_seekers = UserProfile.objects.all()[:3]
@@ -170,10 +169,11 @@ def employer_dashboard(request):
 
     # Basic analytics (safe to run with current schema)
     analytics = {
-        "jobs_posted": Job.objects.filter(employer=employer_username).count(),
-        "active_jobs": Job.objects.filter(employer=employer_username, is_active=True).count(),
-        "total_applicants": Application.objects.filter(job__employer=employer_username).count(),
-        "jobs_filled": Application.objects.filter(job__employer=employer_username, status__iexact="filled").count(),
+        "jobs_posted": Job.objects.filter(employer=employer_user).count(),
+        "active_jobs": Job.objects.filter(employer=employer_user, is_active=True).count(),
+        "total_applicants": Application.objects.filter(job__employer=employer_user).count(),
+        # Interpret "filled" as accepted offers in current schema
+        "jobs_filled": Application.objects.filter(job__employer=employer_user, status__iexact="accepted").count(),
     }
 
     return render(request, 'dashboard/employer_dashboard.html', {
@@ -190,8 +190,8 @@ def employer_analytics(request):
     """
     Simple employer analytics page.
     """
-    employer_username = request.user.username
-    jobs = Job.objects.filter(employer=employer_username).order_by('-id')
+    # Job.employer is a FK to User, so filter by the user object
+    jobs = Job.objects.filter(employer=request.user).order_by('-id')
 
     job_data = []
     for job in jobs:

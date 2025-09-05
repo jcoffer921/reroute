@@ -46,7 +46,7 @@
         {% for job in jobs %}
         <tr>
           <td>{{ job.title }}</td>
-          <td>{{ job.main_job_applications.count }} active</td>
+          <td>{{ job.applications.count }} active</td>
           <td>
             <span class="badge {% if job.is_active %}badge-success{% else %}badge-secondary{% endif %}">
               {{ job.is_active|yesno:"Open,Closed" }}
@@ -105,12 +105,16 @@
   <section class="matcher">
     <div class="section-header">
       <h2>Matcher</h2>
-      <a href="{% url 'employer_analytics' %}" class="view-all-link">View All →</a>
+      <a href="{% url 'dashboard:employer_analytics' %}" class="view-all-link">View All →</a>
     </div>
     <div class="matcher-cards">
       {% for match in matched_seekers %}
         <div class="matcher-card">
-          <img src="{{ match.profile_picture.url }}" alt="Profile" class="profile-pic">
+          {% if match.profile_picture %}
+            <img src="{{ match.profile_picture.url }}" alt="Profile" class="profile-pic">
+          {% else %}
+            <div class="profile-pic placeholder"></div>
+          {% endif %}
           <p>{{ match.user.first_name|default:"Name" }}</p>
         </div>
       {% empty %}

@@ -124,9 +124,6 @@ class ContactInfo(models.Model):
     """
     One-to-one with Resume. Used by builder flow and can be filled by importer.
     """
-    US_STATE_CHOICES = [
-        # ... keep your choices here ...
-    ]
     resume = models.OneToOneField('resumes.Resume', on_delete=models.CASCADE, related_name='contact_info')
     full_name = models.CharField(max_length=255)
     email = models.EmailField()

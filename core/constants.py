@@ -20,7 +20,7 @@ RELATABLE_SKILLS = [
     # Entrepreneurial / Life Experience
     'Barbering / Haircutting', 'Cleaning business', 'Sales', 'Budgeting',
     'Social media use', 'Mentoring / Peer support', 'Public speaking',
-    'Basic finance or bookkeeping', 'sales',
+    'Basic finance or bookkeeping',
 ]
 
 SECTION_HEADERS = {

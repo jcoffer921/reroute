@@ -11,7 +11,7 @@
   <form id="resumeUploadForm" enctype="multipart/form-data" class="upload-form">
     {% csrf_token %}
     <label for="resume_file" class="upload-box">
-      <img src="{% static 'resumes/img/document-icon.png' %}" alt="Upload Icon" class="upload-icon">
+      <img src="{% static 'resumes/img/document-icon.svg' %}" alt="Upload Icon" class="upload-icon">
       <p>Upload Your Resume</p>
       <p class="file-note">DOC, DOCX, or PDF files up to 2MB</p>
       <input type="file" name="file" id="resume_file" required>

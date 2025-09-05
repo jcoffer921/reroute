@@ -62,7 +62,7 @@
         </a>
 
         <!-- Saved Jobs -->
-        <a href="{% url 'saved_jobs' %}" class="carousel-card-link">
+        <a href="{% url 'dashboard:saved_jobs' %}" class="carousel-card-link">
           <div class="carousel-card">
             <div class="card-icon">❤️</div>
             <div class="card-content">
@@ -85,7 +85,7 @@
 
       <div class="resume-card-wrapper">
         <div class="resume-thumbnail">
-          <img src="{% static 'images/resume_preview.png' %}" alt="Resume Preview">
+          <img src="{% static 'images/resume_preview.svg' %}" alt="Resume Preview">
         </div>
 
         <div class="resume-info">
@@ -133,14 +133,14 @@
 
       <div class="carousel-track" id="suggestedJobsCarousel">
         {% for job in suggested_jobs %}
-          <div class="carousel-card job-card">
-            <div class="card-content">
-              <h4>{{ job.title }}</h4>
-              <p class="job-meta">{{ job.location }} — {{ job.employer }}</p>
-              <p class="job-description">{{ job.description|truncatechars:100 }}</p>
+            <div class="carousel-card job-card">
+              <div class="card-content">
+                <h4>{{ job.title }}</h4>
+                <p class="job-meta">{{ job.location }} — {{ job.employer }}</p>
+                <p class="job-description">{{ job.description|truncatechars:100 }}</p>
+              </div>
+            <a href="{% url 'job_detail' job.id %}" class="card-arrow">→</a>
             </div>
-            <a href="{% url 'job_list' %}" class="card-arrow">→</a>
-          </div>
         {% empty %}
           <div class="carousel-card job-card">
             <div class="card-content">

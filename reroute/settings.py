@@ -159,6 +159,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'reroute.security_headers.SecurityHeadersMiddleware',
 ]
 
 # ---------- STATIC / MEDIA ----------
@@ -211,6 +212,17 @@ if not DEBUG:
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000      # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True          # allows you to submit to hstspreload.org later
 
 LANGUAGE_CODE = 'en-us'
 

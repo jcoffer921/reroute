@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Resume Preview{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resumes/css/resume_preview.css' %}">
+
+<div class="resume-preview-wrapper">
+  <h2>Resume Preview</h2>
+
+  <section class="preview-section">
+    <h3>Contact</h3>
+    <p>
+      <strong>{{ resume.full_name|default:resume.user.get_full_name|default:resume.user.username }}</strong><br>
+      {{ contact_info.email|default:resume.user.email }}
+    </p>
+  </section>
+
+  {% if education_entries %}
+  <section class="preview-section">
+    <h3>Education</h3>
+    <ul>
+      {% for edu in education_entries %}
+        <li>
+          {% if edu.school_name %}
+            {{ edu.degree|default:"Education/Training" }} — {{ edu.school_name }} {% if edu.graduation_year %}({{ edu.graduation_year }}){% endif %}
+          {% else %}
+            {{ edu.degree|default:"Education/Training" }} — {{ edu.school }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if experience_entries %}
+  <section class="preview-section">
+    <h3>Experience</h3>
+    <ul>
+      {% for exp in experience_entries %}
+        <li>
+          {% if exp.dates %}
+            <strong>{{ exp.job_title }}</strong> at {{ exp.company }} — {{ exp.dates }}
+          {% else %}
+            <strong>{{ exp.job_title }}</strong> at {{ exp.company }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% with skills=skills %}
+    {% if skills %}
+      <section class="preview-section">
+        <h3>Skills</h3>
+        <div class="skills-list">
+          {% for s in skills %}<span class="skill-pill">{{ s.name }}</span>{% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  {% endwith %}
+
+  <div class="preview-actions">
+    <a class="btn" href="{% url 'resumes:created_resume_view' resume.id %}">View Full Resume</a>
+    <a class="btn btn-primary" href="{% url 'resumes:download_resume' resume.id %}">Download PDF</a>
+  </div>
+</div>
+
+<script src="{% static 'resumes/js/resume_preview.js' %}"></script>
+{% endblock %}
+

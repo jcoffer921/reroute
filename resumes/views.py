@@ -80,8 +80,8 @@ def resume_import(request, resume_id):
 
     if request.method == "POST":
         messages.success(request, "✅ Resume saved to your profile successfully!")
-        # Consider redirecting to your dashboard route name
-        return redirect("user_dashboard")
+        # Send users back to the dashboard's user view
+        return redirect("dashboard:user")
 
     return render(request, "resumes/imported_resume_view.html", {
         "resume": resume,

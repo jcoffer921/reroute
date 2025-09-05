@@ -25,7 +25,7 @@
             </p>
           {% endif %}
 
-          <a href="{% url 'job_list:job_detail' job.id %}" class="view-job-btn">View Job</a>
+          <a href="{% url 'job_detail' job.id %}" class="view-job-btn">View Job</a>
         </div>
         <hr>
       {% endfor %}
