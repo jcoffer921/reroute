@@ -6,9 +6,12 @@ register = template.Library()
 
 @register.filter
 def filename(value):
-    return os.path.basename(value.name)
-
-register = template.Library()
+    """Return a basename for FileField or plain string paths."""
+    try:
+        name = getattr(value, "name", value)
+        return os.path.basename(str(name))
+    except Exception:
+        return ""
 
 _MONTHS = {
     "jan": "Jan", "feb": "Feb", "mar": "Mar", "apr": "Apr", "may": "May", "jun": "Jun",
@@ -32,6 +35,6 @@ def normalize_dates(s: str) -> str:
     txt = re.sub(r'\bpresent\b', 'Present', txt, flags=re.I)
 
     # Collapse weird spaces around dashes
-    txt = re.sub(r'\s*[-–—]\s*', ' – ', txt)
+    txt = re.sub(r'\s*[---]\s*', ' - ', txt)
 
     return txt.strip()

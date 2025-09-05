@@ -22,11 +22,11 @@ from .models import (
 )
 from .forms import (
     ContactInfoForm, EducationForm, EducationFormSet,
-    ExperienceForm, ExperienceFormSet, SkillForm, ResumeImportForm
+    ExperienceForm, ExperienceFormSet
 )
 from .utils.resume_parser import (
     read_upload_file, extract_resume_information, validate_file_extension,
-    validate_file_size, analyze_with_ollama
+    validate_file_size
 )
 
 # ------------------ Helpers ------------------
@@ -111,41 +111,8 @@ def parse_resume_upload(request):
         validate_file_size(file)
         content = read_upload_file(file, ext)
 
-        # --- Ask the model for structured JSON ---
-        ai_prompt = f"""
-Extract the following fields from the resume:
-
-- contact_info: {{
-    full_name: string,
-    email: string,
-    phone: string,
-    city: string,
-    state: string
-}}
-- skills: [string]
-- experience: [{{ job_title: string, company: string, dates: string }}]
-- education: [{{ school_name: string, degree: string, graduation_year: string }}]
-
-Return valid JSON ONLY in this exact structure (no prose, no comments):
-
-{{
-  "contact_info": {{
-    "full_name": "",
-    "email": "",
-    "phone": "",
-    "city": "",
-    "state": ""
-  }},
-  "skills": [],
-  "experience": [],
-  "education": []
-}}
-
-Resume content:
-{content}
-        """.strip()
-
-        ai_response = analyze_with_ollama(ai_prompt, model="mistral:latest")
+        # --- Extract structured fields using the robust helper ---
+        extracted = extract_resume_information(content)
 
         # --- Create the Resume first (so we always keep the file/raw_text) ---
         with transaction.atomic():
@@ -153,58 +120,49 @@ Resume content:
                 user=request.user,
                 file=file,
                 raw_text=content,
-                ai_summary=ai_response,
+                ai_summary=json.dumps(extracted),
                 is_imported=True
             )
 
-            # Try to parse strictly as JSON; if it fails, we still return the resume_id
-            parsed = None
-            try:
-                parsed = json.loads(ai_response or "{}")
-            except json.JSONDecodeError:
-                # Keep going; the user can still view raw_text and add details manually
-                pass
+            # --- Contact Info ---
+            contact_data = extracted.get("contact_info") or {}
+            if any(contact_data.values()):
+                ContactInfo.objects.update_or_create(
+                    resume=resume,
+                    defaults={
+                        "full_name": contact_data.get("full_name", "")[:255],
+                        "email": contact_data.get("email", "")[:254],
+                        "phone": contact_data.get("phone", "")[:20],
+                        "city": contact_data.get("city", "")[:100],
+                        "state": (contact_data.get("state") or "")[:2].upper(),
+                    }
+                )
 
-            if parsed:
-                # --- Contact Info ---
-                contact_data = parsed.get("contact_info") or {}
-                if any(contact_data.values()):
-                    ContactInfo.objects.update_or_create(
-                        resume=resume,
-                        defaults={
-                            "full_name": contact_data.get("full_name", "")[:255],
-                            "email": contact_data.get("email", "")[:254],
-                            "phone": contact_data.get("phone", "")[:20],
-                            "city": contact_data.get("city", "")[:100],
-                            "state": (contact_data.get("state") or "")[:2].upper(),
-                        }
-                    )
+            # --- Skills (normalized) ---
+            for raw_name in extracted.get("skills", []):
+                norm = _normalize_skill_name(raw_name)
+                if not norm:
+                    continue
+                skill, _ = Skill.objects.get_or_create(name=norm)
+                resume.skills.add(skill)
 
-                # --- Skills (normalized) ---
-                for raw_name in parsed.get("skills", []):
-                    norm = _normalize_skill_name(raw_name)
-                    if not norm:
-                        continue
-                    skill, _ = Skill.objects.get_or_create(name=norm)
-                    resume.skills.add(skill)
+            # --- Experience Entries (imported) ---
+            for item in extracted.get("experience", []):
+                ExperienceEntry.objects.create(
+                    resume=resume,
+                    job_title=(item.get("job_title") or "")[:255],
+                    company=(item.get("company") or "")[:255],
+                    dates=item.get("dates", "")[:100],
+                )
 
-                # --- Experience Entries (imported) ---
-                for item in parsed.get("experience", []):
-                    ExperienceEntry.objects.create(
-                        resume=resume,
-                        job_title=(item.get("job_title") or "")[:255],
-                        company=(item.get("company") or "")[:255],
-                        dates=item.get("dates", "")[:100],
-                    )
-
-                # --- Education Entries (imported) ---
-                for edu in parsed.get("education", []):
-                    EducationEntry.objects.create(
-                        resume=resume,
-                        school_name=(edu.get("school_name") or "")[:255],
-                        degree=(edu.get("degree") or "")[:255],
-                        graduation_year=(edu.get("graduation_year") or "")[:4],
-                    )
+            # --- Education Entries (imported) ---
+            for edu in extracted.get("education", []):
+                EducationEntry.objects.create(
+                    resume=resume,
+                    school_name=(edu.get("school_name") or "")[:255],
+                    degree=(edu.get("degree") or "")[:255],
+                    graduation_year=(edu.get("graduation_year") or "")[:4],
+                )
 
         return JsonResponse({"resume_id": resume.id, "message": "Parsed successfully"})
 

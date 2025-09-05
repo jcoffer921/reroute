@@ -6,7 +6,7 @@ app_name = 'resumes'
 
 urlpatterns = [
     # Welcome / entry
-    path('resumes/welcome/', views.resume_welcome, name='resume_welcome'),
+    path('welcome/', views.resume_welcome, name='resume_welcome'),
     path('create/', views.create_resume, name='create_resume'),
 
     # Builder steps
@@ -17,11 +17,11 @@ urlpatterns = [
     path('build/preview/', views.resume_preview, name='resume_preview_step'),
 
     # Created resume details + save
-    path('resumes/created/<int:resume_id>/', views.created_resume_view, name='created_resume_view'),
-    path('resumes/save/<int:resume_id>/', views.save_created_resume, name='save_created_resume'),
+    path('created/<int:resume_id>/', views.created_resume_view, name='created_resume_view'),
+    path('save/<int:resume_id>/', views.save_created_resume, name='save_created_resume'),
 
     # Imported resume flow
-    path('resumes/import/', views.resume_upload_page, name='resume_upload_page'),
+    path('import/', views.resume_upload_page, name='resume_upload_page'),
     path('import/<int:resume_id>/', views.resume_import, name='imported_resume'),
     path('parse-upload/', views.parse_resume_upload, name='parse_resume_upload'),
 
