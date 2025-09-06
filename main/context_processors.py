@@ -60,11 +60,11 @@ def role_flags(request):
     # Compute a canonical dashboard URL
     if is_auth:
         try:
-            dest = "employer_dashboard" if is_employer else "dashboard:user_dashboard"
+            dest = "employer_dashboard" if is_employer else "dashboard:user"
             dashboard_url = reverse(dest)
         except Exception:
             # Fallback to paths if names differ locally
-            dashboard_url = "/employer/dashboard/" if is_employer else "/u/dashboard/"
+            dashboard_url = "/employer/dashboard/" if is_employer else "/dashboard/"
     else:
         dashboard_url = reverse("login")
 

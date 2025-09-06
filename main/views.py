@@ -245,8 +245,14 @@ def signup_view(request):
                 login(request, user)
 
                 # Respect ?next= if provided and safe; else go to dashboard
-                next_url = request.POST.get('next') or request.GET.get('next') or reverse('user_dashboard')
-                return redirect(next_url)
+                # Respect ?next= if provided and safe; else go to dashboard router
+                requested_next = request.POST.get('next') or request.GET.get('next')
+                if requested_next and url_has_allowed_host_and_scheme(requested_next, {request.get_host()}):
+                    return redirect(requested_next)
+                try:
+                    return redirect(reverse('dashboard:my_dashboard'))
+                except NoReverseMatch:
+                    return redirect('/dashboard/')
 
             # Log validation errors to server logs (won't crash now)
             logger.info("Signup validation errors: %s", user_form.errors)
@@ -305,11 +311,11 @@ def login_view(request):
 
         # 2) Role-aware default
         try:
-            name = "employer_dashboard" if is_employer(user) else "dashboard:user_dashboard"
+            name = "employer_dashboard" if is_employer(user) else "dashboard:user"
             return reverse(name)
         except NoReverseMatch:
             # Fallback to paths if names differ locally
-            return "/employer/dashboard/" if is_employer(user) else "/u/dashboard/"
+            return "/employer/dashboard/" if is_employer(user) else "/dashboard/"
 
     # ---------- Branch by content type ----------
     content_type = (request.headers.get("Content-Type") or "").split(";")[0].strip()
