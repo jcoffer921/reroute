@@ -143,9 +143,31 @@ def saved_jobs_view(request):
 
 @login_required
 def matched_jobs_view(request):
-    """Render matched jobs (uses your current matching module)."""
-    matched_jobs = match_jobs_for_user(request.user)
-    return render(request, 'dashboard/matched_jobs.html', {'matches': matched_jobs})
+    """Render matched jobs with optional ZIP/radius filters and overlap badges."""
+    origin_zip = (request.GET.get('zip') or '').strip() or None
+    try:
+        radius = int(request.GET.get('radius') or 25)
+    except ValueError:
+        radius = 25
+
+    matched_jobs = match_jobs_for_user(request.user, origin_zip=origin_zip, radius=radius)
+
+    # Compute skill-overlap badges per job
+    resume = Resume.objects.filter(user=request.user).order_by('-created_at').first()
+    overlap_by_job: dict[int, list[str]] = {}
+    if resume and resume.skills.exists():
+        user_skills = {s.name.strip().lower(): s.name for s in resume.skills.all()}
+        for job in matched_jobs:
+            job_skills = {s.name.strip().lower(): s.name for s in job.skills_required.all()}
+            overlap_keys = set(user_skills.keys()) & set(job_skills.keys())
+            overlap_by_job[job.id] = [job_skills[k] for k in overlap_keys]
+
+    return render(request, 'dashboard/matched_jobs.html', {
+        'matches': matched_jobs,
+        'overlap_by_job': overlap_by_job,
+        'selected_zip': origin_zip or '',
+        'selected_radius': radius,
+    })
 
 
 # =========================

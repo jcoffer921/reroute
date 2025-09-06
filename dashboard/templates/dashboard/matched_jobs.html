@@ -10,6 +10,26 @@
   <h2>Matched Jobs Based on Your Skills</h2>
   <hr>
 
+  <!-- Filters: ZIP + Radius -->
+  <form method="get" action="{% url 'dashboard:matched_jobs' %}" class="match-filter-form" style="margin: 12px 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+    <label>
+      ZIP:
+      <input type="text" name="zip" value="{{ selected_zip }}" placeholder="e.g., 19104" maxlength="5" style="width: 90px;">
+    </label>
+    <label>
+      Radius (mi):
+      <select name="radius">
+        {% for r in  (10, 25, 50, 100) %}
+          <option value="{{ r }}" {% if selected_radius == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit" class="btn btn-primary">Apply</button>
+    {% if selected_zip %}
+      <a href="{% url 'dashboard:matched_jobs' %}" class="btn btn-outline">Clear</a>
+    {% endif %}
+  </form>
+
   {% if matches %}
     <div class="job-listings">
       {% for job in matches %}
@@ -21,6 +41,14 @@
             <p><strong>Skills Required:</strong>
               {% for skill in job.skills_required.all %}
                 <span class="badge-skill">{{ skill.name }}</span>
+              {% endfor %}
+            </p>
+          {% endif %}
+
+          {% if overlap_by_job and overlap_by_job[job.id] %}
+            <p><strong>Matched Skills:</strong>
+              {% for s in overlap_by_job[job.id] %}
+                <span class="badge-skill badge-match">{{ s }}</span>
               {% endfor %}
             </p>
           {% endif %}
