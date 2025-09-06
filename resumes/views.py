@@ -10,7 +10,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
-from weasyprint import HTML
+"""
+Avoid importing heavy optional deps at module import time.
+WeasyPrint requires system libraries (cairo/pango); import it lazily
+inside the view that needs it to prevent 500s when opening other pages.
+"""
 
 from profiles.models import UserProfile
 from core.constants import RELATABLE_SKILLS
@@ -402,8 +406,20 @@ def download_resume(request, resume_id):
     """
     Render current resume to PDF using WeasyPrint.
     """
+    # Lazy import to avoid module import errors if system libs are missing
+    try:
+        from weasyprint import HTML  # type: ignore
+    except Exception as e:
+        return HttpResponse(
+            "PDF generation is not available on this server.", status=501
+        )
+
     resume = get_object_or_404(Resume, id=resume_id, user=request.user)
-    template_name = f"resumes/{resume.template}.html" if resume.template in ['simple', 'professional', 'modern'] else "resumes/simple.html"
+    template_name = (
+        f"resumes/{resume.template}.html"
+        if resume.template in ['simple', 'professional', 'modern']
+        else "resumes/simple.html"
+    )
     html_string = render_to_string(template_name, {'resume': resume})
 
     pdf_file = BytesIO()

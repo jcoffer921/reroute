@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     'resources',
 
     # third-party
+    'widget_tweaks',
     'crispy_forms',
     'crispy_bootstrap4',
     'allauth',
