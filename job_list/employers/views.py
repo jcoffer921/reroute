@@ -2,6 +2,7 @@
 
 from decimal import Decimal, InvalidOperation
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
@@ -11,6 +12,16 @@ from core.models import Skill
 # Show jobs posted by this employer
 @login_required
 def dashboard_view(request):
+    """Restrict employer dashboard to employer accounts only."""
+    is_employer = (
+        request.user.groups.filter(name__in=["Employer", "Employers"]).exists()
+        or hasattr(request.user, "employerprofile")
+    )
+    if not is_employer:
+        # Be friendly: redirect to the unified dashboard instead of 403
+        messages.error(request, "Access denied: Employers only.")
+        return redirect('dashboard:my_dashboard')
+
     jobs = Job.objects.filter(employer=request.user)
     return render(request, 'dashboard/employer_dashboard.html', {'jobs': jobs})
 
