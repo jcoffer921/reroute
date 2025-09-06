@@ -532,9 +532,11 @@ def employer_login_view(request):
             is_json = False
 
     if is_json:
-        identifier   = (data.get("username") or data.get("email") or "").strip()
-        password     = data.get("password") or ""
+        identifier     = (data.get("username") or data.get("email") or "").strip()
+        password       = data.get("password") or ""
         requested_next = data.get("next")
+        remember_raw   = data.get("remember")
+        remember_me    = bool(remember_raw) in (True,) or str(remember_raw).lower() in {"1","true","yes","on"}
 
         user, err = auth_employer(identifier, password)
         if err:
@@ -542,12 +544,18 @@ def employer_login_view(request):
             return JsonResponse({"status": "fail", "message": err}, status=code)
 
         login(request, user)
+        # Session persistence based on Remember checkbox
+        try:
+            request.session.set_expiry(60 * 60 * 24 * 30 if remember_me else 0)
+        except Exception:
+            pass
         return JsonResponse({"status": "success", "redirect": safe_dest_employer(requested_next)})
 
     # --- Form (or unknown content-type): never 400 here ---
-    identifier   = request.POST.get("username") or request.POST.get("email") or ""
-    password     = request.POST.get("password") or ""
+    identifier     = request.POST.get("username") or request.POST.get("email") or ""
+    password       = request.POST.get("password") or ""
     requested_next = request.POST.get("next")
+    remember_me    = (request.POST.get("remember") in ("1", "true", "on"))
 
     user, err = auth_employer(identifier, password)
     if err:
@@ -557,6 +565,11 @@ def employer_login_view(request):
         })
 
     login(request, user)
+    # Session persistence based on Remember checkbox
+    try:
+        request.session.set_expiry(60 * 60 * 24 * 30 if remember_me else 0)
+    except Exception:
+        pass
     return redirect(safe_dest_employer(requested_next))
 
 @login_required

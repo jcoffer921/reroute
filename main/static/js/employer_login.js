@@ -41,10 +41,12 @@ async function handleEmployerLoginSubmit(event) {
   const passwordEl =
     form.querySelector('#employer-password') || form.querySelector('input[name="password"]');
   const nextEl = form.querySelector('input[name="next"]');
+  const rememberEl = form.querySelector('input[name="remember"]');
 
   const username = (usernameEl?.value || '').trim();
   const password = passwordEl?.value || '';
   const nextValue = nextEl?.value || '';
+  const remember = !!(rememberEl && (rememberEl.checked || rememberEl.value === '1'));
 
   // Basic validation
   if (!username || !password) {
@@ -73,7 +75,7 @@ async function handleEmployerLoginSubmit(event) {
         'X-Requested-With': 'XMLHttpRequest',        // helps servers identify AJAX
       },
       credentials: 'same-origin',
-      body: JSON.stringify({ username, password, next: nextValue }),
+      body: JSON.stringify({ username, password, next: nextValue, remember }),
     });
 
     // If we got HTML (not JSON), fall back to normal submit so server handles it.
