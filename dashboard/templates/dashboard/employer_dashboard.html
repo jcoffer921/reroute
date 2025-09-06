@@ -108,14 +108,16 @@
       <a href="{% url 'dashboard:employer_analytics' %}" class="view-all-link">View All →</a>
     </div>
     <div class="matcher-cards">
-      {% for match in matched_seekers %}
+      {% for item in matched_seekers %}
         <div class="matcher-card">
-          {% if match.profile_picture %}
-            <img src="{{ match.profile_picture.url }}" alt="Profile" class="profile-pic">
+          {% if item.profile.profile_picture %}
+            <img src="{{ item.profile.profile_picture.url }}" alt="Profile" class="profile-pic">
           {% else %}
             <div class="profile-pic placeholder"></div>
           {% endif %}
-          <p>{{ match.user.first_name|default:"Name" }}</p>
+          <p>{{ item.user.first_name|default:item.user.username }}</p>
+          <p class="small text-muted">Best fit for: {{ item.job.title }}</p>
+          <p class="small">Match: {{ item.score }}%</p>
         </div>
       {% empty %}
         <p>No matches yet.</p>

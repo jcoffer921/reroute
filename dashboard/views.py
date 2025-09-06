@@ -162,8 +162,9 @@ def employer_dashboard(request):
     # Jobs "owned" by this employer
     jobs = Job.objects.filter(employer=employer_user).order_by('-id')
 
-    # (Placeholder) You can replace with real seeker matching logic later
-    matched_seekers = UserProfile.objects.all()[:3]
+    # Match candidates to this employer's jobs (top few per job)
+    from job_list.matching import match_seekers_for_employer
+    matched_seekers = match_seekers_for_employer(employer_user, limit_per_job=3)[:9]
     notifications = []
     interviews = []
 

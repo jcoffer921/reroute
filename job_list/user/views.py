@@ -44,7 +44,17 @@ def opportunities_view(request):
     # --- Job type filter (use the job_type field, not tags regex) ---
     job_types = request.GET.getlist('type')
     if job_types:
-        jobs_qs = jobs_qs.filter(job_type__in=job_types)
+        # Normalize display labels like "Full-Time" → internal values "full_time"
+        normalized = []
+        for t in job_types:
+            t = (t or "").strip()
+            # Accept both internal values and labels
+            tv = t.lower().replace('-', '_').replace(' ', '_')
+            # Map common label forms to internal constants
+            if tv in {"full_time", "part_time", "contract", "internship", "temporary"}:
+                normalized.append(tv)
+        if normalized:
+            jobs_qs = jobs_qs.filter(job_type__in=normalized)
 
     # --- Optional radius filter by ZIP ---
     user_zip = (request.GET.get('zip') or "").strip()
@@ -118,7 +128,7 @@ def apply_to_job(request, job_id):
     resume = Resume.objects.filter(user=request.user).first()
     if not resume or not resume.file:
         messages.warning(request, "🚫 You need to upload a resume before applying. Please go to your dashboard and upload one.")
-        return redirect('dashboard')  # Or to resume upload page
+        return redirect('dashboard:my_dashboard')  # send to unified dashboard
 
     # ✅ Prevent duplicate applications
     if Application.objects.filter(applicant=request.user, job=job).exists():
@@ -146,70 +156,20 @@ def apply_to_job(request, job_id):
 
 # ---------- Scored matching ----------
 def match_jobs(request, seeker_id):
-    """
-    Score = (skill overlap %) * 70
-            + distance bonus (within 25mi: +20, 25-50: +10)
-            + recency bonus (last 14d: +10)
-    Returns jobs ordered by score desc.
-    """
+    """Delegate to the shared matching module and render the matches page."""
+    from job_list.matching import match_jobs_for_user
+
     user = get_object_or_404(User, id=seeker_id)
-    resume = Resume.objects.filter(user=user).order_by('-created_at').first()
 
-    if not resume:
-        return render(request, 'job_list/user/match_jobs.html', {'matches': []})
-
-    # Use the M2M from Resume -> Skill
-    seeker_skills = {s.name.strip().lower() for s in resume.skills.all()}
-    if not seeker_skills:
-        return render(request, 'job_list/user/match_jobs.html', {'matches': []})
-
-    # Optional location filter
-    origin_zip = (request.GET.get('zip') or "").strip()
+    origin_zip = (request.GET.get('zip') or '').strip() or None
     radius = request.GET.get('radius')
     try:
-        radius = int(radius) if radius not in (None, "") else 25
+        radius = int(radius) if radius not in (None, '') else 25
     except ValueError:
         radius = 25
 
-    matches = []
-    for job in Job.objects.filter(is_active=True).prefetch_related('skills_required').select_related('employer'):
-        job_skills = {s.name.strip().lower() for s in job.skills_required.all()}
-        if not job_skills:
-            continue
-
-        # --- Skill overlap (dominant factor) ---
-        overlap = seeker_skills & job_skills
-        if not overlap:
-            continue
-        overlap_pct = len(overlap) / max(len(job_skills), 1)  # % of job needs covered
-        score = overlap_pct * 70
-
-        # --- Distance bonus (if zip provided) ---
-        if origin_zip and job.zip_code:
-            try:
-                if is_within_radius(origin_zip, job.zip_code, 25):
-                    score += 20
-                elif is_within_radius(origin_zip, job.zip_code, 50):
-                    score += 10
-            except Exception:
-                # If geocoder fails, just skip distance bonus
-                pass
-
-        # --- Recency bonus ---
-        try:
-            from django.utils import timezone
-            if (timezone.now() - job.created_at).days <= 14:
-                score += 10
-        except Exception:
-            pass
-
-        matches.append((score, job, list(overlap)))
-
-    # Order by score desc and pass overlap to template if needed
-    matches.sort(key=lambda t: t[0], reverse=True)
-    ordered_jobs = [m[1] for m in matches]
-
-    return render(request, 'job_list/user/match_jobs.html', {
+    ordered_jobs = match_jobs_for_user(user, origin_zip=origin_zip, radius=radius)
+    # Reuse the dashboard template that already renders a list of jobs
+    return render(request, 'dashboard/matched_jobs.html', {
         'matches': ordered_jobs,
-        'debug_scores': matches[:10],  # optional: remove in prod
     })

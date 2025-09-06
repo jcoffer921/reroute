@@ -23,8 +23,8 @@
             <div class="navbar-links-container">
                 <!-- ---------- Left-side navigation links ---------- -->
                 <div class="nav-links">
-                    <a href="{% url 'home' %}">Home</a>
                     <a href="{% url 'about_us' %}">About Us</a>
+                    <a href="{% url 'home' %}">Home</a>
                     <a href="{% url 'opportunities' %}">Opportunities</a>
                     <a href="{% url 'resource_list' %}">Resources</a>
 
@@ -114,9 +114,9 @@
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="{% url 'home' %}">Home</a></li>
                         <li><a href="{% url 'about_us' %}">About Us</a></li>
                         <li><a href="{% url 'blog_list' %}">Blog</a></li>
+                        <li><a href="{% url 'home' %}">Home</a></li>
                         <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
                         <li><a href="{% url 'resource_list' %}">Resources</a></li>
                     </ul>
@@ -157,11 +157,11 @@
     <h2 id="mobileMenuTitle" class="sr-only">Main menu</h2>
 
     <ul class="mobile-nav-links">
-        <li><a href="{% url 'home' %}">Home</a></li>
         <li><a href="{% url 'about_us' %}">About Us</a></li>
         <li><a href="{% url 'blog_list' %}">Blog</a></li>
-        <li><a href="{% url 'resource_list' %}">Resources</a></li>
+        <li><a href="{% url 'home' %}">Home</a></li>
         <li><a href="{% url 'opportunities' %}">Opportunities</a></li>
+        <li><a href="{% url 'resource_list' %}">Resources</a></li>
         {% if user.is_authenticated %}
         <li><a href="{% url 'dashboard:my_dashboard' %}">Dashboard</a></li>
         {% else %}
