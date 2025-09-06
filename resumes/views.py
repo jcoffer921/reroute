@@ -177,7 +177,11 @@ def contact_info_step(request):
     Step 1: user-provided contact info (builder).
     """
     resume = _get_or_create_resume(request.user)
-    contact_info, _ = ContactInfo.objects.get_or_create(resume=resume)
+    # Do NOT create ContactInfo until we have valid POSTed data.
+    try:
+        contact_info = resume.contact_info
+    except ContactInfo.DoesNotExist:
+        contact_info = None
 
     if request.method == 'POST':
         contact_form = ContactInfoForm(request.POST, instance=contact_info)
