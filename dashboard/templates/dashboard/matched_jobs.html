@@ -19,9 +19,10 @@
     <label>
       Radius (mi):
       <select name="radius">
-        {% for r in  (10, 25, 50, 100) %}
-          <option value="{{ r }}" {% if selected_radius == r %}selected{% endif %}>{{ r }}</option>
-        {% endfor %}
+        <option value="10" {% if selected_radius == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if selected_radius == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if selected_radius == 50 %}selected{% endif %}>50</option>
+        <option value="100" {% if selected_radius == 100 %}selected{% endif %}>100</option>
       </select>
     </label>
     <button type="submit" class="btn btn-primary">Apply</button>
@@ -30,9 +31,10 @@
     {% endif %}
   </form>
 
-  {% if matches %}
+  {% if items %}
     <div class="job-listings">
-      {% for job in matches %}
+      {% for item in items %}
+        {% with job=item.job overlap=item.overlap %}
         <div class="job-card">
           <h4>{{ job.title }}</h4>
           <p>{{ job.description|truncatechars:150 }}</p>
@@ -45,9 +47,9 @@
             </p>
           {% endif %}
 
-          {% if overlap_by_job and overlap_by_job[job.id] %}
+          {% if overlap %}
             <p><strong>Matched Skills:</strong>
-              {% for s in overlap_by_job[job.id] %}
+              {% for s in overlap %}
                 <span class="badge-skill badge-match">{{ s }}</span>
               {% endfor %}
             </p>
@@ -56,6 +58,7 @@
           <a href="{% url 'job_detail' job.id %}" class="view-job-btn">View Job</a>
         </div>
         <hr>
+        {% endwith %}
       {% endfor %}
     </div>
   {% else %}

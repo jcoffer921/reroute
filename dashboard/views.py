@@ -162,9 +162,13 @@ def matched_jobs_view(request):
             overlap_keys = set(user_skills.keys()) & set(job_skills.keys())
             overlap_by_job[job.id] = [job_skills[k] for k in overlap_keys]
 
+    items = [
+        {"job": job, "overlap": overlap_by_job.get(job.id, [])}
+        for job in matched_jobs
+    ]
+
     return render(request, 'dashboard/matched_jobs.html', {
-        'matches': matched_jobs,
-        'overlap_by_job': overlap_by_job,
+        'items': items,
         'selected_zip': origin_zip or '',
         'selected_radius': radius,
     })
