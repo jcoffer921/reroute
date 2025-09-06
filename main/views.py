@@ -330,6 +330,11 @@ def login_view(request):
         identifier = data.get("username") or data.get("email") or ""
         password   = data.get("password") or ""
         requested_next = data.get("next")  # may be None
+        remember_raw   = data.get("remember")
+        remember_me    = (
+            (remember_raw is True)
+            or str(remember_raw).lower() in {"1", "true", "yes", "on"}
+        )
 
         user, err = auth_user(identifier, password)
         if err:
@@ -337,6 +342,11 @@ def login_view(request):
             return JsonResponse({"status": "fail", "message": err}, status=code)
 
         login(request, user)
+        # Session persistence based on Remember checkbox
+        try:
+            request.session.set_expiry(60 * 60 * 24 * 30 if remember_me else 0)
+        except Exception:
+            pass
         return JsonResponse({
             "status": "success",
             "redirect": safe_dest(user, requested_next),  # ✅ role-aware & safe
@@ -344,9 +354,10 @@ def login_view(request):
 
     # B) Classic form (treat blank/unknown CT as form too)
     if content_type in ("application/x-www-form-urlencoded", "multipart/form-data", ""):
-        identifier = request.POST.get("username") or request.POST.get("email") or ""
-        password   = request.POST.get("password") or ""
+        identifier     = request.POST.get("username") or request.POST.get("email") or ""
+        password       = request.POST.get("password") or ""
         requested_next = request.POST.get("next")  # may be None
+        remember_me    = (request.POST.get("remember") in ("1", "true", "on"))
 
         user, err = auth_user(identifier, password)
         if err:
@@ -358,6 +369,11 @@ def login_view(request):
             }, status=401 if err == "Invalid credentials" else 400)
 
         login(request, user)
+        # Session persistence based on Remember checkbox
+        try:
+            request.session.set_expiry(60 * 60 * 24 * 30 if remember_me else 0)
+        except Exception:
+            pass
         return redirect(safe_dest(user, requested_next))
 
     # C) Anything else → 400

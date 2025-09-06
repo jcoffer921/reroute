@@ -48,11 +48,13 @@ async function submitLogin(event) {
     form.querySelector('input[type="password"][name="password"]');
 
   const nextEl = form.querySelector('input[name="next"]');
+  const rememberEl = form.querySelector('input[name="remember"]');
   const errorEl = document.getElementById('login-error') || document.getElementById('form-error');
 
   const username = (userEl?.value || '').trim();
   const password = pwdEl?.value || '';
   const nextValue = nextEl?.value || '';
+  const remember = !!(rememberEl && (rememberEl.checked || rememberEl.value === '1'));
 
   // Simple client guard so we don't POST empty
   if (!username || !password) {
@@ -80,7 +82,7 @@ async function submitLogin(event) {
         'X-Requested-With': 'XMLHttpRequest',
       },
       credentials: 'same-origin',
-      body: JSON.stringify({ username, email: username, password, next: nextValue }),
+      body: JSON.stringify({ username, email: username, password, next: nextValue, remember }),
     });
 
     // If not JSON (e.g., server returned HTML), fall back to normal form submit
