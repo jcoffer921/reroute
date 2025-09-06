@@ -83,9 +83,9 @@
 @media (min-width: 900px){
   .bubble-wrapper{ position:relative; height: 520px; } /* flexible canvas */
   .bubble-with-caption{ position:absolute; width:auto; }
-  #bubble1{ left:6%; top:40px; }
-  #bubble2{ right:6%; top:40px; }
-  #bubble3{ left:35%; top:45px; }
+  #bubble1{ left:6%; top:45px; }
+  #bubble2{ right:6%; top:45px; }
+  #bubble3{ left:42%; top:48px; }
   .bubble{ --bubble-size: clamp(260px, 26vw, 320px); border-width:8px; }
 }
 
