@@ -4,7 +4,7 @@ Resume builder forms. Adds light validation and consistent CSS hooks.
 """
 
 from django import forms
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, BaseModelFormSet
 from django.core.exceptions import ValidationError
 
 from .models import Resume, ContactInfo, Education, Experience, Project
@@ -30,6 +30,22 @@ class ContactInfoForm(forms.ModelForm):
         if phone and len(phone) < 7:
             raise ValidationError("Please enter a valid phone number.")
         return phone
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make city/state required at the form layer even though model allows blank
+        self.fields['city'].required = True
+        self.fields['state'].required = True
+
+    def clean(self):
+        cleaned = super().clean()
+        city = (cleaned.get('city') or '').strip()
+        state = (cleaned.get('state') or '').strip()
+        if not city:
+            self.add_error('city', 'City is required.')
+        if not state:
+            self.add_error('state', 'State is required.')
+        return cleaned
 
 
 # ---------- Step 2: Education ----------
@@ -66,9 +82,29 @@ class EducationForm(forms.ModelForm):
         return cleaned
 
 
+class RequiredOneFormSet(BaseModelFormSet):
+    """Require at least one non-deleted, non-empty form."""
+    def clean(self):
+        super().clean()
+        valid_count = 0
+        for form in self.forms:
+            cd = getattr(form, 'cleaned_data', None)
+            if not cd:
+                continue
+            if cd.get('DELETE'):
+                continue
+            # consider a form non-empty if any field (excluding DELETE) has a value
+            has_any = any(v not in (None, '', []) for k, v in cd.items() if k != 'DELETE')
+            if has_any:
+                valid_count += 1
+        if valid_count == 0:
+            raise ValidationError('Add at least one entry before continuing.')
+
+
 EducationFormSet = modelformset_factory(
     Education,
     form=EducationForm,
+    formset=RequiredOneFormSet,
     extra=1,           # Keep at least one blank row
     can_delete=True
 )
@@ -111,6 +147,7 @@ class ExperienceForm(forms.ModelForm):
 ExperienceFormSet = modelformset_factory(
     Experience,
     form=ExperienceForm,
+    formset=RequiredOneFormSet,
     extra=1,
     can_delete=True
 )

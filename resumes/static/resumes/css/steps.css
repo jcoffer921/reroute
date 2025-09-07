@@ -44,6 +44,26 @@ body,
   background-color: #fafafa;
 }
 
+/* === CLIENT-SIDE VALIDATION === */
+.is-invalid {
+  border-color: #dc3545 !important; /* red */
+  background-color: #fff5f5;
+}
+
+.client-error {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: -1.1rem; /* tuck under input */
+  margin-bottom: 1rem;
+}
+
+.invalid-block {
+  border: 1px dashed #dc3545;
+  border-radius: 6px;
+  padding: 0.5rem;
+  background: #fff5f5;
+}
+
 /* === BUTTONS === */
 .form-step-wrapper form button,
 .form-navigation .btn {

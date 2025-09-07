@@ -1,6 +1,7 @@
 # views.py
 from io import BytesIO
 import json
+import os
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -177,6 +178,42 @@ def parse_resume_upload(request):
             "redirect_url": redirect_url,
         })
 
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+@login_required
+def upload_resume_only(request):
+    """
+    Store the uploaded resume file without parsing. Accepts PDF/DOCX/DOC.
+    Returns JSON with a redirect URL (dashboard) on success.
+    """
+    if request.method != "POST" or not request.FILES.get("file"):
+        return JsonResponse({"error": "No file uploaded"}, status=400)
+
+    file = request.FILES["file"]
+
+    # Allow a broader set for file-only uploads
+    allowed = {".pdf", ".docx", ".doc"}
+    ext = os.path.splitext(file.name or "")[1].lower()
+    if ext not in allowed:
+        return JsonResponse({"error": "Unsupported file type. Upload a PDF, DOCX, or DOC."}, status=400)
+
+    try:
+        validate_file_size(file)
+        resume = Resume.objects.create(
+            user=request.user,
+            file=file,
+            is_imported=True,
+        )
+        # Send user to the dashboard router (chooses user/employer/admin)
+        from django.urls import reverse
+        redirect_url = reverse('dashboard:my_dashboard')
+        return JsonResponse({
+            "resume_id": resume.id,
+            "message": "Uploaded successfully",
+            "redirect_url": redirect_url,
+        })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 

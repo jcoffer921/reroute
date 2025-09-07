@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectedBox = document.getElementById('selectedSkillsDisplay');      // visual chips container
   const tagsWrap    = document.getElementById('skillTagContainer');          // suggested tags parent
   const customInput = document.getElementById('customSkillInput');           // free-entry input
+  const form = document.getElementById('skillsForm');
 
   if (!hiddenCSV || !selectedBox) return; // nothing to do
 
@@ -114,4 +115,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // initial paint
   sync();
+
+  // --- Require at least one skill before continuing
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      if (selected.size === 0) {
+        e.preventDefault();
+        selectedBox.classList.add('invalid-block');
+        // show small helper once
+        let hint = selectedBox.nextElementSibling;
+        if (!hint || !hint.classList || !hint.classList.contains('client-error')) {
+          hint = document.createElement('div');
+          hint.className = 'client-error';
+          hint.textContent = 'Please add at least one skill.';
+          selectedBox.parentNode.insertBefore(hint, selectedBox.nextSibling);
+        }
+        // focus the custom input for quick fix
+        if (customInput) customInput.focus();
+      }
+    });
+    // remove invalid style when a skill is added
+    const clearBlock = () => {
+      selectedBox.classList.remove('invalid-block');
+      const hint = selectedBox.nextElementSibling;
+      if (hint && hint.classList && hint.classList.contains('client-error')) hint.remove();
+    };
+    // hook into sync by observing size changes via renderSelected
+    const origRender = renderSelected;
+    renderSelected = function() { // monkey patch local function reference
+      origRender();
+      if (selected.size > 0) clearBlock();
+    };
+  }
 });

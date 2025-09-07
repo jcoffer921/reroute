@@ -24,6 +24,7 @@ urlpatterns = [
     path('import/', views.resume_upload_page, name='resume_upload_page'),
     path('import/<int:resume_id>/', views.resume_import, name='imported_resume'),
     path('parse-upload/', views.parse_resume_upload, name='parse_resume_upload'),
+    path('upload-only/', views.upload_resume_only, name='upload_resume_only'),
 
     # Preview + download by id
     path('<int:resume_id>/preview/', views.resume_preview, name='resume_preview'),

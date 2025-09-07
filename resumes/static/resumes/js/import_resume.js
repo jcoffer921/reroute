@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const fileInput = document.getElementById('resume_file');
   const fileNameDisplay = document.getElementById('selected-file');
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const uploadOnlyToggle = document.getElementById('upload_only');
 
   const messages = [
     "🔍 Reviewing your resume…",
@@ -40,7 +41,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch(uploadUrl, {
+    const endpoint = (uploadOnlyToggle && uploadOnlyToggle.checked) ? uploadOnlyUrl : uploadUrl;
+    fetch(endpoint, {
       method: "POST",
       headers: { 'X-CSRFToken': csrfToken },
       body: formData
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(res => res.json().then(data => ({ status: res.status, body: data })))
       .then(({ status, body }) => {
         clearInterval(interval);
-        if (status === 200 && body.resume_id) {
+        if (status === 200 && (body.resume_id || body.redirect_url)) {
           message.textContent = "✅ Complete! Redirecting...";
           const target = body.redirect_url || `/resume/import/${body.resume_id}/`;
           setTimeout(() => {

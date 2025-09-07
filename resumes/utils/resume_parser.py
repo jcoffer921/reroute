@@ -212,6 +212,130 @@ def _coerce_to_schema(parsed: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
+def _basic_parse_resume(text: str) -> Dict[str, Any]:
+    """
+    Heuristic, dependency-free parser used when AI is disabled/unavailable.
+    Tries to pull reasonable fields from plain text resumes.
+    """
+    import re
+
+    def find_section(name: str) -> int:
+        pat = re.compile(rf"^\s*{re.escape(name)}\s*$", re.IGNORECASE | re.MULTILINE)
+        m = pat.search(text)
+        return m.start() if m else -1
+
+    def slice_section(start_label: str, end_labels: List[str]) -> str:
+        start = find_section(start_label)
+        if start == -1:
+            return ""
+        end_positions = [p for p in (find_section(lbl) for lbl in end_labels) if p != -1 and p > start]
+        end = min(end_positions) if end_positions else len(text)
+        return text[start:end]
+
+    # Contact info
+    email_match = re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text)
+    phone_match = re.search(r"(\+?\d{1,2}[\s.-])?(\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})", text)
+    # Heuristic name: first non-empty line at top (avoid headings)
+    first_lines = [ln.strip() for ln in text.splitlines()[:10] if ln.strip()]
+    full_name = ""
+    for ln in first_lines:
+        if len(ln.split()) in (2, 3) and not any(w.lower() in ln.lower() for w in ("resume", "objective", "summary", "skills")):
+            full_name = ln
+            break
+
+    # City, State (e.g., Philadelphia, PA)
+    loc_match = re.search(r"([A-Za-z .'-]{2,}),\s*([A-Z]{2})\b", text)
+    city = loc_match.group(1) if loc_match else ""
+    state = loc_match.group(2) if loc_match else ""
+
+    # Skills section: split by comma/newlines after heading
+    skills_block = slice_section("Skills", ["Experience", "Work History", "Employment", "Education", "Projects", "Certifications"])
+    skills: List[str] = []
+    if skills_block:
+        body = re.sub(r"(?is)^\s*skills\s*:?\s*", "", skills_block).strip()
+        raw = re.split(r"[\n,]", body)
+        skills = [s.strip(" •-*–\t").strip() for s in raw if len(s.strip()) >= 2][:40]
+
+    # Experience: gather bullet-ish lines under experience section
+    exp_block = slice_section("Experience", ["Skills", "Education", "Projects", "Certifications"])
+    experiences: List[Dict[str, str]] = []
+    if not exp_block:
+        exp_block = slice_section("Work History", ["Skills", "Education", "Projects", "Certifications"])
+    if exp_block:
+        lines = [ln.strip() for ln in exp_block.splitlines() if ln.strip()]
+        # crude grouping by blank lines or date patterns
+        current: List[str] = []
+        def flush():
+            if current:
+                joined = " ".join(current)
+                # Try to split "Title at Company" or "Company – Title"
+                title = ""; company = ""; dates = ""
+                # Dates common patterns
+                dm = re.search(r"(\bJan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec\b\.?\s+\d{4}|\b\d{4}\b).*?(Present|\b\d{4}\b)", joined, re.IGNORECASE)
+                if dm:
+                    dates = dm.group(0)
+                am = re.search(r"(.+?)\s+at\s+(.+)", joined, re.IGNORECASE)
+                if am:
+                    title, company = am.group(1).strip(), am.group(2).strip()
+                else:
+                    bm = re.search(r"(.+?)\s+[–\-]\s+(.+)", joined)
+                    if bm:
+                        left, right = bm.group(1).strip(), bm.group(2).strip()
+                        # Guess which is company vs title by capitalization
+                        if left.isupper() or left.istitle() and right.islower():
+                            company, title = left, right
+                        else:
+                            title, company = left, right
+                experiences.append({
+                    "job_title": title[:255],
+                    "company": company[:255],
+                    "dates": dates[:100],
+                })
+                current.clear()
+        for ln in lines:
+            if re.match(r"^(?:\s*\-|\s*\*|\s*•|\s*–)\s*", ln) or len(current) < 2:
+                current.append(ln)
+            else:
+                # separator
+                flush()
+                current.append(ln)
+        flush()
+        # Trim empties
+        experiences = [e for e in experiences if any(e.values())][:10]
+
+    # Education: try to extract common patterns "School – Degree, 2022"
+    edu_block = slice_section("Education", ["Skills", "Experience", "Work History", "Projects", "Certifications"])
+    education: List[Dict[str, str]] = []
+    if edu_block:
+        for ln in [l.strip() for l in edu_block.splitlines() if l.strip()]:
+            # Year
+            ym = re.search(r"\b(19|20)\d{2}\b", ln)
+            year = ym.group(0) if ym else ""
+            parts = re.split(r"\s+[–\-]\s+|,", ln, maxsplit=2)
+            school = parts[0].strip() if parts else ""
+            degree = parts[1].strip() if len(parts) > 1 else ""
+            if school:
+                education.append({
+                    "school_name": school[:255],
+                    "degree": degree[:255],
+                    "graduation_year": year[:4],
+                })
+        education = education[:10]
+
+    return _coerce_to_schema({
+        "contact_info": {
+            "full_name": (full_name or "")[:255],
+            "email": (email_match.group(0) if email_match else "")[:254],
+            "phone": (phone_match.group(0) if phone_match else "")[:20],
+            "city": city[:100],
+            "state": state[:2],
+        },
+        "skills": skills,
+        "experience": experiences,
+        "education": education,
+    })
+
+
 def extract_resume_information(file_content: str) -> Dict[str, Any]:
     """
     Backwards-compatible function name. Uses a strict prompt and returns a dict
@@ -241,10 +365,18 @@ Resume text:
     raw = analyze_with_ollama(prompt, model="mistral:latest")
     try:
         parsed = _safe_json_loads(raw)
+        coerced = _coerce_to_schema(parsed)
     except Exception:
-        # If the model fails or is disabled, return a valid empty shape
+        coerced = _basic_parse_resume(file_content or "")
+    # If still empty (very short text), just return schema
+    if not any([
+        coerced.get("contact_info", {}).get("email"),
+        coerced.get("skills"),
+        coerced.get("experience"),
+        coerced.get("education"),
+    ]):
         return _coerce_to_schema({})
-    return _coerce_to_schema(parsed)
+    return coerced
 
 
 def analyze_with_ollama(prompt: str, model: str = "mistral:latest") -> str:

@@ -13,11 +13,17 @@
     <label for="resume_file" class="upload-box">
       <img src="{% static 'resumes/img/document-icon.svg' %}" alt="Upload Icon" class="upload-icon">
       <p>Upload Your Resume</p>
-      <p class="file-note">DOCX or PDF files (max 10MB)</p>
+      <p class="file-note">PDF, DOCX, or DOC (max 10MB)</p>
       <input type="file" name="file" id="resume_file" required>
     </label>
     <p id="selected-file" class="selected-file-name"></p>
-    <button type="submit" class="submit-btn">Parse Your Resume</button>
+    <div class="upload-actions">
+      <label class="skip-parse">
+        <input type="checkbox" id="upload_only">
+        Just upload the file (no parsing)
+      </label>
+      <button type="submit" class="submit-btn">Continue</button>
+    </div>
   </form>
 </div>
 
@@ -31,6 +37,7 @@
 
 <script>
   const uploadUrl = "{% url 'resumes:parse_resume_upload' %}";
+  const uploadOnlyUrl = "{% url 'resumes:upload_resume_only' %}";
 </script>
 <script src="{% static 'resumes/js/import_resume.js' %}"></script>
 {% endblock %}

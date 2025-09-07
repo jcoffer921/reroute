@@ -13,22 +13,65 @@ function updateText(id, value, fallback = "") {
 }
 
 // Full Name
-document.getElementById("id_full_name")?.addEventListener("input", function () {
+const fullNameInput = document.getElementById("id_full_name");
+const emailInput = document.getElementById("id_email");
+const cityInput = document.getElementById("id_city");
+const stateInput = document.getElementById("id_state");
+
+fullNameInput?.addEventListener("input", function () {
   updateText("preview_full_name", this.value, "Your Name");
+  this.classList.toggle('is-invalid', !this.value.trim());
 });
 // Email
-document.getElementById("id_email")?.addEventListener("input", function () {
+emailInput?.addEventListener("input", function () {
   updateText("preview_email", this.value, "email@example.com");
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value.trim());
+  this.classList.toggle('is-invalid', !ok);
 });
 // Phone
 document.getElementById("id_phone")?.addEventListener("input", function () {
   updateText("preview_phone", this.value, "(123) 456-7890");
 });
 // City
-document.getElementById("id_city")?.addEventListener("input", function () {
+cityInput?.addEventListener("input", function () {
   updateText("preview_city", this.value, "City");
+  this.classList.toggle('is-invalid', !this.value.trim());
 });
 // State
-document.getElementById("id_state")?.addEventListener("change", function () {
+stateInput?.addEventListener("change", function () {
   updateText("preview_state", this.value, "State");
+  this.classList.toggle('is-invalid', !this.value.trim());
+});
+
+// Submit validation (minimal: full name + valid email)
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form');
+  if (!form) return;
+  form.addEventListener('submit', (e) => {
+    let invalid = false;
+    if (fullNameInput && !fullNameInput.value.trim()) {
+      fullNameInput.classList.add('is-invalid');
+      invalid = true;
+    }
+    if (emailInput) {
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+      if (!ok) {
+        emailInput.classList.add('is-invalid');
+        invalid = true;
+      }
+    }
+    if (cityInput && !cityInput.value.trim()) {
+      cityInput.classList.add('is-invalid');
+      invalid = true;
+    }
+    if (stateInput && !stateInput.value.trim()) {
+      stateInput.classList.add('is-invalid');
+      invalid = true;
+    }
+    if (invalid) {
+      e.preventDefault();
+      const first = document.querySelector('.is-invalid');
+      if (first) first.focus();
+    }
+  });
 });
