@@ -250,3 +250,11 @@
 .view-all-link:hover {
   text-decoration: underline;
 }
+
+/* --- Fixes & responsive tweaks --- */
+/* Use flex in section headers and avoid brittle floats */
+.section-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.sort-control { display: inline-flex; align-items: center; gap: 0.5rem; margin: 0; float: none; }
+
+/* Keep job table accessible on small screens */
+.job-listings { overflow-x: auto; }

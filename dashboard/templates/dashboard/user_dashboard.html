@@ -129,7 +129,9 @@
       </a>
     </div>
     <div class="suggested-wrapper">
+      {% if suggested_jobs %}
       <button class="carousel-btn left" onclick="scrollSuggested(-1)">←</button>
+      {% endif %}
 
       <div class="carousel-track" id="suggestedJobsCarousel">
         {% for job in suggested_jobs %}
@@ -142,15 +144,21 @@
             <a href="{% url 'job_detail' job.id %}" class="card-arrow">→</a>
             </div>
         {% empty %}
-          <div class="carousel-card job-card">
-            <div class="card-content">
-              <p>No job suggestions yet. Complete your profile to get matched.</p>
+          <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true">🔎</div>
+            <h4>No job suggestions yet</h4>
+            <p>Complete your profile and add skills to see matches tailored to you.</p>
+            <div class="empty-actions">
+              <a href="{% url 'my_profile' %}" class="btn btn-outline">Complete Profile</a>
+              <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-primary">Create Resume</a>
+              <a href="{% url 'opportunities' %}" class="btn btn-outline">Browse Jobs</a>
             </div>
           </div>
         {% endfor %}
       </div>
-
+      {% if suggested_jobs %}
       <button class="carousel-btn right" onclick="scrollSuggested(1)">→</button>
+      {% endif %}
     </div>
   </div>
 

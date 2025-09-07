@@ -42,6 +42,17 @@ h1, h2, h3 {
   background-color: var(--secondary-indigo);
 }
 
+/* Button variants */
+.btn-primary { background-color: var(--primary-blue); color: #fff; }
+.btn-primary:hover { background-color: #3a6fe0; }
+
+.btn-outline {
+  background-color: #fff;
+  color: var(--primary-blue);
+  border: 1px solid #bfd6ff;
+}
+.btn-outline:hover { background-color: #f0f6ff; }
+
 /* Links */
 a {
   color: var(--accent-cyan);

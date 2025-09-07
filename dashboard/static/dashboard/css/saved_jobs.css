@@ -4,8 +4,8 @@
 
 .saved-jobs-hero {
     background: linear-gradient(135deg, #59aaec, #9bceec);
-    /* background-color: #0F172A; /* rich navy blue */
-    color: #F3F4F6; /* rich navy blue for contrast */
+    /* background-color: #0F172A; rich navy blue */
+    color: #F3F4F6; /* light text for contrast */
     margin: 0 auto;
     padding: 10rem 2rem 4rem;
     position: relative;
@@ -100,3 +100,12 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Minimal utility classes used in template (no Tailwind) */
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.items-start { align-items: flex-start; }
+.mt-4 { margin-top: 1rem; }
+.text-center { text-align: center; }
+.text-gray-400 { color: #9ca3af; }
+.text-gray-500 { color: #6b7280; }
