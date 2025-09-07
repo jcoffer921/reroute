@@ -25,17 +25,17 @@
         <li><a href="#">Resume Templates</a></li>
         <li><a href="{% url 'interview_prep' %}">Interview Prep</a></li>
         <li><a href="{% url 'email_guidance' %}">Email Guidance</a></li>
-        <li><a href="#">View More →</a></li>
+        <li><a href="{% url 'job_tools_index' %}">View More →</a></li>
       </ul>
     </div>
 
     <div class="resource-card">
       <h3>💻 Tech Courses</h3>
       <ul>
-        <li><a href="#">freeCodeCamp</a></li>
-        <li><a href="#">CS50 (Harvard)</a></li>
-        <li><a href="#">Google Career Certs</a></li>
-        <li><a href="#">View More →</a></li>
+        <li><a href="https://www.freecodecamp.org/" target="_blank" rel="noopener">freeCodeCamp</a></li>
+        <li><a href="https://cs50.harvard.edu/" target="_blank" rel="noopener">CS50 (Harvard)</a></li>
+        <li><a href="https://grow.google/certificates/" target="_blank" rel="noopener">Google Career Certificates</a></li>
+        <li><a href="{% url 'tech_courses' %}">View More →</a></li>
       </ul>
     </div>
 
@@ -44,8 +44,8 @@
       <ul>
         <li><a href="{% url 'legal_aid' %}">Legal Aid</a></li>
         <li><a href="{% url 'housing' %}">Housing Options</a></li>
-        <li><a href="#">Counseling Services</a></li>
-        <li><a href="#">View More →</a></li>
+        <li><a href="{% url 'counseling' %}">Counseling Services</a></li>
+        <li><a href="{% url 'reentry_help_index' %}">View More →</a></li>
       </ul>
     </div>
   </div>

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Counseling Services | ReRoute{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resources/css/reentry_help/housing.css' %}">
+
+<div class="resource-section">
+  <h1>🧠 Counseling & Mental Health Support</h1>
+  <p>Emotional health is a key part of successful reentry. These resources can help with free or low‑cost counseling, substance use treatment, and crisis support in Philadelphia and nationally.</p>
+
+  <div class="resource-box">
+    <h2>📍 Philadelphia Services</h2>
+    <ul>
+      <li><a href="https://dbhids.org/" target="_blank" rel="noopener">Philadelphia DBHIDS</a> – City department for behavioral health and intellectual disability services.</li>
+      <li><a href="https://cbhphilly.org/" target="_blank" rel="noopener">Community Behavioral Health (CBH)</a> – Managed care for Medicaid behavioral health services in Philly.</li>
+      <li><a href="https://www.mhanational.org/local/affiliates?field_state_value=PA" target="_blank" rel="noopener">Mental Health America – PA Affiliates</a> – Local screening, peer support, and referrals.</li>
+      <li><a href="https://www.phillyrebirth.org/" target="_blank" rel="noopener">Institute for Community Justice (ICJ)</a> – Reentry services with counseling and support groups.</li>
+    </ul>
+  </div>
+
+  <div class="resource-box">
+    <h2>🇺🇸 National Hotlines & Finders</h2>
+    <ul>
+      <li><a href="https://988lifeline.org/" target="_blank" rel="noopener">988 Suicide & Crisis Lifeline</a> – Call or text 988 for 24/7 free support.</li>
+      <li><a href="https://findtreatment.gov/" target="_blank" rel="noopener">FindTreatment.gov (SAMHSA)</a> – Locator for mental health and substance use treatment.</li>
+      <li><a href="https://www.samhsa.gov/find-help/helplines" target="_blank" rel="noopener">SAMHSA Helpline</a> – 1‑800‑662‑HELP (4357) for treatment referral and information.</li>
+      <li><a href="https://www.nami.org/help" target="_blank" rel="noopener">NAMI HelpLine</a> – Education and support (M–F).</li>
+    </ul>
+  </div>
+
+  <div class="resource-box">
+    <h2>💡 Tips for Getting Started</h2>
+    <ul>
+      <li>If insured by Medicaid in Philly, call CBH to ask about covered providers.</li>
+      <li>Ask organizations about sliding‑scale or free counseling options.</li>
+      <li>Bring ID and any discharge or referral paperwork if you have it.</li>
+    </ul>
+  </div>
+
+  <p class="update-note">Last updated September 2025. Links and services can change.</p>
+
+  <div class="resource-box">
+    <h2>Sources</h2>
+    <ul>
+      <li>Philadelphia Department of Behavioral Health and Intellectual disAbility Services (DBHIDS): https://dbhids.org/</li>
+      <li>Community Behavioral Health (CBH) Philadelphia: https://cbhphilly.org/</li>
+      <li>988 Suicide & Crisis Lifeline: https://988lifeline.org/</li>
+      <li>SAMHSA Treatment Locator: https://findtreatment.gov/</li>
+      <li>NAMI HelpLine: https://www.nami.org/help</li>
+      <li>Mental Health America Local Affiliates (PA): https://www.mhanational.org/local/affiliates?field_state_value=PA</li>
+      <li>Institute for Community Justice (ICJ): https://www.phillyrebirth.org/</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
+

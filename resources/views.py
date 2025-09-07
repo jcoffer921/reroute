@@ -19,5 +19,17 @@ def legal_aid(request):
         'related_articles': related_articles
     })
 
-def housing_opt(request):
+def housing(request):
     return render(request, 'resources/reentry_help/housing.html')
+
+def counseling(request):
+    return render(request, 'resources/reentry_help/counseling.html')
+
+def tech_courses(request):
+    return render(request, 'resources/job_tools/tech_courses.html')
+
+def job_tools_index(request):
+    return render(request, 'resources/job_tools/index.html')
+
+def reentry_help_index(request):
+    return render(request, 'resources/reentry_help/index.html')

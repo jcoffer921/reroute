@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reentry Help | ReRoute Resources{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resources/css/resources.css' %}">
+
+<section class="resource-hero">
+  <div class="resource-hero-content">
+    <h1>Reentry Help</h1>
+    <p>Legal, housing, and counseling resources to support your journey.</p>
+  </div>
+</section>
+
+<div class="resource-container">
+  <h2>Support Services</h2>
+  <p>Explore detailed guides and links curated for returning citizens.</p>
+
+  <div class="resource-grid">
+    <div class="resource-card">
+      <h3>🧑‍⚖️ Legal Aid</h3>
+      <p>Know your rights, expungement, and free legal help.</p>
+      <ul><li><a href="{% url 'legal_aid' %}">Open →</a></li></ul>
+    </div>
+
+    <div class="resource-card">
+      <h3>🏠 Housing Options</h3>
+      <p>Transitional housing, rent assistance, and fair housing info.</p>
+      <ul><li><a href="{% url 'housing' %}">Open →</a></li></ul>
+    </div>
+
+    <div class="resource-card">
+      <h3>🧠 Counseling</h3>
+      <p>City services, crisis hotlines, and sliding‑scale counseling.</p>
+      <ul><li><a href="{% url 'counseling' %}">Open →</a></li></ul>
+    </div>
+  </div>
+
+  <div class="resource-footer-cta">
+    <p>Back to Resources</p>
+    <a href="{% url 'resource_list' %}" class="btn-secondary">All Categories</a>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tech Courses | ReRoute Resources{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'resources/css/job_tools/interview_prep.css' %}">
+
+<div class="interview-hero">
+  <h1>💻 Learn Tech Skills Online</h1>
+  <p>Beginner‑friendly, self‑paced courses. Most are free; some offer financial aid or scholarships.</p>
+  <a href="{% url 'resource_list' %}" class="btn-primary" style="margin-top: .75rem; display:inline-block;">Back to Resources →</a>
+  </div>
+
+<div class="interview-section">
+  <h2>Foundations (Free)</h2>
+  <ul>
+    <li><a href="https://www.freecodecamp.org/" target="_blank" rel="noopener">freeCodeCamp</a> – Full free curriculum: HTML/CSS, JS, Front End, Back End, Python, and more.</li>
+    <li><a href="https://cs50.harvard.edu/" target="_blank" rel="noopener">Harvard CS50</a> – Computer science fundamentals, web, Python, AI; free to audit.</li>
+    <li><a href="https://www.theodinproject.com/" target="_blank" rel="noopener">The Odin Project</a> – Free, project‑based Web Dev path.</li>
+    <li><a href="https://www.khanacademy.org/computing" target="_blank" rel="noopener">Khan Academy</a> – Programming basics and algorithms.</li>
+  </ul>
+  </div>
+
+<div class="interview-section">
+  <h2>Career Certificates</h2>
+  <ul>
+    <li><a href="https://grow.google/certificates/" target="_blank" rel="noopener">Google Career Certificates</a> – IT Support, UX, Data Analytics, more. Financial aid via Coursera.</li>
+    <li><a href="https://www.coursera.org/financial-aid" target="_blank" rel="noopener">Coursera</a> – Many courses have Financial Aid (apply per course).</li>
+    <li><a href="https://www.edx.org/" target="_blank" rel="noopener">edX</a> – University courses with free audit options.</li>
+  </ul>
+  </div>
+
+<div class="interview-section">
+  <h2>Practice Platforms</h2>
+  <ul>
+    <li><a href="https://www.frontendmentor.io/" target="_blank" rel="noopener">Frontend Mentor</a> – Build UI projects from real briefs (free tier).</li>
+    <li><a href="https://exercism.org/" target="_blank" rel="noopener">Exercism</a> – Practice tracks in many languages with mentoring.</li>
+    <li><a href="https://codewars.com/" target="_blank" rel="noopener">Codewars</a> – Coding challenges to build fluency.</li>
+  </ul>
+</div>
+
+<div class="interview-section">
+  <h2>Sources</h2>
+  <ul>
+    <li>freeCodeCamp: https://www.freecodecamp.org/</li>
+    <li>Harvard CS50: https://cs50.harvard.edu/</li>
+    <li>The Odin Project: https://www.theodinproject.com/</li>
+    <li>Khan Academy – Computing: https://www.khanacademy.org/computing</li>
+    <li>Google Career Certificates: https://grow.google/certificates/</li>
+    <li>Coursera Financial Aid: https://www.coursera.org/financial-aid</li>
+    <li>edX: https://www.edx.org/</li>
+    <li>Frontend Mentor: https://www.frontendmentor.io/</li>
+    <li>Exercism: https://exercism.org/</li>
+    <li>Codewars: https://www.codewars.com/</li>
+  </ul>
+</div>
+
+{% endblock %}
+
