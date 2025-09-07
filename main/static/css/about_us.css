@@ -81,7 +81,8 @@
 
 /* Larger screens: position the three bubbles in a “triangle” */
 @media (min-width: 900px){
-  .bubble-wrapper{ position:relative; height: 520px; } /* flexible canvas */
+  /* Increase canvas height so bios aren't clipped behind next section */
+  .bubble-wrapper{ position:relative; min-height: clamp(620px, 68vw, 780px); }
   .bubble-with-caption{ position:absolute; width:auto; }
   #bubble1{ left:6%; top:66px; }
   #bubble2{ right:6%; top:66px; }
