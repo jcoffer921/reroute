@@ -17,8 +17,8 @@
 
   <!-- Change Password -->
   <div class="settings-section">
-    <h2>Change Password</h2>
-    <form method="POST">
+    <h2 id="heading-change-password">Change Password</h2>
+    <form method="POST" aria-labelledby="heading-change-password">
       {% csrf_token %}
       <div class="form-group">
         <label for="id_old_password">Current Password</label>
@@ -41,12 +41,12 @@
 
   <!-- Change Email -->
   <div class="settings-section">
-    <h2>Change Email</h2>
-    <form method="POST">
+    <h2 id="heading-change-email">Change Email</h2>
+    <form method="POST" aria-labelledby="heading-change-email">
       {% csrf_token %}
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input type="email" name="email" id="email" class="input-small" value="{{ request.user.email }}" placeholder="Email Address" required>
+        <input type="email" name="email" id="email" class="input-small" value="{{ request.user.email }}" placeholder="Email Address" autocomplete="email" required>
       </div>
       <button type="submit" name="update_email" class="btn-primary">Change Email</button>
     </form>
@@ -54,9 +54,9 @@
 
   <!-- Account Management -->
   <div class="settings-box danger-zone">
-    <h3>Account Management</h3>
+    <h3 id="heading-account-mgmt">Account Management</h3>
 
-    <form method="POST">
+    <form method="POST" aria-labelledby="heading-account-mgmt">
       {% csrf_token %}
       <div class="button-row">
         <button type="submit" name="deactivate_account" class="btn btn-secondary">Deactivate Account</button>

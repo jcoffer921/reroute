@@ -27,40 +27,23 @@
     color: #F3F4F6;
 }
 
-.settings-hero-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    text-align: left;
-}
-
-.about-hero h1 {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 1rem;
-    color: #F3F4F6;
-}
-
-.about-hero p {
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    color: #F3F4F6;
-}
+/* Remove stray About Us styles and duplicate blocks */
 
 .settings-container {
   text-align: left;
   max-width: 900px;
   margin: 2rem auto;
-  padding: 7rem 2rem;
+  padding: 2rem 1.25rem;
   background-color: #66666617;
+  border-radius: 12px;
 }
 
 .settings-container form {
   margin-bottom: 2rem;
-  padding: 7rem 1rem;
+  padding: 1rem;
   border: 1px solid #eee;
   border-radius: 8px;
+  background: #fff;
 }
 
 .settings-container h3 {
@@ -78,10 +61,10 @@
 label {
   display: block;
   text-align: left;
-  margin-bottom: -1.5rem;  /* Tight spacing under the label */
+  margin-bottom: 0.4rem;
   font-weight: 600;
   font-size: 0.95rem;
-  color: #1f2937;       /* Dark neutral (Tailwind's gray-800 for reference) */
+  color: #1f2937;
 }
 
 input[type="text"],
@@ -103,6 +86,7 @@ input[type="email"]:focus,
 input[type="password"]:focus {
   border-color: #6495ed; /* ReRoute blue */
   outline: none;
+  box-shadow: 0 0 0 3px rgba(100, 149, 237, 0.2);
 }
 
 /* Optional: better focus style */
@@ -117,7 +101,6 @@ button.danger {
 }
 
 .settings-box.danger-zone {
-  max-height: 200px;
   background: var(--neutral-gray);
   border: 1px solid #e0e0e0;
   border-radius: 16px;
@@ -172,7 +155,7 @@ button.danger {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: -2rem;
+  margin-top: 0.5rem;
 }
 
 .btn {
