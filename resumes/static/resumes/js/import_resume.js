@@ -50,8 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
         clearInterval(interval);
         if (status === 200 && body.resume_id) {
           message.textContent = "✅ Complete! Redirecting...";
+          const target = body.redirect_url || `/resume/import/${body.resume_id}/`;
           setTimeout(() => {
-            window.location.href = `/resume/import/${body.resume_id}/`;
+            window.location.href = target;
           }, 1200);
         } else {
           // ❌ Upload failed – hide modal and show alert

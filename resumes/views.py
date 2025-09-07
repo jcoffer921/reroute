@@ -168,7 +168,14 @@ def parse_resume_upload(request):
                     graduation_year=(edu.get("graduation_year") or "")[:4],
                 )
 
-        return JsonResponse({"resume_id": resume.id, "message": "Parsed successfully"})
+        # Provide a redirect URL so the front-end doesn't hardcode paths
+        from django.urls import reverse
+        redirect_url = reverse('resumes:imported_resume', args=[resume.id])
+        return JsonResponse({
+            "resume_id": resume.id,
+            "message": "Parsed successfully",
+            "redirect_url": redirect_url,
+        })
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)

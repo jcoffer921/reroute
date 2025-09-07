@@ -240,8 +240,8 @@ if DEBUG:
     RECAPTCHA_SECRET_KEY = '6LchCXsrAAAAAPm9n82MxoLQXRwUucSybpFcmfEV'
 else:
     # Live Keys for reroutejobs.com
-    RECAPTCHA_SITE_KEY = '6LfcBnsrAAAAACC59lBm9O9fdNsIKsphP89JU0tC'
-    RECAPTCHA_SECRET_KEY = '6LfcBnsrAAAAAEqFbgwUBddDmvPEkiE7BuLvm7Az'
+    RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY')
+    RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
 # Send anonymous users here when @login_required triggers
 LOGIN_URL = '/login/'

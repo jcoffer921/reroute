@@ -111,6 +111,7 @@
   padding: clamp(2rem, 5vw, 3rem) 1.25rem;
   display:flex; align-items:center; justify-content:center;
   color:#111;
+  object-position: 50% 20%;
 }
 .mission-overlay{
   position:absolute; inset:0;
