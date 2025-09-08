@@ -384,11 +384,17 @@ def admin_applications_manage(request):
     if q:
         apps = apps.filter(Q(job__title__icontains=q) | Q(applicant__username__icontains=q))
 
+    # Use field metadata for authoritative choices
+    try:
+        status_choices = Application._meta.get_field('status').choices
+    except Exception:
+        status_choices = getattr(Application, 'STATUS_CHOICES', [])
+
     return render(request, 'dashboard/admin_applications_manage.html', {
         'applications': apps,
         'q': q,
         'status': status,
-        'status_choices': getattr(Application, 'STATUS_CHOICES', []),
+        'status_choices': status_choices,
     })
 
 
