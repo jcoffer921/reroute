@@ -289,8 +289,11 @@ def admin_dashboard(request):
     new_jobs = Job.objects.filter(created_at__gte=seven_days_ago).count()
     new_applications = Application.objects.filter(submitted_at__gte=seven_days_ago).count()
 
-    # Flagged jobs queue
-    flagged_jobs = Job.objects.filter(is_flagged=True)
+    # Flagged jobs queue (tolerate missing column prior to migration)
+    try:
+        flagged_jobs = Job.objects.filter(is_flagged=True)
+    except Exception:
+        flagged_jobs = []
 
     context = {
         "user_count": user_count,
