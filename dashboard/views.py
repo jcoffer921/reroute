@@ -125,6 +125,23 @@ def user_dashboard(request):
     # Friendly join date string
     joined_date = request.user.date_joined.strftime("%b %d, %Y") if request.user.date_joined else None
 
+    # Notifications (direct + broadcast)
+    try:
+        from .models import Notification
+        is_emp = bool(getattr(user_profile, 'is_employer', False))
+        from django.db.models import Q
+        broadcast_filters = Q(user__isnull=True) & (
+            Q(target_group=Notification.TARGET_ALL) |
+            Q(target_group=Notification.TARGET_EMPLOYERS if is_emp else Notification.TARGET_SEEKERS)
+        )
+        notifications = (
+            Notification.objects
+            .filter(Q(user=request.user) | broadcast_filters)
+            .order_by('-created_at', '-id')
+        )
+    except Exception:
+        notifications = []
+
     return render(request, 'dashboard/user_dashboard.html', {
         'profile': user_profile,
         'resume': resume,
@@ -136,6 +153,7 @@ def user_dashboard(request):
         'steps_completed': steps_completed,
         'joined_date': joined_date,
         'suggested_jobs': suggested_jobs,
+        'notifications': notifications,
     })
 
 
@@ -198,10 +216,18 @@ def employer_dashboard(request):
     # Match candidates to this employer's jobs (top few per job)
     from job_list.matching import match_seekers_for_employer
     matched_seekers = match_seekers_for_employer(employer_user, limit_per_job=3)[:9]
-    # Recent in-app notifications for this employer
+    # Recent in-app notifications for this employer (include broadcasts)
     try:
         from .models import Notification
-        notifications = Notification.objects.filter(user=employer_user).order_by('-created_at')[:10]
+        from django.db.models import Q
+        broadcast = Q(user__isnull=True) & (
+            Q(target_group=Notification.TARGET_ALL) | Q(target_group=Notification.TARGET_EMPLOYERS)
+        )
+        notifications = (
+            Notification.objects
+            .filter(Q(user=employer_user) | broadcast)
+            .order_by('-created_at', '-id')[:10]
+        )
     except Exception:
         notifications = []
     interviews = []
@@ -242,7 +268,21 @@ def notifications_view(request):
             messages.success(request, 'All notifications marked as read.')
             return redirect('dashboard:notifications')
 
-    notes = Notification.objects.filter(user=request.user).order_by('-created_at', '-id')
+    # Include broadcasts in the notifications page
+    from django.db.models import Q
+    is_emp = False
+    try:
+        # Try to infer employment role (if profiles app present)
+        from profiles.models import UserProfile
+        up = UserProfile.objects.filter(user=request.user).first()
+        is_emp = bool(getattr(up, 'is_employer', False))
+    except Exception:
+        pass
+    bcast = Q(user__isnull=True) & (
+        Q(target_group=Notification.TARGET_ALL) |
+        Q(target_group=Notification.TARGET_EMPLOYERS if is_emp else Notification.TARGET_SEEKERS)
+    )
+    notes = Notification.objects.filter(Q(user=request.user) | bcast).order_by('-created_at', '-id')
     return render(request, 'dashboard/notifications.html', { 'notifications': notes })
 
 
