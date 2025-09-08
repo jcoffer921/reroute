@@ -9,6 +9,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.timezone import now
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+from django.db.models import Q
 
 
 
@@ -282,6 +283,17 @@ def admin_dashboard(request):
     jobs_by_day = [
         Job.objects.filter(created_at__date=day).count() for day in last_30
     ]
+    applications_by_day = [
+        Application.objects.filter(submitted_at__date=day).count() for day in last_30
+    ]
+    # Approximate employers by day using User.date_joined for users who have an EmployerProfile
+    try:
+        from profiles.models import EmployerProfile
+        employers_by_day = [
+            EmployerProfile.objects.filter(user__date_joined__date=day).count() for day in last_30
+        ]
+    except Exception:
+        employers_by_day = [0 for _ in last_30]
 
     # Recent activity (last 7 days)
     seven_days_ago = now() - timedelta(days=7)
@@ -305,12 +317,98 @@ def admin_dashboard(request):
         "dates": [d.strftime("%b %d") for d in last_30],
         "users_by_day": users_by_day,
         "jobs_by_day": jobs_by_day,
+        "applications_by_day": applications_by_day,
+        "employers_by_day": employers_by_day,
         "flagged_jobs": flagged_jobs,
         "new_users": new_users,
         "new_jobs": new_jobs,
         "new_applications": new_applications,
     }
     return render(request, 'dashboard/admin_dashboard.html', context)
+
+
+# =========================
+# In-site Admin: Manage Jobs
+# =========================
+@login_required
+@staff_member_required
+def admin_jobs_manage(request):
+    q = (request.GET.get('q') or '').strip()
+    status = (request.GET.get('status') or '').strip().lower()  # '', 'active', 'inactive', 'flagged'
+
+    jobs = Job.objects.select_related('employer').all().order_by('-created_at')
+    if q:
+        jobs = jobs.filter(Q(title__icontains=q) | Q(employer__username__icontains=q) | Q(location__icontains=q))
+    if status == 'active':
+        jobs = jobs.filter(is_active=True)
+    elif status == 'inactive':
+        jobs = jobs.filter(is_active=False)
+    elif status == 'flagged':
+        try:
+            jobs = jobs.filter(is_flagged=True)
+        except Exception:
+            jobs = jobs.none()
+
+    return render(request, 'dashboard/admin_jobs_manage.html', {
+        'jobs': jobs,
+        'q': q,
+        'status': status,
+    })
+
+
+@login_required
+@staff_member_required
+@require_POST
+def admin_job_toggle_active(request, job_id: int):
+    job = Job.objects.filter(id=job_id).first()
+    if not job:
+        messages.error(request, 'Job not found.')
+        return redirect('dashboard:admin_jobs_manage')
+    job.is_active = not job.is_active
+    job.save(update_fields=['is_active'])
+    messages.success(request, f"{'Activated' if job.is_active else 'Deactivated'}: {job.title}")
+    return redirect('dashboard:admin_jobs_manage')
+
+
+# =========================
+# In-site Admin: Manage Applications
+# =========================
+@login_required
+@staff_member_required
+def admin_applications_manage(request):
+    status = (request.GET.get('status') or '').strip()
+    q = (request.GET.get('q') or '').strip()
+    apps = Application.objects.select_related('job', 'applicant').all().order_by('-submitted_at')
+    if status:
+        apps = apps.filter(status=status)
+    if q:
+        apps = apps.filter(Q(job__title__icontains=q) | Q(applicant__username__icontains=q))
+
+    return render(request, 'dashboard/admin_applications_manage.html', {
+        'applications': apps,
+        'q': q,
+        'status': status,
+        'status_choices': getattr(Application, 'STATUS_CHOICES', []),
+    })
+
+
+@login_required
+@staff_member_required
+@require_POST
+def admin_application_update_status(request, app_id: int):
+    app = Application.objects.select_related('job').filter(id=app_id).first()
+    if not app:
+        messages.error(request, 'Application not found.')
+        return redirect('dashboard:admin_applications_manage')
+    new_status = (request.POST.get('status') or '').strip()
+    valid = {s for s, _ in getattr(Application, 'STATUS_CHOICES', [])}
+    if new_status not in valid:
+        messages.error(request, 'Invalid status.')
+        return redirect('dashboard:admin_applications_manage')
+    app.status = new_status
+    app.save(update_fields=['status'])
+    messages.success(request, f"Updated status to {new_status} for {app.job.title}")
+    return redirect('dashboard:admin_applications_manage')
 
 
 @login_required

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import Job, Application
 
 
@@ -18,11 +19,16 @@ class JobAdmin(admin.ModelAdmin):
 
     # Optional: Show a small preview of the logo in admin
     def employer_image_preview(self, obj):
-        if hasattr(obj, "employer_image") and obj.employer_image:
-            return f'<img src="{obj.employer_image.url}" width="40" height="40" style="object-fit:cover;border-radius:4px;" />'
+        try:
+            url = getattr(obj.employer_image, 'url', None)
+        except Exception:
+            url = None
+        if url:
+            return mark_safe(
+                f'<img src="{url}" width="40" height="40" style="object-fit:cover;border-radius:4px;" />'
+            )
         return "—"
     employer_image_preview.short_description = "Logo"
-    employer_image_preview.allow_tags = True  # Deprecated in newer Django, use mark_safe if needed
 
 
 @admin.register(Application)

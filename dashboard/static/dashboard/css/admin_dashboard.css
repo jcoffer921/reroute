@@ -185,6 +185,8 @@ canvas {
   padding: 15px;
   margin-bottom: 40px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  max-width: 100%;
+  box-sizing: border-box; /* prevent overflow from padding */
 }
 
 /* Tables */
@@ -236,7 +238,7 @@ a:hover {
 /* Charts Grid */
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: 1fr; /* stack by default */
   gap: 16px;
   margin-bottom: 32px;
 }
@@ -247,22 +249,124 @@ a:hover {
   padding: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   width: 100%;
-  height: 260px; /* smaller so two-up fits easily */
+  height: 220px; /* compact default height */
 }
 
 /* Responsive tweaks */
 @media (max-width: 600px) {
   .admin-dashboard { padding: 16px; }
   .charts-grid { gap: 12px; }
-  .charts-grid canvas { height: 220px; padding: 12px; }
+  .charts-grid canvas { height: 200px; padding: 12px; }
+}
+
+@media (min-width: 700px) {
+  .charts-grid { grid-template-columns: 1fr 1fr; } /* two-up */
 }
 
 @media (min-width: 1200px) {
-  .charts-grid canvas { height: 300px; }
+  .charts-grid canvas { height: 260px; }
 }
 
 /* Table wrapper for mobile scroll */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
+}
+
+/* Charts Carousel */
+.charts-carousel {
+  position: relative;
+  margin-bottom: 32px;
+}
+.charts-carousel__viewport {
+  overflow: hidden;
+  border-radius: 12px;
+}
+.charts-carousel__track {
+  display: flex;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+.charts-carousel__slide {
+  flex: 0 0 100%;
+}
+.charts-carousel canvas {
+  margin: 0; /* avoid extra height inside slides */
+  width: 100%;
+  height: 240px;
+}
+
+/* Carousel navigation */
+.charts-carousel__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(13,110,253,0.35);
+}
+.charts-carousel__nav:hover { background: #0b5ed7; }
+.charts-carousel__nav--prev { left: 8px; }
+.charts-carousel__nav--next { right: 8px; }
+
+.charts-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.charts-carousel__dots button {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #cfd4da;
+  cursor: pointer;
+}
+.charts-carousel__dots button[aria-selected="true"] {
+  background: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13,110,253,0.15);
+}
+
+@media (max-width: 600px) {
+  .charts-carousel canvas { height: 200px; }
+}
+@media (min-width: 1200px) {
+  .charts-carousel canvas { height: 260px; }
+}
+
+/* Modal styles */
+.rr-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.rr-modal.open { display: flex; }
+.rr-modal__dialog {
+  position: relative;
+  z-index: 1001;
+  background: #fff;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.rr-modal__actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.rr-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  border: 0;
+  cursor: pointer;
 }

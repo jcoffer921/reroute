@@ -12,6 +12,11 @@ urlpatterns = [
     path('user/', views.user_dashboard, name='user'),
     path('employer/', views.employer_dashboard, name='employer'),
     path('admin/', views.admin_dashboard, name='admin'),
+    # In-site admin management pages
+    path('admin/jobs/', views.admin_jobs_manage, name='admin_jobs_manage'),
+    path('admin/jobs/<int:job_id>/toggle/', views.admin_job_toggle_active, name='admin_job_toggle_active'),
+    path('admin/applications/', views.admin_applications_manage, name='admin_applications_manage'),
+    path('admin/applications/<int:app_id>/status/', views.admin_application_update_status, name='admin_application_update_status'),
     # Admin actions for flagged jobs
     path('admin/flagged-jobs/<int:job_id>/approve/', views.approve_flagged_job, name='approve_flagged_job'),
     path('admin/flagged-jobs/<int:job_id>/remove/', views.remove_flagged_job, name='remove_flagged_job'),

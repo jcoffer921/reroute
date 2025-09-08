@@ -41,9 +41,30 @@
 
   <!-- Charts -->
   <h2>Analytics (Last 30 Days)</h2>
-  <div class="charts-grid">
-    <canvas id="usersChart"></canvas>
-    <canvas id="jobsChart"></canvas>
+  <div class="charts-carousel" role="region" aria-label="Analytics charts">
+    <div class="charts-carousel__viewport">
+      <div class="charts-carousel__track">
+        <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Users chart">
+          <canvas id="usersChart"></canvas>
+        </div>
+        <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Jobs chart">
+          <canvas id="jobsChart"></canvas>
+        </div>
+        <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Applications chart">
+          <canvas id="applicationsChart"></canvas>
+        </div>
+        <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Employers chart">
+          <canvas id="employersChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <button class="charts-carousel__nav charts-carousel__nav--prev" aria-label="Previous chart" type="button" title="Previous">
+      <span aria-hidden="true">‹</span>
+    </button>
+    <button class="charts-carousel__nav charts-carousel__nav--next" aria-label="Next chart" type="button" title="Next">
+      <span aria-hidden="true">›</span>
+    </button>
+    <div class="charts-carousel__dots" role="tablist" aria-label="Select chart"></div>
   </div>
 
   <!-- Recent Activity -->
@@ -96,9 +117,11 @@
   <!-- Management Links -->
   <section class="management-links">
     <h2>Management</h2>
-    <a href="{% url 'admin:auth_user_changelist' %}">Manage Users</a>
-    <a href="{% url 'admin:job_list_job_changelist' %}">Manage Jobs</a>
-    <a href="{% url 'admin:job_list_application_changelist' %}">Manage Applications</a>
+    <a href="{% url 'dashboard:admin_jobs_manage' %}">Manage Jobs (Site)</a>
+    <a href="{% url 'dashboard:admin_applications_manage' %}">Manage Applications (Site)</a>
+    <a href="{% url 'admin:auth_user_changelist' %}">Manage Users (Admin)</a>
+    <a href="{% url 'admin:job_list_job_changelist' %}">Manage Jobs (Admin)</a>
+    <a href="{% url 'admin:job_list_application_changelist' %}">Manage Applications (Admin)</a>
     <a href="{% url 'admin:profiles_employerprofile_changelist' %}">Manage Employer Profiles</a>
   </section>
 </div>
@@ -116,5 +139,24 @@
   <button type="button" class="rr-modal__backdrop" aria-label="Close"></button>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  window.dashboardData = {
+    dates: {{ dates|safe }},
+    usersByDay: {{ users_by_day|safe }},
+    jobsByDay: {{ jobs_by_day|safe }},
+    applicationsByDay: {{ applications_by_day|default:'[]'|safe }},
+    employersByDay: {{ employers_by_day|default:'[]'|safe }}
+  };
+  // Hide empty slides early if no data
+  document.addEventListener('DOMContentLoaded', function () {
+    const data = window.dashboardData || {};
+    const slides = document.querySelectorAll('.charts-carousel__slide');
+    slides.forEach(slide => {
+      const id = (slide.querySelector('canvas') || {}).id;
+      if (id === 'applicationsChart' && (!data.applicationsByDay || !data.applicationsByDay.length)) slide.remove();
+      if (id === 'employersChart' && (!data.employersByDay || !data.employersByDay.length)) slide.remove();
+    });
+  });
+  </script>
 <script src="{% static 'dashboard/js/admin_dashboard.js' %}"></script>
 {% endblock %}
