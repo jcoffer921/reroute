@@ -121,3 +121,12 @@ input:focus{
 @media (max-width:480px){
   .auth-card{ margin:40px 12px; padding:24px 16px; }
 }
+
+/* Show/Hide password affordance */
+.pwd-wrap { position: relative; }
+.pwd-wrap input[type="password"], .pwd-wrap input[type="text"] { padding-right: 132px; }
+.pwd-toggle-text {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; color: #6b7280; cursor: pointer; user-select: none;
+}
+.pwd-toggle-text:hover, .pwd-toggle-text:focus { color: #2563eb; text-decoration: underline; outline: none; }

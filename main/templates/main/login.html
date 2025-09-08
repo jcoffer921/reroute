@@ -42,14 +42,17 @@
         <label for="login-password">Password</label>
         <a class="micro-link" href="{% url 'password_reset' %}">Forgot your password?</a>
       </div>
-      <input
-        id="login-password"
-        name="password"
-        type="password"
-        autocomplete="current-password"
-        placeholder="Password"
-        required
-      >
+      <div class="pwd-wrap">
+        <input
+          id="login-password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Password"
+          required
+        >
+        <span class="pwd-toggle-text" tabindex="0" role="button" aria-controls="login-password">Show Password</span>
+      </div>
     </div>
 
     <!-- ================= Remember device (with tooltip) ================= -->

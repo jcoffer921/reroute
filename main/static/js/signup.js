@@ -2,10 +2,12 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- Grabs ---
-  const form = document.getElementById('signup-form');          // <form id="signup-form">
-  const pwd = document.getElementById('id_password');           // password input (Django default id)
+  const form = document.getElementById('signup-form');          // optional; template may not set this id
+  // Prefer the canonical id Django gives to the password field; otherwise fall back by name
+  const pwd = document.getElementById('id_password') || document.querySelector('input[type="password"][name="password"]');
   const strengthEl = document.getElementById('password-strength'); // strength text container
-  const toggle = document.getElementById('pwd-toggle');         // "Show Password" clickable element
+  // Our template uses a span.pwd-toggle-text inside .pwd-wrap with data-target
+  const toggle = document.querySelector('.pwd-toggle-text');
   const errorBox = document.getElementById('form-errors');      // container to display form errors (optional)
   const nextInput = document.querySelector('input[name="next"]'); // hidden next redirect, if present
 
@@ -23,23 +25,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================
   // Show / Hide password
   // =========================
-  if (!input || !toggle) return;
-
-  function flipVisibility() {
-    const showing = pwd.type == 'text';
-    pwd.type = showing ? 'password' : 'text';
-    toggle.textContent = showing ? 'Show Password' : 'Hide Password';
-  }
-
-  toggle.addEventListener('click', flipVisibility);
-
-  // Accessibility: allow Enter/Space to toggle
-  toggle.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      flipVisibility();
+  if (!pwd || !toggle) {
+    // No toggle or password input found — skip toggle wiring but still enable strength meter below.
+  } else {
+    function flipVisibility() {
+      const showing = pwd.type === 'text';
+      pwd.type = showing ? 'password' : 'text';
+      toggle.textContent = showing ? 'Show Password' : 'Hide Password';
     }
-  });
+
+    toggle.addEventListener('click', flipVisibility);
+
+    // Accessibility: allow Enter/Space to toggle
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        flipVisibility();
+      }
+    });
+  }
 
   // =========================
   // Strength meter (lightweight)

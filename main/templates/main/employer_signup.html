@@ -44,13 +44,19 @@
           <label for="password1">Password</label>
           <span class="micro-hint" id="pw-hint">Use at least 8 characters.</span>
         </div>
-        <input id="password1" name="password1" type="password" autocomplete="new-password" required>
+        <div class="pwd-wrap">
+          <input id="password1" name="password1" type="password" autocomplete="new-password" required>
+          <span class="pwd-toggle-text" tabindex="0" role="button" aria-controls="password1">Show Password</span>
+        </div>
         {% if errors.password1 %}<div class="field-error">{{ errors.password1 }}</div>{% endif %}
       </div>
 
       <div class="form-group">
         <label for="password2">Confirm password</label>
-        <input id="password2" name="password2" type="password" autocomplete="new-password" required>
+        <div class="pwd-wrap">
+          <input id="password2" name="password2" type="password" autocomplete="new-password" required>
+          <span class="pwd-toggle-text" tabindex="0" role="button" aria-controls="password2">Show Password</span>
+        </div>
         {% if errors.password2 %}<div class="field-error">{{ errors.password2 }}</div>{% endif %}
       </div>
     </div>

@@ -1,0 +1,22 @@
+/* Notifications page styles */
+.notifications-page { max-width: 960px; margin: 0 auto; padding: 16px; }
+.notifications-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.btn-mark-read { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.btn-mark-read:hover { background: #1d4ed8; }
+
+.notifications-tabs { display: flex; gap: 8px; border-bottom: 1px solid #e5e7eb; margin-bottom: 12px; }
+.notifications-tabs .tab { background: transparent; border: none; padding: 8px 10px; border-bottom: 2px solid transparent; cursor: pointer; }
+.notifications-tabs .tab.active { border-color: #2563eb; color: #2563eb; font-weight: 600; }
+
+.notifications-list { display: grid; gap: 10px; }
+.notification-card { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; }
+.notification-card.unread { border-left: 4px solid #2563eb; }
+.notification-card .icon { font-size: 20px; }
+.notification-card .content h3 { margin: 0 0 4px 0; font-size: 1rem; }
+.notification-card .content p { margin: 0 0 4px 0; color: #374151; }
+.notification-card .content time { font-size: 0.85rem; color: #6b7280; }
+.notification-card .actions .btn-action { color: #2563eb; text-decoration: none; font-weight: 600; }
+.notification-card .actions .btn-action:hover { text-decoration: underline; }
+
+.empty { color: #6b7280; padding: 16px 0; }
+

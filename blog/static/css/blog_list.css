@@ -1,10 +1,9 @@
 /* ========== Blog Header Section ========== */
 .blog-hero {
     background: linear-gradient(135deg, #0F172A, #628cee);
-    /* background-color: #0F172A; /* rich navy blue */
-    color: #F3F4F6; /* rich navy blue for contrast */
+    color: #F3F4F6;
     margin: 0 auto;
-    padding: 10rem 2rem 4rem;
+    padding: 8rem 1.5rem 3rem;
     position: relative;
     overflow: hidden;
 }
@@ -15,21 +14,9 @@
     text-align: left;
 }
 
-.blog-hero h1 {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 1rem;
-    color: #F3F4F6;
-}
+.blog-hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.75rem; color: #F3F4F6; }
 
-.blog-hero p {
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: #F3F4F6;
-}
+.blog-hero p { font-size: 1rem; letter-spacing: .5px; font-weight: 600; margin-bottom: 1.25rem; color: #F3F4F6; }
 
 /* ========== Filter + Search Bar ========== */
 .blog-filter-bar {
@@ -64,19 +51,21 @@
 }
 
 /* ========== Blog List Grid ========== */
+/* Switch to a responsive grid to optimize card layout */
 .blog-list-grid {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  padding: 2rem 1rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
 }
 
 /* ========== Blog Card ========== */
 .blog-card {
+  grid-column: span 12;
   display: flex;
-  background: white;
+  background: #fff;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 16px rgba(0,0,0,0.06);
@@ -87,11 +76,7 @@
   transform: translateY(-4px);
 }
 
-.blog-card img {
-  width: 300px;
-  height: auto;
-  object-fit: cover;
-}
+.blog-card img { width: 320px; max-width: 40vw; height: auto; object-fit: cover; display: block; }
 
 .blog-card-text {
   padding: 2rem;
@@ -137,20 +122,30 @@
 
 /* ========== Mobile Responsive ========== */
 @media (max-width: 768px) {
-  .blog-card {
-    flex-direction: column;
-  }
-
-  .blog-card img {
-    width: 100%;
-    height: auto;
-  }
-
-  .blog-card-text {
-    padding: 16px;
-  }
-
-  .blog-header-section h1 {
-    font-size: 2.2rem;
-  }
+  .blog-list-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; }
+  .blog-card { grid-column: auto; flex-direction: column; }
+  .blog-card img { width: 100%; max-width: 100%; height: auto; }
+  .blog-card-text { padding: 14px; }
+  .blog-card-text h2 { font-size: 1.25rem; }
+  .blog-hero { padding: 5rem 1rem 2rem; }
+  .blog-hero h1 { font-size: 1.75rem; }
+  .blog-hero p { font-size: .95rem; }
+  .blog-filter-bar { margin: 16px 0; padding: 0 12px; }
+  .blog-filter-bar form { width: 100%; }
+  .blog-filter-bar input[type="text"], .blog-filter-bar select { min-width: 0; flex: 1 1 100%; width: 100%; }
+  .blog-filter-bar button { width: 100%; }
 }
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .blog-card { grid-column: span 12; }
+}
+
+@media (min-width: 1101px) {
+  .blog-card { grid-column: span 12; }
+}
+
+/* Improve tap targets */
+.btn-read { min-height: 40px; }
+
+/* Better content readability */
+.blog-card-text p { line-height: 1.6; }

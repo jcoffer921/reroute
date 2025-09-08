@@ -32,6 +32,24 @@
   const agree       = qs('input[name="agree_terms"]');
   const submitBtn   = form.querySelector('button[type="submit"]');
 
+  // Show/Hide toggles for password1/password2 if present
+  const toggles = qsa('.pwd-toggle-text', form);
+  toggles.forEach(t => {
+    const targetId = t.getAttribute('aria-controls') || t.getAttribute('data-target');
+    const input = targetId ? qs('#' + CSS.escape(targetId), form) : null;
+    if (!input) return;
+    function flip() {
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      t.textContent = showing ? 'Show Password' : 'Hide Password';
+      input.focus();
+    }
+    t.addEventListener('click', flip);
+    t.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); }
+    });
+  });
+
   // We’ll show strength/match hints just under the password inputs
   const pwStrength  = document.createElement('div');
   pwStrength.className = 'field-hint';

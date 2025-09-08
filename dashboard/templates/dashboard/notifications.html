@@ -1,42 +1,58 @@
 {% extends "base.html" %}
 {% load static %}
-
-{% block title %}Notifications{% endblock %}
-
 {% block content %}
-<link rel="stylesheet" href="{% static 'dashboard/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'dashboard/css/notifications.css' %}">
 
-<div class="container" style="max-width:900px;margin:0 auto;">
-  <h1 style="margin: 16px 0;">Notifications</h1>
+<div class="notifications-page">
+  <header class="notifications-header">
+    <h1>Notifications</h1>
+    <form id="markAllForm" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="mark_all_read">
+      <button type="submit" class="btn-mark-read">Mark All as Read</button>
+    </form>
+  </header>
 
-  <form method="post" style="margin-bottom:16px;">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="mark_all_read">
-    <button type="submit" class="btn btn-primary">Mark all as read</button>
-  </form>
+  <!-- Tabs -->
+  <nav class="notifications-tabs">
+    <button class="tab active" data-filter="all" type="button">All</button>
+    <button class="tab" data-filter="jobs" type="button">Jobs</button>
+    <button class="tab" data-filter="system" type="button">System</button>
+    <button class="tab" data-filter="admin" type="button">Admin</button>
+    <button class="tab" data-filter="tips" type="button">Tips</button>
+  </nav>
 
-  {% if notifications %}
-    <ul class="card-list">
+  <!-- Notification List -->
+  <section class="notifications-list" id="notificationsList">
+    {% if notifications %}
       {% for n in notifications %}
-        <li class="card" style="padding:12px;border-left:4px solid {% if not n.is_read %}#3b82f6{% else %}#e5e7eb{% endif %};">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:600;">{{ n.verb|capfirst }}</div>
-              <div>{{ n.message }}</div>
-              {% if n.url %}
-                <div><a href="{{ n.url }}">View</a></div>
-              {% endif %}
-            </div>
-            <div style="color:#6b7280; font-size:0.9em;">
-              {{ n.created_at|timesince }} ago
-            </div>
+        {% with type_tag="jobs" %}
+          {% if not n.job and not n.application %}
+            {% with type_tag="system" %}{% endwith %}
+          {% endif %}
+        {% endwith %}
+        <article class="notification-card {% if not n.is_read %}unread{% endif %}" data-type="{% if n.job or n.application %}jobs{% else %}system{% endif %}">
+          <div class="icon">
+            {% if n.job or n.application %}💼{% else %}⚠️{% endif %}
           </div>
-        </li>
+          <div class="content">
+            <h3>{{ n.verb|default:"Update"|capfirst }}</h3>
+            <p>{{ n.message }}</p>
+            <time>{{ n.created_at|timesince }} ago</time>
+          </div>
+          <div class="actions">
+            {% if n.url %}
+              <a href="{{ n.url }}" class="btn-action">View</a>
+            {% endif %}
+          </div>
+        </article>
       {% endfor %}
-    </ul>
-  {% else %}
-    <p>No notifications yet.</p>
-  {% endif %}
+    {% else %}
+      <!-- Example empty state -->
+      <p class="empty">No notifications yet.</p>
+    {% endif %}
+  </section>
 </div>
-{% endblock %}
 
+<script src="{% static 'dashboard/js/notifications.js' %}"></script>
+{% endblock %}
