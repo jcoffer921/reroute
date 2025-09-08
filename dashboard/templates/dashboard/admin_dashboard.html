@@ -8,17 +8,39 @@
   
   <!-- Quick Stats -->
   <div class="stats-grid">
-    <div class="stat-box">Users: {{ user_count }}</div>
-    <div class="stat-box">Employers: {{ employer_count }}</div>
-    <div class="stat-box">Jobs: {{ job_count }}</div>
-    <div class="stat-box">Applications: {{ application_count }}</div>
-    <div class="stat-box">Resumes: {{ resume_count }}</div>
+    <div class="stat-box stat-box--users">
+      <div class="stat-box__label">Users</div>
+      <div class="stat-box__value">{{ user_count }}</div>
+    </div>
+    <div class="stat-box stat-box--employers">
+      <div class="stat-box__label">Employers</div>
+      <div class="stat-box__value">{{ employer_count }}</div>
+    </div>
+    <div class="stat-box stat-box--jobs">
+      <div class="stat-box__label">Jobs</div>
+      <div class="stat-box__value">{{ job_count }}</div>
+    </div>
+    <div class="stat-box stat-box--applications">
+      <div class="stat-box__label">Applications</div>
+      <div class="stat-box__value">{{ application_count }}</div>
+    </div>
+    <div class="stat-box stat-box--resumes">
+      <div class="stat-box__label">Resumes</div>
+      <div class="stat-box__value">{{ resume_count }}</div>
+    </div>
+    <div class="stat-box stat-box--flagged">
+      <div class="stat-box__label">Flagged Items</div>
+      <div class="stat-box__value">{{ flagged_jobs|length }}</div>
+    </div>
   </div>
 
   <!-- Charts -->
   <h2>Analytics (Last 30 Days)</h2>
-  <canvas id="usersChart" width="400" height="200"></canvas>
-  <canvas id="jobsChart" width="400" height="200" style="margin-top:20px;"></canvas>
+  <h2>Analytics (Last 30 Days)</h2>
+  <div class="charts-grid">
+    <canvas id="usersChart"></canvas>
+    <canvas id="jobsChart"></canvas>
+  </div>
 
   <!-- Recent Activity -->
   <h2>Recent Activity (Last 7 Days)</h2>
