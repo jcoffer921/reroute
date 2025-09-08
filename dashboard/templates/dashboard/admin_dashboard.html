@@ -3,8 +3,13 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'dashboard/css/admin_dashboard.css' %}">
 
+<section class="admin-hero">
+  <div class="admin-hero-content">
+    <h1>Welcome, Admin!</h1>
+  </div>
+</section>
+
 <div class="admin-dashboard">
-  <h1>Admin Dashboard</h1>
   
   <!-- Quick Stats -->
   <div class="stats-grid">
@@ -36,23 +41,26 @@
 
   <!-- Charts -->
   <h2>Analytics (Last 30 Days)</h2>
-  <h2>Analytics (Last 30 Days)</h2>
   <div class="charts-grid">
     <canvas id="usersChart"></canvas>
     <canvas id="jobsChart"></canvas>
   </div>
 
   <!-- Recent Activity -->
-  <h2>Recent Activity (Last 7 Days)</h2>
-  <ul>
-    <li>New Users: {{ new_users|default:0 }}</li>
-    <li>New Jobs: {{ new_jobs|default:0 }}</li>
-    <li>New Applications: {{ new_applications|default:0 }}</li>
-  </ul>
+  <section>
+    <h2>Recent Activity (Last 7 Days)</h2>
+    <ul>
+      <li>New Users: {{ new_users|default:0 }}</li>
+      <li>New Jobs: {{ new_jobs|default:0 }}</li>
+      <li>New Applications: {{ new_applications|default:0 }}</li>
+    </ul>
+  </section>
 
   <!-- Review Queue -->
-  <h2>Flagged Jobs (Trust & Safety)</h2>
+   <section>
+    <h2>Flagged Jobs (Trust & Safety)</h2>
   {% if flagged_jobs %}
+    <div class="table-responsive">
     <table>
       <tr>
         <th>Title</th>
@@ -79,19 +87,20 @@
         </tr>
       {% endfor %}
     </table>
+    </div>
   {% else %}
     <p>No flagged jobs right now 🎉</p>
   {% endif %}
+  </section>
 
   <!-- Management Links -->
-  <h2>Management</h2>
-  <ul>
-    <li><a href="{% url 'admin:auth_user_changelist' %}">Manage Users</a></li>
-    <li><a href="{% url 'admin:job_list_job_changelist' %}">Manage Jobs</a></li>
-    <li><a href="{% url 'admin:job_list_application_changelist' %}">Manage Applications</a></li>
-    {# Resume models are not registered in admin; add if needed #}
-    <li><a href="{% url 'admin:profiles_employerprofile_changelist' %}">Manage Employer Profiles</a></li>
-  </ul>
+  <section class="management-links">
+    <h2>Management</h2>
+    <a href="{% url 'admin:auth_user_changelist' %}">Manage Users</a>
+    <a href="{% url 'admin:job_list_job_changelist' %}">Manage Jobs</a>
+    <a href="{% url 'admin:job_list_application_changelist' %}">Manage Applications</a>
+    <a href="{% url 'admin:profiles_employerprofile_changelist' %}">Manage Employer Profiles</a>
+  </section>
 </div>
 
 <!-- Modal: Action Confirmation -->

@@ -61,8 +61,13 @@
   gap: 1rem;
   padding: 1rem 0;
   scroll-snap-type: x mandatory;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  
+  /* Hide scrollbar for WebKit browsers */
+  .carousel-track::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .carousel-track::-webkit-scrollbar {

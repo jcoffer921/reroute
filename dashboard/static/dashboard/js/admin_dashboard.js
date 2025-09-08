@@ -11,10 +11,23 @@ document.addEventListener("DOMContentLoaded", () => {
       datasets: [{
         label: "New Users",
         data: usersByDay,
-        borderColor: "blue",
-        backgroundColor: "rgba(0, 0, 255, 0.1)",
-        fill: true
+        borderColor: "#0d6efd",
+        backgroundColor: "rgba(13, 110, 253, 0.15)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0
       }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 12 } }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+      }
     }
   });
 
@@ -27,10 +40,23 @@ document.addEventListener("DOMContentLoaded", () => {
       datasets: [{
         label: "New Jobs",
         data: jobsByDay,
-        borderColor: "green",
-        backgroundColor: "rgba(0, 255, 0, 0.1)",
-        fill: true
+        borderColor: "#198754",
+        backgroundColor: "rgba(25, 135, 84, 0.15)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0
       }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 12 } }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+      }
     }
   });
 
