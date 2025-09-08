@@ -259,8 +259,15 @@ def admin_dashboard(request):
 
     # Stats
     user_count = User.objects.count()
-    # Count employers by EmployerProfile presence (authoritative signal)
-    employer_count = EmployerProfile.objects.count()
+    # Count employers by EmployerProfile presence (authoritative when table exists)
+    try:
+        employer_count = EmployerProfile.objects.count()
+    except Exception:
+        # Fallback: count users in Employer group(s) if EmployerProfile table is missing
+        try:
+            employer_count = User.objects.filter(groups__name__in=["Employer", "Employers"]).distinct().count()
+        except Exception:
+            employer_count = 0
     job_count = Job.objects.count()
     application_count = Application.objects.count()
     resume_count = Resume.objects.count()
