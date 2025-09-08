@@ -174,9 +174,12 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
 
   /* Sliding mobile drawer */
   .mobile-menu {
-    position: fixed; top: 0; left: -100%; width: 88%; max-width: 420px; height: 100vh;
+    position: fixed; top: 0; left: -100%; width: 88%; max-width: 420px; height: 100vh; max-height: 100dvh;
     background: #fff; z-index: 2000; padding: 1.25rem; display: flex; flex-direction: column;
     justify-content: space-between; transition: left .3s ease-in-out; box-shadow: 6px 0 20px rgba(0,0,0,.2);
+    overflow-y: auto;                 /* allow inside scrolling when content is tall */
+    -webkit-overflow-scrolling: touch;/* smooth momentum scroll on iOS */
+    overscroll-behavior: contain;     /* prevent background scroll chaining */
   }
   .mobile-menu.show { left: 0; }
 
