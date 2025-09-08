@@ -12,6 +12,9 @@ urlpatterns = [
     path('user/', views.user_dashboard, name='user'),
     path('employer/', views.employer_dashboard, name='employer'),
     path('admin/', views.admin_dashboard, name='admin'),
+    # Admin actions for flagged jobs
+    path('admin/flagged-jobs/<int:job_id>/approve/', views.approve_flagged_job, name='approve_flagged_job'),
+    path('admin/flagged-jobs/<int:job_id>/remove/', views.remove_flagged_job, name='remove_flagged_job'),
 
     # ===== User features =====
     path('saved-jobs/', views.saved_jobs_view, name='saved_jobs'),

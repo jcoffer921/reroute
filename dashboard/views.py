@@ -5,6 +5,12 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.timezone import now
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+
+
 
 # ===== Domain imports (align to your actual apps) =====
 # Jobs live in job_list; bring Job, SavedJob, Application from there for consistency.
@@ -239,9 +245,98 @@ def employer_analytics(request):
 # Admin Dashboard (custom)
 # =========================
 @login_required
+@staff_member_required
 def admin_dashboard(request):
     """
     Custom admin dashboard (separate from Django /admin/).
     Flesh out with KPIs as you go.
     """
-    return render(request, 'dashboard/admin_dashboard.html')
+    # Import models
+    from django.contrib.auth.models import User
+    from job_list.models import Job, Application
+    from resumes.models import Resume
+    from profiles.models import UserProfile, EmployerProfile
+
+    # Stats
+    user_count = User.objects.count()
+    # Count employers by EmployerProfile presence (authoritative signal)
+    employer_count = EmployerProfile.objects.count()
+    job_count = Job.objects.count()
+    application_count = Application.objects.count()
+    resume_count = Resume.objects.count()
+
+    # Last 30 days activity for charts
+    today = now().date()
+    last_30 = [today - timedelta(days=i) for i in range(29, -1, -1)]
+
+    users_by_day = [
+        User.objects.filter(date_joined__date=day).count() for day in last_30
+    ]
+    jobs_by_day = [
+        Job.objects.filter(created_at__date=day).count() for day in last_30
+    ]
+
+    # Recent activity (last 7 days)
+    seven_days_ago = now() - timedelta(days=7)
+    new_users = User.objects.filter(date_joined__gte=seven_days_ago).count()
+    new_jobs = Job.objects.filter(created_at__gte=seven_days_ago).count()
+    new_applications = Application.objects.filter(submitted_at__gte=seven_days_ago).count()
+
+    # Flagged jobs queue
+    flagged_jobs = Job.objects.filter(is_flagged=True)
+
+    context = {
+        "user_count": user_count,
+        "employer_count": employer_count,
+        "job_count": job_count,
+        "application_count": application_count,
+        "resume_count": resume_count,
+        "dates": [d.strftime("%b %d") for d in last_30],
+        "users_by_day": users_by_day,
+        "jobs_by_day": jobs_by_day,
+        "flagged_jobs": flagged_jobs,
+        "new_users": new_users,
+        "new_jobs": new_jobs,
+        "new_applications": new_applications,
+    }
+    return render(request, 'dashboard/admin_dashboard.html', context)
+
+
+@login_required
+@staff_member_required
+@require_POST
+def approve_flagged_job(request, job_id: int):
+    from job_list.models import Job
+    job = Job.objects.filter(id=job_id).first()
+    if not job:
+        messages.error(request, "Job not found.")
+        return redirect('dashboard:admin')
+
+    job.is_flagged = False
+    job.flagged_reason = None
+    job.is_active = True
+    job.save(update_fields=['is_flagged', 'flagged_reason', 'is_active'])
+
+    messages.success(request, f"Approved and unflagged: {job.title}")
+    return redirect('dashboard:admin')
+
+
+@login_required
+@staff_member_required
+@require_POST
+def remove_flagged_job(request, job_id: int):
+    from job_list.models import Job
+    job = Job.objects.filter(id=job_id).first()
+    if not job:
+        messages.error(request, "Job not found.")
+        return redirect('dashboard:admin')
+
+    # Soft-remove: deactivate the job and clear flag
+    job.is_active = False
+    job.is_flagged = False
+    if not job.flagged_reason:
+        job.flagged_reason = "Removed by admin"
+    job.save(update_fields=['is_active', 'is_flagged', 'flagged_reason'])
+
+    messages.success(request, f"Removed (deactivated): {job.title}")
+    return redirect('dashboard:admin')

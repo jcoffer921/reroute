@@ -1,4 +1,95 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-  <h1>Welcome to the [User/Employer/Admin] Dashboard</h1>
+<div class="admin-dashboard">
+  <h1>Admin Dashboard</h1>
+  
+  <!-- Quick Stats -->
+  <div class="stats-grid">
+    <div class="stat-box">Users: {{ user_count }}</div>
+    <div class="stat-box">Employers: {{ employer_count }}</div>
+    <div class="stat-box">Jobs: {{ job_count }}</div>
+    <div class="stat-box">Applications: {{ application_count }}</div>
+    <div class="stat-box">Resumes: {{ resume_count }}</div>
+  </div>
+
+  <!-- Charts -->
+  <h2>Analytics (Last 30 Days)</h2>
+  <canvas id="usersChart" width="400" height="200"></canvas>
+  <canvas id="jobsChart" width="400" height="200" style="margin-top:20px;"></canvas>
+
+  <!-- Recent Activity -->
+  <h2>Recent Activity (Last 7 Days)</h2>
+  <ul>
+    <li>New Users: {{ new_users|default:0 }}</li>
+    <li>New Jobs: {{ new_jobs|default:0 }}</li>
+    <li>New Applications: {{ new_applications|default:0 }}</li>
+  </ul>
+
+  <!-- Review Queue -->
+  <h2>Flagged Jobs (Trust & Safety)</h2>
+  {% if flagged_jobs %}
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Employer</th>
+        <th>Reason</th>
+        <th>Actions</th>
+      </tr>
+      {% for job in flagged_jobs %}
+        <tr>
+          <td>{{ job.title }}</td>
+          <td>{{ job.employer.username|default:job.employer }}</td>
+          <td>{{ job.flagged_reason|default:"(no reason provided)" }}</td>
+          <td>
+            <a href="{% url 'admin:job_list_job_change' job.id %}">Review</a> |
+            <form action="{% url 'dashboard:approve_flagged_job' job.id %}" method="post" style="display:inline;" class="js-confirm" data-message="Approve this job? It will be unflagged and activated.">
+              {% csrf_token %}
+              <button type="submit" class="link-button">Approve</button>
+            </form> |
+            <form action="{% url 'dashboard:remove_flagged_job' job.id %}" method="post" style="display:inline;" class="js-confirm" data-message="Remove (deactivate) this job? It will no longer be visible to seekers.">
+              {% csrf_token %}
+              <button type="submit" class="link-button danger">Remove</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No flagged jobs right now 🎉</p>
+  {% endif %}
+
+  <!-- Management Links -->
+  <h2>Management</h2>
+  <ul>
+    <li><a href="{% url 'admin:auth_user_changelist' %}">Manage Users</a></li>
+    <li><a href="{% url 'admin:job_list_job_changelist' %}">Manage Jobs</a></li>
+    <li><a href="{% url 'admin:job_list_application_changelist' %}">Manage Applications</a></li>
+    {# Resume models are not registered in admin; add if needed #}
+    <li><a href="{% url 'admin:profiles_employerprofile_changelist' %}">Manage Employer Profiles</a></li>
+  </ul>
+</div>
+<link rel="stylesheet" href="{% static 'dashboard/css/admin_dashboard.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'dashboard/js/admin_dashboard.js' %}"></script>
+<!-- Modal: Action Confirmation -->
+<div id="confirmModal" class="rr-modal" aria-hidden="true">
+  <div class="rr-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <h3 id="confirmModalTitle">Please Confirm</h3>
+    <p id="confirmModalMessage">Are you sure?</p>
+    <div class="rr-modal__actions">
+      <button type="button" id="confirmCancel" class="btn btn-secondary">Cancel</button>
+      <button type="button" id="confirmOk" class="btn btn-primary">Confirm</button>
+    </div>
+  </div>
+  <button type="button" class="rr-modal__backdrop" aria-label="Close"></button>
+</div>
+<!-- Pass Data to JS -->
+<script>
+  window.dashboardData = {
+    dates: {{ dates|safe }},
+    usersByDay: {{ users_by_day|safe }},
+    jobsByDay: {{ jobs_by_day|safe }}
+  }
+</script>
 {% endblock %}

@@ -1,0 +1,81 @@
+.admin-dashboard {
+  padding: 20px;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #0a58ca;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.link-button.danger {
+  color: #b02a37;
+}
+
+/* Modal styles */
+.rr-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.rr-modal.open { display: flex; }
+.rr-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  border: none;
+  cursor: default;
+}
+.rr-modal__dialog {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.rr-modal__actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.btn { border: 1px solid #ccc; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.btn-primary { background: #0d6efd; border-color: #0d6efd; color: #fff; }
+.btn-secondary { background: #e9ecef; color: #000; }

@@ -37,6 +37,8 @@ class Job(models.Model):
     is_active = models.BooleanField(default=True)  # ✅ soft-delete flag
     created_at = models.DateTimeField(auto_now_add=True)
     skills_required = models.ManyToManyField(Skill, blank=True)
+    is_flagged = models.BooleanField(default=False)
+    flagged_reason = models.TextField(blank=True, null=True)
 
     job_type = models.CharField(
         max_length=20,
