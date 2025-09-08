@@ -36,6 +36,7 @@
                         <div class="user-menu-container">
                             <div class="user-dropdown" id="userDropdownLeft">
                                 <a href="{% url 'dashboard:my_dashboard' %}">Dashboard</a>
+                                <a href="{% url 'dashboard:notifications' %}">Notifications</a>
                                 <a href="{% url 'my_profile' %}">Profile</a>
                                 <a href="{% url 'contact' %}">Report Issues</a>
                                 <a href="{% url 'settings' %}">Settings</a>
@@ -68,6 +69,7 @@
                     </button>
                     <div class="user-dropdown" id="userDropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{% url 'dashboard:my_dashboard' %}">Dashboard</a>
+                        <a href="{% url 'dashboard:notifications' %}">Notifications</a>
                         <a href="{% url 'my_profile' %}">Profile</a>
                         <a href="{% url 'contact' %}">Report Issues</a>
                         <a href="{% url 'settings' %}">Settings</a>
@@ -164,6 +166,7 @@
         <li><a href="{% url 'resource_list' %}">Resources</a></li>
         {% if user.is_authenticated %}
         <li><a href="{% url 'dashboard:my_dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'dashboard:notifications' %}">Notifications</a></li>
         {% else %}
         <li><a href="{% url 'login' %}">Login</a></li>
         <li><a href="{% url 'signup' %}">Get Started</a></li>

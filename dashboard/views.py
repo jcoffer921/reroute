@@ -198,7 +198,12 @@ def employer_dashboard(request):
     # Match candidates to this employer's jobs (top few per job)
     from job_list.matching import match_seekers_for_employer
     matched_seekers = match_seekers_for_employer(employer_user, limit_per_job=3)[:9]
-    notifications = []
+    # Recent in-app notifications for this employer
+    try:
+        from .models import Notification
+        notifications = Notification.objects.filter(user=employer_user).order_by('-created_at')[:10]
+    except Exception:
+        notifications = []
     interviews = []
 
     # Basic analytics (safe to run with current schema)
@@ -217,6 +222,28 @@ def employer_dashboard(request):
         'interviews': interviews,
         'analytics': analytics,
     })
+
+
+# =========================
+# Notifications
+# =========================
+from django.views.decorators.http import require_http_methods
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def notifications_view(request):
+    """List notifications and allow marking all as read via POST."""
+    from .models import Notification
+
+    if request.method == 'POST':
+        action = (request.POST.get('action') or '').strip()
+        if action == 'mark_all_read':
+            Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+            messages.success(request, 'All notifications marked as read.')
+            return redirect('dashboard:notifications')
+
+    notes = Notification.objects.filter(user=request.user).order_by('-created_at', '-id')
+    return render(request, 'dashboard/notifications.html', { 'notifications': notes })
 
 
 @login_required

@@ -132,7 +132,11 @@ AUTHENTICATION_BACKENDS = [
 # If you’re on allauth ≥ 0.63, these “new style” settings are valid.
 # If your Render build pins an older allauth, either upgrade or
 # switch to legacy equivalents (see comments below).
-ACCOUNT_EMAIL_VERIFICATION = "none" if DEBUG else "optional"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# Ensure emails are required for signup and verification flows
+# If using allauth ≥ 0.63 new-style settings, email is already in SIGNUP_FIELDS.
+# Keep legacy flags for compatibility if version drifts.
+ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if not DEBUG else 'http'
 
 # New-style (allauth ≥ 0.63):

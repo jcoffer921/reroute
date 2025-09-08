@@ -24,6 +24,7 @@ urlpatterns = [
     # ===== User features =====
     path('saved-jobs/', views.saved_jobs_view, name='saved_jobs'),
     path('matches/', views.matched_jobs_view, name='matched_jobs'),
+    path('notifications/', views.notifications_view, name='notifications'),
 
     # ===== Employer analytics =====
     path('employer/analytics/', views.employer_analytics, name='employer_analytics'),

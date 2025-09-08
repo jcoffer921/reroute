@@ -136,7 +136,23 @@ def apply_to_job(request, job_id):
         return redirect('job_detail', job_id=job.id)
 
     # ✅ Create application
-    Application.objects.create(applicant=request.user, job=job)
+    application = Application.objects.create(applicant=request.user, job=job)
+
+    # 🔔 In-app notification for employer
+    try:
+        from dashboard.models import Notification
+        Notification.objects.create(
+            user=job.employer,
+            actor=request.user,
+            verb="applied",
+            message=f"{request.user.username} applied to your job: {job.title}",
+            url=reverse('job_detail', kwargs={'job_id': job.id}),
+            job=job,
+            application=application,
+        )
+    except Exception:
+        # Fail silently to avoid blocking application submit
+        pass
 
     # 📧 Notify employer by email
     send_mail(

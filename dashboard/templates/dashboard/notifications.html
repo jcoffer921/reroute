@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'dashboard/css/base.css' %}">
+
+<div class="container" style="max-width:900px;margin:0 auto;">
+  <h1 style="margin: 16px 0;">Notifications</h1>
+
+  <form method="post" style="margin-bottom:16px;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="mark_all_read">
+    <button type="submit" class="btn btn-primary">Mark all as read</button>
+  </form>
+
+  {% if notifications %}
+    <ul class="card-list">
+      {% for n in notifications %}
+        <li class="card" style="padding:12px;border-left:4px solid {% if not n.is_read %}#3b82f6{% else %}#e5e7eb{% endif %};">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:600;">{{ n.verb|capfirst }}</div>
+              <div>{{ n.message }}</div>
+              {% if n.url %}
+                <div><a href="{{ n.url }}">View</a></div>
+              {% endif %}
+            </div>
+            <div style="color:#6b7280; font-size:0.9em;">
+              {{ n.created_at|timesince }} ago
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No notifications yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
