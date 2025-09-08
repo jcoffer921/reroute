@@ -301,7 +301,7 @@ def login_view(request):
     def safe_dest(user, requested_next: str | None):
         """
         Prefer a safe ?next= when present; otherwise choose by role.
-        Falls back to hardcoded paths if URL names aren't wired.
+        Admin > Employer > User.
         """
         # 1) Safe-guard ?next=
         if requested_next and url_has_allowed_host_and_scheme(
@@ -309,13 +309,18 @@ def login_view(request):
         ):
             return requested_next
 
-        # 2) Role-aware default
+        # 2) Role-aware defaults (namespaced dashboard)
         try:
-            name = "employer_dashboard" if is_employer(user) else "dashboard:user"
-            return reverse(name)
+            if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
+                return reverse('dashboard:admin')
+            if is_employer(user):
+                return reverse('dashboard:employer')
+            return reverse('dashboard:user')
         except NoReverseMatch:
-            # Fallback to paths if names differ locally
-            return "/employer/dashboard/" if is_employer(user) else "/dashboard/"
+            # Fallback paths
+            if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
+                return '/dashboard/admin/'
+            return '/dashboard/employer/' if is_employer(user) else '/dashboard/user/'
 
     # ---------- Branch by content type ----------
     content_type = (request.headers.get("Content-Type") or "").split(";")[0].strip()
@@ -532,9 +537,9 @@ def employer_login_view(request):
         if requested_next and url_has_allowed_host_and_scheme(requested_next, {request.get_host()}):
             return requested_next
         try:
-            return reverse("employer_dashboard")
+            return reverse("dashboard:employer")
         except NoReverseMatch:
-            return "/employer/dashboard/"
+            return "/dashboard/employer/"
 
     # --- Branch: try JSON first; otherwise treat as form ---
     ctype = (request.headers.get("Content-Type") or "").split(";")[0].strip()

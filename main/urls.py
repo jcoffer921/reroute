@@ -3,7 +3,6 @@ from django.urls import path, include
 from django.shortcuts import redirect
 from . import views
 from job_list.user import views as user_views
-from job_list.employers import views as employer_views
 from .forms import Step1Form, Step2Form, Step3Form, Step4Form
 from .views import (
     CustomPasswordResetView,
@@ -26,8 +25,8 @@ urlpatterns = [
     # ================ Employer Auth & Dashboard ================
     path('employer/login/', views.employer_login_view, name='employer_login'),
     path('employer/signup/', views.employer_signup_view, name='employer_signup'),
-    # Keep a single employer dashboard route (remove duplicates)
-    path('employer/dashboard/', employer_views.dashboard_view, name='employer_dashboard'),
+    # Legacy employer dashboard path → redirect to dashboard app
+    path('employer/dashboard/', lambda request: redirect('dashboard:employer'), name='employer_dashboard'),
 
     # ================ Apps ================
     path('blog/', include('blog.urls')),
