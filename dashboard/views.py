@@ -291,7 +291,8 @@ def admin_dashboard(request):
 
     # Flagged jobs queue (tolerate missing column prior to migration)
     try:
-        flagged_jobs = Job.objects.filter(is_flagged=True)
+        # Force evaluation so we can catch DB errors when column is missing
+        flagged_jobs = list(Job.objects.filter(is_flagged=True))
     except Exception:
         flagged_jobs = []
 

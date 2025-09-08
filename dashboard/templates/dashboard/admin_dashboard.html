@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'dashboard/css/admin_dashboard.css' %}">
+
 <div class="admin-dashboard">
   <h1>Admin Dashboard</h1>
   
@@ -69,9 +71,7 @@
     <li><a href="{% url 'admin:profiles_employerprofile_changelist' %}">Manage Employer Profiles</a></li>
   </ul>
 </div>
-<link rel="stylesheet" href="{% static 'dashboard/css/admin_dashboard.css' %}">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'dashboard/js/admin_dashboard.js' %}"></script>
+
 <!-- Modal: Action Confirmation -->
 <div id="confirmModal" class="rr-modal" aria-hidden="true">
   <div class="rr-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
@@ -84,12 +84,6 @@
   </div>
   <button type="button" class="rr-modal__backdrop" aria-label="Close"></button>
 </div>
-<!-- Pass Data to JS -->
-<script>
-  window.dashboardData = {
-    dates: {{ dates|safe }},
-    usersByDay: {{ users_by_day|safe }},
-    jobsByDay: {{ jobs_by_day|safe }}
-  }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'dashboard/js/admin_dashboard.js' %}"></script>
 {% endblock %}
