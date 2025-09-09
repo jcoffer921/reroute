@@ -6,6 +6,8 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
         # --- Content Security Policy ---
         # Start with a conservative baseline. Switch 'report-only' to 'Content-Security-Policy'
         # after you verify in the browser console that nothing breaks.
+        # Allow iframing only for the resume style preview route (same-origin)
+        frame_ancestors = "'self'" if request.path.startswith('/resumes/preview-style/') else "'none'"
         csp = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; "
@@ -13,8 +15,8 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
             "img-src 'self' data: https:; "
             "font-src 'self' data: https:; "
             "connect-src 'self' https:; "
-            "frame-ancestors 'none'; "
-            "upgrade-insecure-requests"  # auto-upgrade http assets to https
+            f"frame-ancestors {frame_ancestors}; "
+            "upgrade-insecure-requests"
         )
         response.headers.setdefault("Content-Security-Policy", csp)
 

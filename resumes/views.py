@@ -10,6 +10,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string, get_template
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 """
 Avoid importing heavy optional deps at module import time.
@@ -528,6 +529,7 @@ def set_resume_template(request, resume_id):
 
 
 @login_required
+@xframe_options_sameorigin
 def preview_style(request, resume_id):
     """Render a standalone HTML preview for a chosen resume style (for iframe)."""
     resume = get_object_or_404(
@@ -546,7 +548,19 @@ def preview_style(request, resume_id):
         template = get_template("resumes/simple.html")
 
     html = template.render({'resume': resume})
-    return HttpResponse(html)
+    resp = HttpResponse(html)
+    # Ensure CSP allows this route to be embedded (middleware uses setdefault)
+    resp['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; "
+        "style-src 'self' 'unsafe-inline' https:; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' data: https:; "
+        "connect-src 'self' https:; "
+        "frame-ancestors 'self'; "
+        "upgrade-insecure-requests"
+    )
+    return resp
 
 
 @login_required
