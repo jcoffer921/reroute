@@ -12,8 +12,7 @@
       .meta{font-size:12px;color:#444;margin:0;}
       h3{font-size:14px;color:#003660;margin:18px 0 6px;border-bottom:1px solid #c8d1db;padding-bottom:3px;}
       ul{margin:6px 0 10px 18px;}
-      .skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
-      .pill{border:1px solid #c8d1db;border-radius:999px;padding:2px 8px;font-size:12px;}
+      /* ReRoute style: plain skills text */
     </style>
   </head>
   <body>
@@ -76,9 +75,7 @@
       {% with skills=resume.skills.all %}
         {% if skills %}
           <h3>Key Skills</h3>
-          <div class="skills">
-            {% for s in skills %}<span class="pill">{{ s.name|title }}</span>{% endfor %}
-          </div>
+          <p>{% for s in skills %}{{ s.name|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
         {% endif %}
       {% endwith %}
 
@@ -93,4 +90,3 @@
     </div>
   </body>
   </html>
-
