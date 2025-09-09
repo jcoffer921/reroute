@@ -77,6 +77,49 @@
     </ul>
   </section>
 
+  <!-- Analytics Events Summary -->
+  <section>
+    <h2>Analytics Events</h2>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-box__label">Page Views (Total)</div>
+        <div class="stat-box__value">{{ analytics_summary.page_views_total|default:0 }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__label">Profile Completed (Total)</div>
+        <div class="stat-box__value">{{ analytics_summary.profile_completed_total|default:0 }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__label">Page Views (Last 7 Days)</div>
+        <div class="stat-box__value">{{ analytics_summary.last_7_days.page_views|default:0 }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__label">Profile Completed (Last 7 Days)</div>
+        <div class="stat-box__value">{{ analytics_summary.last_7_days.profile_completed|default:0 }}</div>
+      </div>
+    </div>
+
+    {% if analytics_summary.top_pages %}
+    <h3>Top Pages</h3>
+    <div class="table-responsive">
+      <table>
+        <tr>
+          <th>Path</th>
+          <th>Views</th>
+        </tr>
+        {% for row in analytics_summary.top_pages %}
+        <tr>
+          <td>{{ row.path|default:"/" }}</td>
+          <td>{{ row.count }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% else %}
+      <p>No page views recorded yet.</p>
+    {% endif %}
+  </section>
+
   <!-- Review Queue -->
    <section>
     <h2>Flagged Jobs (Trust & Safety)</h2>

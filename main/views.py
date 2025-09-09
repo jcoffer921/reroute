@@ -36,7 +36,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.contrib.auth.password_validation import validate_password
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
@@ -127,7 +127,13 @@ def home(request):
 
 
 def about_us(request):
-    """Public About page."""
+    """Public About page with lightweight page view logging."""
+    # Best-effort analytics; never blocks rendering
+    try:
+        from core.utils.analytics import track_event
+        track_event(event_type='page_view', request=request)
+    except Exception:
+        pass
     return render(request, 'main/about_us.html')
 
 
@@ -714,6 +720,16 @@ def get_skills_json(request):
 
 class CustomPasswordResetView(auth_views.PasswordResetView):
     template_name = 'registration/password_reset_form.html'
+    success_url = reverse_lazy('password_reset_done')
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception as exc:
+            # Log and still redirect to done page so users aren't blocked
+            logging.getLogger(__name__).exception("Password reset email failed: %s", exc)
+            messages.warning(self.request, "We couldn't send the email right now, but if the address exists, the link will arrive shortly.")
+            return redirect(self.get_success_url())
 
 
 class CustomPasswordResetDoneView(auth_views.PasswordResetDoneView):

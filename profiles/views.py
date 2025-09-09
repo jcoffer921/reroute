@@ -348,3 +348,20 @@ def remove_profile_picture(request):
     else:
         messages.info(request, "You don't have a profile picture set.")
     return redirect("my_profile")
+
+
+# ----------------------------- Onboarding Final (example) ---------------
+@login_required
+def final_view(request):
+    """
+    Example of logging profile completion when the user lands here.
+    If you already have a final step view, add the same track_event call there.
+    """
+    try:
+        from core.utils.analytics import track_event
+        track_event(event_type='profile_completed', request=request, metadata={"source": "profiles.final_view"})
+    except Exception:
+        pass
+
+    # Optionally flash a message or update state before redirect
+    return redirect("profiles:my_profile")

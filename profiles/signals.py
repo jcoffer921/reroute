@@ -15,6 +15,22 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.get_or_create(user=instance)
 
 
+@receiver(post_save, sender=UserProfile)
+def track_userprofile_change(sender, instance: UserProfile, created: bool, **kwargs):
+    """Log profile create/update as analytics events (non-blocking)."""
+    try:
+        from core.utils.analytics import track_event
+        event_type = 'profile_created' if created else 'profile_updated'
+        track_event(
+            event_type=event_type,
+            user=getattr(instance, 'user', None),
+            metadata={'profile_id': instance.pk},
+        )
+    except Exception:
+        # Never block on analytics
+        pass
+
+
 @login_required
 def remove_profile_picture(request):
     """Legacy alias that removes picture then redirects to public profile."""

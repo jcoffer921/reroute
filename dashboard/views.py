@@ -375,6 +375,33 @@ def admin_dashboard(request):
     except Exception:
         flagged_jobs = []
 
+    # --- AnalyticsEvent summary (safe if table missing) ---
+    analytics_summary = {
+        "page_views_total": 0,
+        "profile_completed_total": 0,
+        "top_pages": [],  # list of {path, count}
+        "last_7_days": {"page_views": 0, "profile_completed": 0},
+    }
+    try:
+        from core.models import AnalyticsEvent
+        from django.db.models import Count
+
+        seven_days_ago = now() - timedelta(days=7)
+        qs = AnalyticsEvent.objects.all()
+        analytics_summary["page_views_total"] = qs.filter(event_type="page_view").count()
+        analytics_summary["profile_completed_total"] = qs.filter(event_type="profile_completed").count()
+        analytics_summary["last_7_days"]["page_views"] = qs.filter(event_type="page_view", created_at__gte=seven_days_ago).count()
+        analytics_summary["last_7_days"]["profile_completed"] = qs.filter(event_type="profile_completed", created_at__gte=seven_days_ago).count()
+        top = (
+            qs.filter(event_type="page_view")
+              .values("path")
+              .annotate(c=Count("id"))
+              .order_by("-c")[:5]
+        )
+        analytics_summary["top_pages"] = [{"path": t["path"] or "/", "count": t["c"]} for t in top]
+    except Exception:
+        pass
+
     context = {
         "user_count": user_count,
         "employer_count": employer_count,
@@ -390,6 +417,7 @@ def admin_dashboard(request):
         "new_users": new_users,
         "new_jobs": new_jobs,
         "new_applications": new_applications,
+        "analytics_summary": analytics_summary,
     }
     return render(request, 'dashboard/admin_dashboard.html', context)
 
