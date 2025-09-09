@@ -23,14 +23,16 @@
         <p class="subtitle">Job Seeker | Ready to Work</p>
         <p class="meta">{{ resume.user.email }}</p>
         {% with ci=resume.contact_info %}
-          {% if ci and (ci.phone or ci.city or ci.state) %}
-            <p class="meta">
-              {% if ci.phone %}{{ ci.phone }}{% endif %}
-              {% if (ci.city or ci.state) %}
-                {% if ci.phone %} — {% endif %}
-                {{ ci.city }}{% if ci.city and ci.state %}, {% endif %}{{ ci.state }}
-              {% endif %}
-            </p>
+          {% if ci %}
+            {% if ci.phone or ci.city or ci.state %}
+              <p class="meta">
+                {% if ci.phone %}{{ ci.phone }}{% endif %}
+                {% if ci.city or ci.state %}
+                  {% if ci.phone %} — {% endif %}
+                  {{ ci.city }}{% if ci.city and ci.state %}, {% endif %}{{ ci.state }}
+                {% endif %}
+              </p>
+            {% endif %}
           {% endif %}
         {% endwith %}
       </header>

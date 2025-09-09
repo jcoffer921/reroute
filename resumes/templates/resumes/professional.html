@@ -20,14 +20,16 @@
         <h1>{{ resume.full_name|default:resume.user.get_full_name|default:resume.user.username }}</h1>
         <h2>{{ resume.user.email }}</h2>
         {% with ci=resume.contact_info %}
-          {% if ci and (ci.phone or ci.city or ci.state) %}
-            <p class="muted">
-              {% if ci.phone %}{{ ci.phone }}{% endif %}
-              {% if (ci.city or ci.state) %}
-                {% if ci.phone %} — {% endif %}
-                {{ ci.city }}{% if ci.city and ci.state %}, {% endif %}{{ ci.state }}
-              {% endif %}
-            </p>
+          {% if ci %}
+            {% if ci.phone or ci.city or ci.state %}
+              <p class="muted">
+                {% if ci.phone %}{{ ci.phone }}{% endif %}
+                {% if ci.city or ci.state %}
+                  {% if ci.phone %} — {% endif %}
+                  {{ ci.city }}{% if ci.city and ci.state %}, {% endif %}{{ ci.state }}
+                {% endif %}
+              </p>
+            {% endif %}
           {% endif %}
         {% endwith %}
       </header>
