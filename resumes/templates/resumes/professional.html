@@ -18,10 +18,20 @@
       <header>
         <h1>{{ resume.full_name|default:resume.user.get_full_name|default:resume.user.username }}</h1>
         <h2>{{ resume.user.email }}</h2>
+        {% with ci=resume.contact_info %}
+          {% if ci and (ci.phone or ci.city or ci.state) %}
+            <p class="muted">
+              {% if ci.phone %}{{ ci.phone }}{% endif %}
+              {% if (ci.city or ci.state) %}
+                {% if ci.phone %} — {% endif %}
+                {{ ci.city }}{% if ci.city and ci.state %}, {% endif %}{{ ci.state }}
+              {% endif %}
+            </p>
+          {% endif %}
+        {% endwith %}
       </header>
 
       {% if resume.summary %}
-        <h3>Summary</h3>
         <p>{{ resume.summary }}</p>
       {% endif %}
 
@@ -41,7 +51,7 @@
               {% if e.description %}
                 <ul>
                   {% for line in e.description.splitlines %}
-                    {% if line %}<li>{{ line }}</li>{% endif %}
+                    {% if line %}<li>{{ line|strip_bullet }}</li>{% endif %}
                   {% endfor %}
                 </ul>
               {% endif %}

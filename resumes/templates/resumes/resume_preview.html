@@ -13,7 +13,12 @@
     <h3>Contact</h3>
     <p>
       <strong>{{ resume.full_name|default:resume.user.get_full_name|default:resume.user.username }}</strong><br>
-      {{ contact_info.email|default:resume.user.email }}
+      {{ contact_info.email|default:resume.user.email }}<br>
+      {% if contact_info.phone %}{{ contact_info.phone }}{% endif %}
+      {% if contact_info.city or contact_info.state %}
+        {% if contact_info.phone %} — {% endif %}
+        {{ contact_info.city }}{% if contact_info.city and contact_info.state %}, {% endif %}{{ contact_info.state }}
+      {% endif %}
     </p>
   </section>
 

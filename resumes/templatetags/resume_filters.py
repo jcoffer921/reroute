@@ -47,3 +47,18 @@ def not_blank(value) -> bool:
         return bool(str(value or '').strip())
     except Exception:
         return False
+
+
+@register.filter
+def strip_bullet(value: str) -> str:
+    """
+    Remove leading bullet-like markers (•, -, *, en/em dash) and surrounding spaces.
+    Helps avoid double bullets when users paste lines starting with a bullet.
+    """
+    try:
+        import re
+        s = str(value or '')
+        # Remove repeated bullet/dash/star markers at the line start
+        return re.sub(r"^\s*[\u2022\-\*\u2013\u2014]+\s*", "", s)
+    except Exception:
+        return value

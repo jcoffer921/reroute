@@ -78,12 +78,11 @@
   <!-- ===== Body ===== -->
   <div id="mainArea" class="quickFade delayFive">
 
-    <!-- Summary -->
+    <!-- Summary (no title; full width) -->
     {% if resume.summary or profile.bio %}
     <section>
       <article>
-        <div class="sectionTitle"><h1>Summary</h1></div>
-        <div class="sectionContent">
+        <div class="sectionContent" style="float:none;width:100%;">
           <p>{{ resume.summary|default:profile.bio|default:"Hardworking and motivated individual seeking new opportunities to grow and contribute meaningfully." }}</p>
         </div>
       </article>
@@ -121,7 +120,7 @@
             {% if entry.description %}
               <ul class="bullets">
                 {% for line in entry.description.splitlines %}
-                  {% if line|not_blank %}<li>{{ line }}</li>{% endif %}
+                  {% if line|not_blank %}<li>{{ line|strip_bullet }}</li>{% endif %}
                 {% endfor %}
               </ul>
             {% endif %}
