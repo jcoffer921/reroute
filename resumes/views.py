@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
 from django.views.decorators.csrf import csrf_exempt
 
 """
@@ -487,12 +487,17 @@ def download_resume(request, resume_id):
         )
 
     resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+    # Pick a template, falling back to simple.html if the requested template doesn't exist
     template_name = (
         f"resumes/{resume.template}.html"
-        if resume.template in ['simple', 'professional', 'modern']
+        if resume.template in ['simple', 'professional', 'modern', 'reroute']
         else "resumes/simple.html"
     )
-    html_string = render_to_string(template_name, {'resume': resume})
+    try:
+        template = get_template(template_name)
+    except Exception:
+        template = get_template("resumes/simple.html")
+    html_string = template.render({'resume': resume})
 
     pdf_file = BytesIO()
     HTML(string=html_string).write_pdf(target=pdf_file)
@@ -501,6 +506,47 @@ def download_resume(request, resume_id):
     response = HttpResponse(pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{resume.user.username}_resume.pdf"'
     return response
+
+
+@login_required
+def set_resume_template(request, resume_id):
+    """Update the selected template for a resume and return to the created view."""
+    if request.method != 'POST':
+        return redirect('resumes:created_resume_view', resume_id=resume_id)
+
+    resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+    choice = (request.POST.get('template') or '').strip()
+    allowed = {key for key, _ in Resume.TEMPLATE_CHOICES}
+    if choice in allowed:
+        resume.template = choice
+        # Persist without triggering other updates
+        resume.save(update_fields=['template'])
+        messages.success(request, f"Resume style set to {choice.title()}.")
+    else:
+        messages.error(request, "Invalid template choice.")
+    return redirect('resumes:created_resume_view', resume_id=resume_id)
+
+
+@login_required
+def preview_style(request, resume_id):
+    """Render a standalone HTML preview for a chosen resume style (for iframe)."""
+    resume = get_object_or_404(
+        Resume.objects.select_related('user').prefetch_related('skills', 'education', 'experiences', 'education_entries', 'experience_entries'),
+        id=resume_id, user=request.user
+    )
+    choice = (request.GET.get('template') or resume.template or 'reroute').strip()
+    allowed = {'reroute', 'professional', 'modern', 'simple'}
+    if choice not in allowed:
+        choice = 'reroute'
+
+    template_name = f"resumes/{choice}.html"
+    try:
+        template = get_template(template_name)
+    except Exception:
+        template = get_template("resumes/simple.html")
+
+    html = template.render({'resume': resume})
+    return HttpResponse(html)
 
 
 @login_required

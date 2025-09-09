@@ -1,24 +1,27 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Resume</title>
+    <title>ReRoute Resume</title>
     <style>
       @page { margin: 24px; }
-      body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111;}
-      .container{max-width:800px;margin:0 auto;padding:24px;}
-      h1{font-size:24px;margin:0 0 4px;}
-      h2{font-size:14px;margin:0 0 16px;color:#555;font-weight:600;}
-      h3{font-size:16px;margin:20px 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px;}
+      body{font-family: Lato, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#222;}
+      .wrap{max-width:800px;margin:0 auto;}
+      header{border-bottom:3px solid #003660;padding-bottom:8px;margin-bottom:16px;}
+      h1{font-family: Rokkitt, Georgia, serif;font-size:28px;margin:0 0 2px;}
+      .subtitle{font-family: Rokkitt, Georgia, serif;color:#335e7e;margin:0 0 8px;}
+      .meta{font-size:12px;color:#444;margin:0;}
+      h3{font-size:14px;color:#003660;margin:18px 0 6px;border-bottom:1px solid #c8d1db;padding-bottom:3px;}
       ul{margin:6px 0 10px 18px;}
-      .skills{display:flex;flex-wrap:wrap;gap:8px;}
-      .pill{border:1px solid #ddd;border-radius:999px;padding:2px 8px;font-size:12px;}
+      .skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+      .pill{border:1px solid #c8d1db;border-radius:999px;padding:2px 8px;font-size:12px;}
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="wrap">
       <header>
         <h1>{{ resume.full_name|default:resume.user.get_full_name|default:resume.user.username }}</h1>
-        <h2>{{ resume.user.email }}</h2>
+        <p class="subtitle">Job Seeker | Ready to Work</p>
+        <p class="meta">{{ resume.user.email }}</p>
       </header>
 
       {% if resume.summary %}
@@ -27,12 +30,12 @@
       {% endif %}
 
       {% if resume.experiences.all or resume.experience_entries.all %}
-        <h3>Experience</h3>
+        <h3>Work Experience</h3>
         {% with entries=resume.experiences.all %}
           {% if entries %}
             {% for e in entries %}
               <p>
-                <strong>{{ e.job_title }}</strong>, {{ e.company }}
+                <strong>{{ e.job_title }}</strong> — {{ e.company }}
                 {% if e.currently_work_here %}
                   ({{ e.start_date|date:"b Y" }} – Present)
                 {% elif e.end_date %}
@@ -49,7 +52,7 @@
             {% endfor %}
           {% else %}
             {% for e in resume.experience_entries.all %}
-              <p><strong>{{ e.job_title }}</strong>, {{ e.company }} {% if e.dates %}({{ e.dates }}){% endif %}</p>
+              <p><strong>{{ e.job_title }}</strong> — {{ e.company }} {% if e.dates %}({{ e.dates }}){% endif %}</p>
             {% endfor %}
           {% endif %}
         {% endwith %}
@@ -60,15 +63,11 @@
         {% with edus=resume.education.all %}
           {% if edus %}
             {% for ed in edus %}
-              <p>
-                <strong>{{ ed.degree|default:"Education/Training" }}</strong> — {{ ed.school }}
-              </p>
+              <p><strong>{{ ed.degree|default:"Education/Training" }}</strong> — {{ ed.school }}</p>
             {% endfor %}
           {% else %}
             {% for ed in resume.education_entries.all %}
-              <p>
-                <strong>{{ ed.degree|default:"Education/Training" }}</strong> — {{ ed.school_name }} {% if ed.graduation_year %}({{ ed.graduation_year }}){% endif %}
-              </p>
+              <p><strong>{{ ed.degree|default:"Education/Training" }}</strong> — {{ ed.school_name }} {% if ed.graduation_year %}({{ ed.graduation_year }}){% endif %}</p>
             {% endfor %}
           {% endif %}
         {% endwith %}
@@ -76,7 +75,7 @@
 
       {% with skills=resume.skills.all %}
         {% if skills %}
-          <h3>Skills</h3>
+          <h3>Key Skills</h3>
           <div class="skills">
             {% for s in skills %}<span class="pill">{{ s.name|title }}</span>{% endfor %}
           </div>
@@ -94,3 +93,4 @@
     </div>
   </body>
   </html>
+

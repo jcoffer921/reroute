@@ -65,6 +65,7 @@ class Resume(models.Model):
     - 'Imported' resumes via EducationEntry / ExperienceEntry sets.
     """
     TEMPLATE_CHOICES = [
+        ('reroute', 'ReRoute'),
         ('professional', 'Professional'),
         ('modern', 'Modern'),
         ('simple', 'Simple'),
@@ -72,7 +73,8 @@ class Resume(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resume_resumes')
     file = models.FileField(upload_to='resumes/', blank=True, null=True)
-    template = models.CharField(max_length=20, choices=TEMPLATE_CHOICES, default='professional')
+    # Default to ReRoute style so initial downloads match the in-app created view
+    template = models.CharField(max_length=20, choices=TEMPLATE_CHOICES, default='reroute')
     full_name = models.CharField(max_length=100, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

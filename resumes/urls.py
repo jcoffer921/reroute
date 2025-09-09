@@ -19,6 +19,7 @@ urlpatterns = [
     # Created resume details + save
     path('created/<int:resume_id>/', views.created_resume_view, name='created_resume_view'),
     path('save/<int:resume_id>/', views.save_created_resume, name='save_created_resume'),
+    path('set-template/<int:resume_id>/', views.set_resume_template, name='set_resume_template'),
 
     # Imported resume flow
     path('import/', views.resume_upload_page, name='resume_upload_page'),
@@ -29,6 +30,7 @@ urlpatterns = [
     # Preview + download by id
     path('<int:resume_id>/preview/', views.resume_preview, name='resume_preview'),
     path('<int:resume_id>/download/', views.download_resume, name='download_resume'),
+    path('preview-style/<int:resume_id>/', views.preview_style, name='preview_style'),
 
     # Misc
     path('upload-profile-picture/', views.upload_profile_picture, name='upload_profile_picture'),
