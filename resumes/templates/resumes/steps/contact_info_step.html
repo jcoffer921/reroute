@@ -72,6 +72,13 @@
         </div>
       </div>
 
+      {# === Summary (optional, stored on Resume) === #}
+      <div class="form-group">
+        <label for="id_summary">Professional Summary (optional)</label>
+        <textarea id="id_summary" name="summary" class="form-control" rows="4" placeholder="Brief intro highlighting your strengths and goals.">{{ resume_summary }}</textarea>
+        <small class="form-text text-muted">1–3 sentences works best. You can edit this later.</small>
+      </div>
+
       {# === Nav === #}
       <div class="form-navigation d-flex justify-between">
         <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-secondary">Back</a>

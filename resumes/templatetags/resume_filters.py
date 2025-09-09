@@ -38,3 +38,12 @@ def normalize_dates(s: str) -> str:
     txt = re.sub(r'\s*[---]\s*', ' - ', txt)
 
     return txt.strip()
+
+
+@register.filter
+def not_blank(value) -> bool:
+    """True if value has non-whitespace content."""
+    try:
+        return bool(str(value or '').strip())
+    except Exception:
+        return False

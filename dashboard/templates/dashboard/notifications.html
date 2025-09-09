@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load profile_extras %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'dashboard/css/notifications.css' %}">
 
@@ -26,19 +27,23 @@
   <section class="notifications-list" id="notificationsList">
     {% if notifications %}
       {% for n in notifications %}
-        {% with type_tag="jobs" %}
-          {% if not n.job and not n.application %}
-            {% with type_tag="system" %}{% endwith %}
-          {% endif %}
-        {% endwith %}
-        <article class="notification-card {% if not n.is_read %}unread{% endif %}" data-type="{% if n.job or n.application %}jobs{% else %}system{% endif %}">
-          <div class="icon">
-            {% if n.job or n.application %}💼{% else %}⚠️{% endif %}
+        <article class="notification-card {% if not n.is_read %}unread{% endif %}">
+          <div class="avatar {% if not n.actor %}admin{% endif %}">
+            {% if n.actor and n.actor|profile_picture_url %}
+              <img src="{{ n.actor|profile_picture_url }}" alt="Avatar">
+            {% elif n.actor %}
+              {{ n.actor|initials }}
+            {% else %}
+              R
+            {% endif %}
           </div>
           <div class="content">
-            <h3>{{ n.verb|default:"Update"|capfirst }}</h3>
-            <p>{{ n.message }}</p>
-            <time>{{ n.created_at|timesince }} ago</time>
+            <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
+            <div class="message">{{ n.message }}</div>
+            <div class="meta">
+              {% if not n.is_read %}<span class="unread-dot" aria-label="Unread"></span>{% endif %}
+              <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+            </div>
           </div>
           <div class="actions">
             {% if n.url %}
@@ -48,7 +53,6 @@
         </article>
       {% endfor %}
     {% else %}
-      <!-- Example empty state -->
       <p class="empty">No notifications yet.</p>
     {% endif %}
   </section>

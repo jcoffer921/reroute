@@ -42,7 +42,7 @@
   <div id="mainArea" class="quickFade delayFive">
 
     <!-- Summary -->
-    {% if resume.summary %}
+    {% if resume.summary or profile.bio %}
     <section>
       <article>
         <div class="sectionTitle"><h1>Summary</h1></div>
@@ -84,7 +84,7 @@
             {% if entry.description %}
               <ul class="bullets">
                 {% for line in entry.description.splitlines %}
-                  {% if line.strip %}<li>{{ line }}</li>{% endif %}
+                  {% if line|not_blank %}<li>{{ line }}</li>{% endif %}
                 {% endfor %}
               </ul>
             {% endif %}
@@ -102,7 +102,7 @@
           <div class="sectionTitle"><h1>Key Skills</h1></div>
           <div class="sectionContent">
             <ul class="keySkills">
-              {% for skill in skills %}<li>{{ skill.name }}</li>{% endfor %}
+              {% for skill in skills %}<li>{{ skill.name|title }}</li>{% endfor %}
             </ul>
           </div>
           <div class="clear"></div>
@@ -156,7 +156,7 @@
       <div class="sectionContent">
         <ul class="bullets">
           {% for cert in resume.certifications.splitlines %}
-            {% if cert.strip %}<li>{{ cert }}</li>{% endif %}
+            {% if cert|not_blank %}<li>{{ cert }}</li>{% endif %}
           {% endfor %}
         </ul>
       </div>

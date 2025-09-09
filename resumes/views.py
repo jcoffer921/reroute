@@ -237,11 +237,30 @@ def contact_info_step(request):
             obj = contact_form.save(commit=False)
             obj.resume = resume
             obj.save()
+            # Sync resume header fields for final rendering
+            try:
+                full_name = (contact_form.cleaned_data.get('full_name') or '').strip()
+                summary_text = (request.POST.get('summary') or '').strip()
+                updates = []
+                if full_name and full_name != (resume.full_name or ''):
+                    resume.full_name = full_name
+                    updates.append('full_name')
+                if summary_text and summary_text != (resume.summary or ''):
+                    resume.summary = summary_text
+                    updates.append('summary')
+                if updates:
+                    resume.save(update_fields=updates)
+            except Exception:
+                # Non-fatal: do not block the flow if optional fields fail
+                pass
             return redirect('resumes:resume_education_step')
     else:
         contact_form = ContactInfoForm(instance=contact_info)
 
-    return render(request, 'resumes/steps/contact_info_step.html', {'contact_form': contact_form})
+    return render(request, 'resumes/steps/contact_info_step.html', {
+        'contact_form': contact_form,
+        'resume_summary': getattr(resume, 'summary', ''),
+    })
 
 
 @login_required
@@ -311,6 +330,15 @@ def skills_step(request):
                 continue
             skill, _ = Skill.objects.get_or_create(name=norm)
             resume.skills.add(skill)
+
+        # Optional: Certifications textarea where each line is a cert name
+        certs_text = (request.POST.get('certifications') or '').strip()
+        try:
+            if hasattr(resume, 'certifications'):
+                resume.certifications = certs_text
+                resume.save(update_fields=['certifications'])
+        except Exception:
+            pass
 
         # Continue to your preview/created page
         return redirect('resumes:created_resume_view', resume_id=resume.id)

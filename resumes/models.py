@@ -94,6 +94,7 @@ class Resume(models.Model):
     )
 
     summary = models.TextField(blank=True, null=True)
+    certifications = models.TextField(blank=True, help_text="One per line. Optional.")
 
     def __str__(self):
         return f"Resume for {self.user.username}"

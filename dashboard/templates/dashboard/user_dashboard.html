@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+{% load profile_extras %}
 <section class="dash-hero">
   <div class="dash-hero-content">
     <h1>Welcome, {{ request.user.first_name|default:request.user.username }}!</h1>
@@ -18,29 +19,41 @@
 <!-- Notifications -->
 {% if notifications %}
 <section class="dashboard-resume-card" aria-label="Notifications">
-  <h3 class="section-title">
-    <span aria-hidden="true" style="margin-right:.35rem;display:inline-flex;vertical-align:middle;">
+  <h3 class="section-title" style="display:flex;align-items:center;gap:.5rem;">
+    <span aria-hidden="true" style="display:inline-flex;vertical-align:middle;">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     </span>
     Notifications
   </h3>
-  <ul class="notification-list">
-    {% for n in notifications %}
-      <li class="notification-item" style="display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid #eee;">
-        <div>
-          <div style="font-weight:600;">{{ n.title|default:n.verb|default:"Update" }}</div>
-          <div style="color:#555;">{{ n.message|truncatechars:140 }}</div>
+  <div class="notifications-list" style="display:grid;gap:8px;">
+    {% for n in notifications|slice:":5" %}
+      <article class="notification-card {% if not n.is_read %}unread{% endif %}" style="display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;">
+        <div class="avatar {% if not n.actor %}admin{% endif %}" style="width:36px;height:36px;border-radius:999px;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;color:#374151;font-weight:700;font-size:.85rem;">
+          {% if n.actor and n.actor|profile_picture_url %}
+            <img src="{{ n.actor|profile_picture_url }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
+          {% elif n.actor %}
+            {{ n.actor|initials }}
+          {% else %}
+            R
+          {% endif %}
         </div>
-        <div style="white-space:nowrap;color:#888;">{{ n.created_at|date:"M d, Y" }}</div>
-      </li>
+        <div class="content" style="display:grid;gap:2px;">
+          <div class="title" style="font-weight:700;font-size:.95rem;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ n.title|default:n.verb|default:"Update" }}</div>
+          <div class="message" style="color:#374151;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ n.message }}</div>
+          <div class="meta" style="display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#6b7280;">
+            {% if not n.is_read %}<span class="unread-dot" style="width:6px;height:6px;border-radius:999px;background:#2563eb;display:inline-block;" aria-label="Unread"></span>{% endif %}
+            <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+          </div>
+        </div>
+        <div class="actions">
+          {% if n.url %}<a href="{{ n.url }}" class="btn-action" style="color:#2563eb;text-decoration:none;font-weight:600;font-size:.85rem;">View</a>{% endif %}
+        </div>
+      </article>
     {% endfor %}
-  </ul>
+  </div>
   <div style="margin-top:.5rem;">
     <a href="{% url 'dashboard:notifications' %}" class="btn btn-outline">View all notifications</a>
   </div>
-  <style>
-    .notification-list{list-style:none;margin:0;padding:0}
-  </style>
 </section>
 {% endif %}
 

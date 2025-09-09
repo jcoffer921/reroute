@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Resume</title>
+    <style>
+      body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111;}
+      .container{max-width:800px;margin:0 auto;padding:24px;}
+      h1{font-size:24px;margin:0 0 4px;}
+      h2{font-size:14px;margin:0 0 16px;color:#555;font-weight:600;}
+      h3{font-size:16px;margin:20px 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px;}
+      ul{margin:6px 0 10px 18px;}
+      .skills{display:flex;flex-wrap:wrap;gap:8px;}
+      .pill{border:1px solid #ddd;border-radius:999px;padding:2px 8px;font-size:12px;}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>{{ resume.full_name|default:resume.user.get_full_name|default:resume.user.username }}</h1>
+        <h2>{{ resume.user.email }}</h2>
+      </header>
+
+      {% if resume.summary %}
+        <h3>Summary</h3>
+        <p>{{ resume.summary }}</p>
+      {% endif %}
+
+      {% if resume.experiences.all or resume.experience_entries.all %}
+        <h3>Experience</h3>
+        {% with entries=resume.experiences.all %}
+          {% if entries %}
+            {% for e in entries %}
+              <p>
+                <strong>{{ e.job_title }}</strong>, {{ e.company }}
+                {% if e.currently_work_here %}
+                  ({{ e.start_date|date:"b Y" }} – Present)
+                {% elif e.end_date %}
+                  ({{ e.start_date|date:"b Y" }} – {{ e.end_date|date:"b Y" }})
+                {% endif %}
+              </p>
+              {% if e.description %}
+                <ul>
+                  {% for line in e.description.splitlines %}
+                    {% if line %}<li>{{ line }}</li>{% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% for e in resume.experience_entries.all %}
+              <p><strong>{{ e.job_title }}</strong>, {{ e.company }} {% if e.dates %}({{ e.dates }}){% endif %}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+
+      {% if resume.education.all or resume.education_entries.all %}
+        <h3>Education</h3>
+        {% with edus=resume.education.all %}
+          {% if edus %}
+            {% for ed in edus %}
+              <p>
+                <strong>{{ ed.degree|default:"Education/Training" }}</strong> — {{ ed.school }}
+              </p>
+            {% endfor %}
+          {% else %}
+            {% for ed in resume.education_entries.all %}
+              <p>
+                <strong>{{ ed.degree|default:"Education/Training" }}</strong> — {{ ed.school_name }} {% if ed.graduation_year %}({{ ed.graduation_year }}){% endif %}
+              </p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+
+      {% with skills=resume.skills.all %}
+        {% if skills %}
+          <h3>Skills</h3>
+          <div class="skills">
+            {% for s in skills %}<span class="pill">{{ s.name|title }}</span>{% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% if resume.certifications %}
+        <h3>Certifications</h3>
+        <ul>
+          {% for cert in resume.certifications.splitlines %}
+            {% if cert %}<li>{{ cert }}</li>{% endif %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </body>
+  </html>
+
