@@ -102,57 +102,38 @@
       <div class="resumes-grid">
         {% if imported_resume %}
         <article class="resume-card">
-          <div class="resume-thumb">
-            {% if imported_resume.preview_image %}
-              <img src="{{ imported_resume.preview_image.url }}" alt="Imported resume preview" />
-            {% else %}
-              <!-- Document thumbnail icon -->
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
-            {% endif %}
+          <div class="resume-thumb" aria-hidden="true">
+            <!-- Scalable SVG illustration/icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
           </div>
           <header class="resume-card-header">
             <h3 class="resume-card-title">Imported Resume</h3>
           </header>
-          <div class="resume-card-body">
-            <p class="resume-summary"><strong>Summary:</strong> {{ imported_resume.ai_summary|truncatewords:20 }}</p>
-          </div>
           <footer class="resume-card-actions">
-            <a href="{% url 'resumes:imported_resume' imported_resume.id %}" class="btn btn-primary">View Details</a>
-            {% if imported_resume.file %}
-              <a href="{{ imported_resume.file.url }}" class="btn btn-outline" target="_blank">Download</a>
-            {% else %}
-              <span class="text-muted">No file uploaded</span>
-            {% endif %}
+            <a href="{% url 'resumes:imported_resume' imported_resume.id %}" class="btn btn-primary">View Resume</a>
           </footer>
         </article>
         {% endif %}
 
         {% if resume %}
         <article class="resume-card">
-          <div class="resume-thumb">
-            {% if resume.preview_image %}
-              <img src="{{ resume.preview_image.url }}" alt="Resume preview" />
-            {% else %}
-              <!-- Simple page icon thumbnail -->
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="3" width="16" height="18" rx="2"/>
-                <line x1="8" y1="8" x2="16" y2="8"/>
-                <line x1="8" y1="12" x2="16" y2="12"/>
-                <line x1="8" y1="16" x2="13" y2="16"/>
-              </svg>
-            {% endif %}
+          <div class="resume-thumb" aria-hidden="true">
+            <!-- Scalable SVG illustration/icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="3" width="16" height="18" rx="2"/>
+              <line x1="8" y1="8" x2="16" y2="8"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+              <line x1="8" y1="16" x2="13" y2="16"/>
+            </svg>
           </div>
           <header class="resume-card-header">
             <h3 class="resume-card-title">Your Created Resume</h3>
           </header>
-          <div class="resume-card-body">
-            <p class="resume-summary">{{ resume.ai_summary|default:"No summary available yet." }}</p>
-          </div>
           <footer class="resume-card-actions">
             <a href="{% url 'resumes:created_resume_view' resume.id %}" class="btn btn-primary">View Resume</a>
           </footer>
@@ -170,9 +151,6 @@
           <header class="resume-card-header">
             <h3 class="resume-card-title">No Created Resume</h3>
           </header>
-          <div class="resume-card-body">
-            <p>You haven't created a resume yet.</p>
-          </div>
           <footer class="resume-card-actions">
             <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-primary">Create Resume</a>
           </footer>
@@ -184,47 +162,66 @@
     <aside class="notifications-column">
       <section class="notifications-panel" aria-label="Notifications">
         <div class="notifications-header">
-          <h3 class="section-title" style="display:flex;align-items:center;gap:.5rem;">
-            <span aria-hidden="true" style="display:inline-flex;vertical-align:middle;">
+          <h3 class="section-title">
+            <span aria-hidden="true" class="icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             </span>
             Notifications
           </h3>
+          <a href="{% url 'dashboard:notifications' %}" class="view-all-link">View All</a>
         </div>
         <div class="notifications-scroll">
           {% if notifications %}
             <div class="notifications-list">
               {% for n in notifications|slice:":8" %}
-                <article class="notification-card {% if not n.is_read %}unread{% endif %}">
-                  <div class="avatar {% if not n.actor %}admin{% endif %}">
-                    {% if n.actor and n.actor|profile_picture_url %}
-                      <img src="{{ n.actor|profile_picture_url }}" alt="Avatar">
-                    {% elif n.actor %}
-                      {{ n.actor|initials }}
-                    {% else %}
-                      R
-                    {% endif %}
-                  </div>
-                  <div class="content">
-                    <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
-                    <div class="message">{{ n.message }}</div>
-                    <div class="meta">
-                      {% if not n.is_read %}<span class="unread-dot" aria-label="Unread"></span>{% endif %}
-                      <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+                {% if n.url %}
+                  <a class="notification-item-link" href="{{ n.url }}">
+                    <article class="notification-card {% if not n.is_read %}unread{% endif %}">
+                      <div class="avatar {% if not n.actor %}admin{% endif %}">
+                        {% if n.actor and n.actor|profile_picture_url %}
+                          <img src="{{ n.actor|profile_picture_url }}" alt="Avatar">
+                        {% elif n.actor %}
+                          {{ n.actor|initials }}
+                        {% else %}
+                          R
+                        {% endif %}
+                      </div>
+                      <div class="content">
+                        <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
+                        <div class="message">{{ n.message }}</div>
+                        <div class="meta">
+                          {% if not n.is_read %}<span class="unread-dot" aria-label="Unread"></span>{% endif %}
+                          <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+                        </div>
+                      </div>
+                    </article>
+                  </a>
+                {% else %}
+                  <article class="notification-card {% if not n.is_read %}unread{% endif %}">
+                    <div class="avatar {% if not n.actor %}admin{% endif %}">
+                      {% if n.actor and n.actor|profile_picture_url %}
+                        <img src="{{ n.actor|profile_picture_url }}" alt="Avatar">
+                      {% elif n.actor %}
+                        {{ n.actor|initials }}
+                      {% else %}
+                        R
+                      {% endif %}
                     </div>
-                  </div>
-                  <div class="actions">
-                    {% if n.url %}<a href="{{ n.url }}" class="btn-action">View</a>{% endif %}
-                  </div>
-                </article>
+                    <div class="content">
+                      <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
+                      <div class="message">{{ n.message }}</div>
+                      <div class="meta">
+                        {% if not n.is_read %}<span class="unread-dot" aria-label="Unread"></span>{% endif %}
+                        <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+                      </div>
+                    </div>
+                  </article>
+                {% endif %}
               {% endfor %}
             </div>
           {% else %}
             <div class="empty-notifications">You're all caught up. No new notifications.</div>
           {% endif %}
-        </div>
-        <div class="notifications-footer">
-          <a href="{% url 'dashboard:notifications' %}" class="btn btn-outline">View all</a>
         </div>
       </section>
     </aside>

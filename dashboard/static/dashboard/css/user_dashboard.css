@@ -58,17 +58,19 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.25rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .resume-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: .75rem;
+  padding: 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   background: #fafafa;
@@ -94,7 +96,10 @@
   max-height: 100%;
 }
 
-.notifications-header { margin-bottom: .5rem; }
+.notifications-header { margin-bottom: .5rem; display:flex; align-items:center; justify-content:space-between; }
+.notifications-header .section-title { display:flex; align-items:center; gap:.5rem; margin:0; font-size:1rem; }
+.notifications-header .view-all-link { font-size: .85rem; color: #2563eb; text-decoration: none; }
+.notifications-header .view-all-link:hover { text-decoration: underline; }
 .notifications-scroll {
   overflow-y: auto;
   max-height: 420px; /* allow scroll if many items */
@@ -102,15 +107,18 @@
 
 .notifications-list { display: grid; gap: 8px; }
 
+.notification-item-link { display:block; color:inherit; text-decoration:none; }
+
 .notification-card {
   display: grid;
-  grid-template-columns: 36px 1fr auto;
+  grid-template-columns: 36px 1fr;
   gap: 10px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   background: #fafafa;
+  transition: background-color .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 
 .notification-card .avatar {
@@ -145,6 +153,9 @@
 }
 .notification-card .unread-dot { width: 6px; height: 6px; border-radius: 999px; background: #2563eb; display: inline-block; }
 .notification-card .btn-action { color: #2563eb; text-decoration: none; font-weight: 600; font-size: .85rem; }
+
+.notification-item-link .notification-card:hover,
+.notification-card:hover { background: #f3f4f6; border-color: #d1d5db; box-shadow: 0 1px 4px rgba(0,0,0,0.06); cursor: pointer; }
 
 .notifications-footer { margin-top: .5rem; display: flex; justify-content: flex-end; }
 .empty-notifications { color: #6b7280; font-size: .9rem; padding: .75rem; }
