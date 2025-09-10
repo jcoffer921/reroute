@@ -165,6 +165,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'reroute.security_headers.SecurityHeadersMiddleware',
+    'core.middleware.pageviews.PageViewMiddleware',
 ]
 
 # ---------- STATIC / MEDIA ----------

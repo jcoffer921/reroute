@@ -97,3 +97,27 @@ function scrollSuggested(direction) {
     behavior: "smooth"
   });
 }
+
+// Resume tabs logic
+document.addEventListener('DOMContentLoaded', () => {
+  const tabs = Array.from(document.querySelectorAll('.resume-tab'));
+  const panels = Array.from(document.querySelectorAll('.resume-panel'));
+  if (!tabs.length) return;
+
+  function activate(targetSelector) {
+    tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-target') === targetSelector));
+    panels.forEach(p => {
+      const isActive = `#${p.id}` === targetSelector;
+      p.classList.toggle('active', isActive);
+      if (isActive) {
+        p.removeAttribute('hidden');
+      } else {
+        p.setAttribute('hidden', '');
+      }
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => activate(tab.getAttribute('data-target')));
+  });
+});

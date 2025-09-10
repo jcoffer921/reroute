@@ -142,6 +142,25 @@ def user_dashboard(request):
     except Exception:
         notifications = []
 
+    # ---- Key metrics for Stats card ----
+    applications_sent = applications.count()
+    matches_found = len(suggested_jobs) if suggested_jobs else 0
+    profile_views = 0
+    try:
+        from core.models import AnalyticsEvent
+        # Prefer explicit profile_view events
+        q = AnalyticsEvent.objects.filter(event_type="profile_view")
+        try:
+            profile_views = q.filter(metadata__viewed_user=request.user.username).count()
+        except Exception:
+            # Fallback to path-based match
+            profile_views = AnalyticsEvent.objects.filter(
+                event_type="page_view",
+                path__icontains=f"/profiles/view/{request.user.username}/",
+            ).count()
+    except Exception:
+        profile_views = 0
+
     return render(request, 'dashboard/user_dashboard.html', {
         'profile': user_profile,
         'resume': resume,
@@ -154,6 +173,11 @@ def user_dashboard(request):
         'joined_date': joined_date,
         'suggested_jobs': suggested_jobs,
         'notifications': notifications,
+        'stats': {
+            'applications_sent': applications_sent,
+            'profile_views': profile_views,
+            'matches_found': matches_found,
+        }
     })
 
 

@@ -98,65 +98,77 @@
 
   <!-- ===== Resumes + Notifications Grid ===== -->
   <section class="resume-notifications-grid">
-    <div class="resumes-column">
-      <div class="resumes-grid">
-        {% if imported_resume %}
-        <article class="resume-card">
-          <div class="resume-thumb" aria-hidden="true">
-            <!-- Scalable SVG illustration/icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
+    <!-- Left: Single Resume card with tabs -->
+    <div class="resume-column">
+      <article class="resume-card">
+        <div class="resume-tabs" role="tablist" aria-label="Resume Tabs">
+          <button class="resume-tab active" data-target="#tab-created" role="tab" aria-selected="true">Created Resume</button>
+          <button class="resume-tab" data-target="#tab-imported" role="tab" aria-selected="false">Imported Resume</button>
+        </div>
+        <div class="resume-tabpanels">
+          <div id="tab-created" class="resume-panel active" role="tabpanel">
+            <div class="resume-thumb" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="3" width="16" height="18" rx="2"/>
+                <line x1="8" y1="8" x2="16" y2="8"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+                <line x1="8" y1="16" x2="13" y2="16"/>
+              </svg>
+            </div>
+            <header class="resume-card-header">
+              <h3 class="resume-card-title">Your Created Resume</h3>
+            </header>
+            <footer class="resume-card-actions">
+              {% if resume %}
+                <a href="{% url 'resumes:created_resume_view' resume.id %}" class="btn btn-primary">View Resume</a>
+              {% else %}
+                <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-primary">Create Resume</a>
+              {% endif %}
+            </footer>
           </div>
-          <header class="resume-card-header">
-            <h3 class="resume-card-title">Imported Resume</h3>
-          </header>
-          <footer class="resume-card-actions">
-            <a href="{% url 'resumes:imported_resume' imported_resume.id %}" class="btn btn-primary">View Resume</a>
-          </footer>
-        </article>
-        {% endif %}
+          <div id="tab-imported" class="resume-panel" role="tabpanel" hidden>
+            <div class="resume-thumb" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <header class="resume-card-header">
+              <h3 class="resume-card-title">Imported Resume</h3>
+            </header>
+            <footer class="resume-card-actions">
+              {% if imported_resume %}
+                <a href="{% url 'resumes:imported_resume' imported_resume.id %}" class="btn btn-primary">View Resume</a>
+              {% else %}
+                <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-primary">Import Resume</a>
+              {% endif %}
+            </footer>
+          </div>
+        </div>
+      </article>
+    </div>
 
-        {% if resume %}
-        <article class="resume-card">
-          <div class="resume-thumb" aria-hidden="true">
-            <!-- Scalable SVG illustration/icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="3" width="16" height="18" rx="2"/>
-              <line x1="8" y1="8" x2="16" y2="8"/>
-              <line x1="8" y1="12" x2="16" y2="12"/>
-              <line x1="8" y1="16" x2="13" y2="16"/>
-            </svg>
+    <!-- Center: Stats card -->
+    <div class="stats-column">
+      <article class="stats-card">
+        <h3 class="stats-title">Stats</h3>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-number">{{ stats.applications_sent|default:0 }}</div>
+            <div class="stat-label">Applications Sent</div>
           </div>
-          <header class="resume-card-header">
-            <h3 class="resume-card-title">Your Created Resume</h3>
-          </header>
-          <footer class="resume-card-actions">
-            <a href="{% url 'resumes:created_resume_view' resume.id %}" class="btn btn-primary">View Resume</a>
-          </footer>
-        </article>
-        {% else %}
-        <article class="resume-card">
-          <div class="resume-thumb" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="3" width="16" height="18" rx="2"/>
-              <line x1="8" y1="8" x2="16" y2="8"/>
-              <line x1="8" y1="12" x2="16" y2="12"/>
-              <line x1="8" y1="16" x2="13" y2="16"/>
-            </svg>
+          <div class="stat">
+            <div class="stat-number">{{ stats.profile_views|default:0 }}</div>
+            <div class="stat-label">Profile Views</div>
           </div>
-          <header class="resume-card-header">
-            <h3 class="resume-card-title">No Created Resume</h3>
-          </header>
-          <footer class="resume-card-actions">
-            <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-primary">Create Resume</a>
-          </footer>
-        </article>
-        {% endif %}
-      </div>
+          <div class="stat">
+            <div class="stat-number">{{ stats.matches_found|default:0 }}</div>
+            <div class="stat-label">Matches Found</div>
+          </div>
+        </div>
+      </article>
     </div>
 
     <aside class="notifications-column">
@@ -187,11 +199,9 @@
                         {% endif %}
                       </div>
                       <div class="content">
-                        <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
-                        <div class="message">{{ n.message }}</div>
-                        <div class="meta">
-                          {% if not n.is_read %}<span class="unread-dot" aria-label="Unread"></span>{% endif %}
-                          <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+                        <div class="text-row">
+                          <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
+                          <time class="timestamp" datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
                         </div>
                       </div>
                     </article>
@@ -208,11 +218,9 @@
                       {% endif %}
                     </div>
                     <div class="content">
-                      <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
-                      <div class="message">{{ n.message }}</div>
-                      <div class="meta">
-                        {% if not n.is_read %}<span class="unread-dot" aria-label="Unread"></span>{% endif %}
-                        <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
+                      <div class="text-row">
+                        <div class="title">{{ n.title|default:n.verb|default:"Update" }}</div>
+                        <time class="timestamp" datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|timesince }} ago</time>
                       </div>
                     </div>
                   </article>

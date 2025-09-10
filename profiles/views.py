@@ -76,6 +76,19 @@ def public_profile_view(request, username: str):
     profile = get_object_or_404(UserProfile, user=target_user)
     resume = Resume.objects.filter(user=target_user).order_by("-created_at").first() if Resume else None
 
+    # Track a specific profile-view event (best-effort, non-blocking)
+    try:
+        from core.utils.analytics import track_event
+        track_event(
+            event_type="profile_view",
+            user=request.user,
+            path=request.path,
+            metadata={"viewed_user": username},
+            request=request,
+        )
+    except Exception:
+        pass
+
     return render(
         request,
         "profiles/public_profile.html",
