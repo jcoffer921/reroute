@@ -73,6 +73,7 @@ class Resume(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resume_resumes')
     file = models.FileField(upload_to='resumes/', blank=True, null=True)
+    preview_image = models.ImageField(upload_to='resumes/previews/', blank=True, null=True)
     # Default to ReRoute style so initial downloads match the in-app created view
     template = models.CharField(max_length=20, choices=TEMPLATE_CHOICES, default='reroute')
     full_name = models.CharField(max_length=100, blank=True)

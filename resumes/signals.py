@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from .models import Resume
+from .utils.preview import generate_resume_preview
 
 
 @receiver(post_save, sender=Resume)
@@ -21,3 +22,10 @@ def track_resume_change(sender, instance: Resume, created: bool, **kwargs):
         # Never block on analytics
         pass
 
+    # Best-effort: ensure a preview image exists. Do not block.
+    try:
+        needs_preview = created or not getattr(instance, "preview_image", None)
+        if needs_preview or not getattr(instance.preview_image, "name", None):
+            generate_resume_preview(instance)
+    except Exception:
+        pass
