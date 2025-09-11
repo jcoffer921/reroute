@@ -45,7 +45,6 @@
   letter-spacing: .3px;
   box-shadow: 0 8px 22px rgba(0,0,0,0.16);
 }
-.hero-btn--small { padding: .55rem .9rem; font-size: .9rem; }
 .hero-btn:hover { filter: brightness(.92); box-shadow: 0 10px 22px rgba(0,0,0,.22); }
 .hero-media--logo { background-color: #000; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
