@@ -278,10 +278,13 @@ def education_step(request):
         if formset.is_valid():
             Education.objects.filter(resume=resume).delete()
             for form in formset:
-                if form.cleaned_data:
-                    instance = form.save(commit=False)
-                    instance.resume = resume
-                    instance.save()
+                cd = getattr(form, 'cleaned_data', None) or {}
+                # Skip rows marked for deletion or empty rows
+                if not cd or cd.get('DELETE'):
+                    continue
+                instance = form.save(commit=False)
+                instance.resume = resume
+                instance.save()
             return redirect('resumes:resume_experience_step')
 
     return render(request, 'resumes/steps/education_step.html', {'formset': formset})
@@ -300,10 +303,12 @@ def experience_step(request):
         if formset.is_valid():
             Experience.objects.filter(resume=resume).delete()
             for form in formset:
-                if form.cleaned_data:
-                    instance = form.save(commit=False)
-                    instance.resume = resume
-                    instance.save()
+                cd = getattr(form, 'cleaned_data', None) or {}
+                if not cd or cd.get('DELETE'):
+                    continue
+                instance = form.save(commit=False)
+                instance.resume = resume
+                instance.save()
             return redirect('resumes:resume_skills_step')
 
     return render(request, 'resumes/steps/experience_step.html', {'formset': formset})
