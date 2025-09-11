@@ -31,10 +31,26 @@
 .hero-slide .hero-content { position: relative; z-index: 1; padding: 2rem; max-width: 560px; display: grid; gap: .75rem; }
 .hero-slide .hero-title { font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.2rem); line-height: 1.15; margin: 0; }
 .hero-kicker { font-weight: 900; font-size: clamp(2rem, 4vw, 2.6rem); line-height: 1.05; margin: 0 0 .25rem; }
+.hero-tagline { font-weight: 900; font-size: clamp(1.6rem, 3.6vw, 2.4rem); line-height: 1.05; margin: 0 0 .35rem; }
+.intro-slide .hero-content { max-width: 720px; }
 .hero-slide .hero-excerpt { color: rgba(255,255,255,.92); margin: 0; }
-.hero-btn { display: inline-block; margin-top: .25rem; background: rgba(255,255,255,0.9); color: #0B0F19; padding: .55rem .9rem; border-radius: 999px; font-weight: 800; text-decoration: none; font-size: .92rem; }
-.hero-btn--small { padding: .5rem .85rem; font-weight: 700; }
-.hero-btn:hover { filter: brightness(.95); }
+.hero-btn {
+  display: inline-block;
+  margin-top: .25rem;
+  background: linear-gradient(135deg, var(--accent-cyan, #00beb8) 0%, var(--primary-blue, #006da0) 100%);
+  color: #ffffff;
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  font-weight: 900;
+  text-decoration: none;
+  font-size: .92rem;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+  transition: filter .2s ease, box-shadow .2s ease;
+}
+.hero-btn--small { padding: .55rem .9rem; font-size: .9rem; }
+.hero-btn:hover { filter: brightness(.92); box-shadow: 0 10px 22px rgba(0,0,0,.22); }
 .hero-media--logo { background-color: #000; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
 /* Coming Soon badge */
