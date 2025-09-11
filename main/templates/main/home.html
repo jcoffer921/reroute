@@ -70,7 +70,7 @@
             <div class="hero-tagline">Your Voice Matters</div>
             <h2 class="hero-kicker">Our Blog</h2>
             <p class="hero-excerpt">Insights, stories, and resources from the ReRoute team.</p>
-            <a href="{% url 'blog_list' %}" class="hero-btn">View Posts</a>
+            
           </div>
         </article>
         {% if featured_posts %}
@@ -81,10 +81,7 @@
               <div class="hero-content">
                 <h3 class="hero-title">{{ post.title }} <span class="badge-soon">Coming Soon</span></h3>
                 <p class="hero-excerpt">{{ post.content|truncatechars:140 }}</p>
-                {% url 'blog_detail' slug=post.slug as blog_url %}
-                {% if blog_url %}
-                  <a href="{{ blog_url }}" class="hero-btn">Read More</a>
-                {% endif %}
+                
               </div>
             </article>
           {% endfor %}
@@ -96,10 +93,7 @@
               <div class="hero-content">
                 <h3 class="hero-title">{{ post.title }} <span class="badge-soon">Coming Soon</span></h3>
                 <p class="hero-excerpt">{{ post.content|truncatechars:140 }}</p>
-                {% url 'blog_detail' slug=post.slug as blog_url %}
-                {% if blog_url %}
-                  <a href="{{ blog_url }}" class="hero-btn">Read More</a>
-                {% endif %}
+                
               </div>
             </article>
           {% endfor %}
@@ -128,7 +122,6 @@
             <div class="post-body">
               <h4 class="post-title"><a href="{% url 'blog_detail' slug=post.slug %}">{{ post.title }}</a> <span class="badge-soon">Coming Soon</span></h4>
               <p class="post-excerpt">{{ post.content|truncatechars:110 }}</p>
-              <a href="{% url 'blog_detail' slug=post.slug %}" class="post-link">Read More →</a>
             </div>
           </article>
         {% endfor %}
@@ -151,7 +144,7 @@
             <div class="hero-tagline">Your Voice Matters</div>
             <h2 class="hero-kicker">Our Blog</h2>
             <p class="hero-excerpt">We're working on insightful stories and resources. Coming Soon.</p>
-            <a href="{% url 'blog_list' %}" class="vision-btn">View Posts</a>
+            
           </div>
         </article>
         <article class="slide hero-slide">
@@ -160,7 +153,7 @@
           <div class="hero-content">
             <h3 class="hero-title">Resources that make a difference</h3>
             <p class="hero-excerpt">We're crafting practical guides you can use right away. Coming Soon.</p>
-            <a href="{% url 'blog_list' %}" class="vision-btn">View Posts</a>
+            
           </div>
         </article>
       </div>
