@@ -127,6 +127,21 @@
   position: relative;
 }
 
+/* Global diagonal gradient overlay that blends text bg into image */
+.vision-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1; /* over image, under text */
+  background: linear-gradient(
+    135deg,
+    var(--vision-bg, #ffffff) 0%,
+    var(--vision-bg, #ffffff) 35%,
+    rgba(255,255,255,0) 70%
+  );
+}
+
 .vision-left {
   background: var(--vision-bg, #ffffff); /* solid, themeable text background */
   color: #0f172a;
@@ -139,23 +154,12 @@
 .vision-left p { margin: 0 0 1rem; line-height: 1.65; color: #334155; }
 
 /* Diagonal merge: extend the left background over the image with a clipped shape */
-.vision-left::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  height: 100%;
-  width: 22vw;              /* width of the blending area */
-  background: linear-gradient(
-    to bottom left,
-    var(--vision-bg, #ffffff) 20%,
-    rgba(255,255,255,0) 80%
-  );
-  pointer-events: none;
-}
+/* No extra left-side overlay needed; global ::before handles the merge */
+.vision-left::after { content: none; }
 
 .vision-right {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   background-image: var(--vision-image);
   background-size: cover;
   background-position: center;
