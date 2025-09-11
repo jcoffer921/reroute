@@ -59,7 +59,10 @@
      ========================= -->
 <section class="blog-section">
   {% if featured_posts or recent_posts %}
-    <h2>From the Blog</h2>
+    <div class="blog-header">
+      <h2>Our Blog</h2>
+      <p class="blog-subtext">Insights, stories, and resources from the ReRoute team.</p>
+    </div>
 
     <!-- Hero Carousel (featured first; fallback to first recent) -->
     <div class="slider-container blog-hero">
@@ -111,7 +114,11 @@
       <div class="recent-row">
         {% for post in recent_posts %}
           <article class="post-card">
-            <a href="{% url 'blog_detail' slug=post.slug %}" class="post-media" style="background-image:url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'images/dream_team.jpg' %}{% endif %}');" aria-label="{{ post.title }}"></a>
+            {% if post.image %}
+              <a href="{% url 'blog_detail' slug=post.slug %}" class="post-media" style="background-image:url('{{ post.image.url }}');" aria-label="{{ post.title }}"></a>
+            {% else %}
+              <a href="{% url 'blog_detail' slug=post.slug %}" class="post-media post-media--logo" style="background-image:url('{% static 'images/reroute-trans-logo.png' %}');" aria-label="{{ post.title }}"></a>
+            {% endif %}
             <div class="post-body">
               <h4 class="post-title"><a href="{% url 'blog_detail' slug=post.slug %}">{{ post.title }}</a></h4>
               <p class="post-excerpt">{{ post.content|truncatechars:110 }}</p>
@@ -122,13 +129,15 @@
       </div>
     {% endif %}
 
-    <div class="blog-foot-cta">
+    <div class="blog-header" style="margin-top:1rem;">
       <a href="{% url 'blog_list' %}" class="view-all-link">View all blog posts</a>
     </div>
 
   {% else %}
-    <h2>Our Blog</h2>
-    <p class="blog-subtext">We’re working on insightful stories and resources. Subscribe to be the first to read them.</p>
+    <div class="blog-header">
+      <h2>Our Blog</h2>
+      <p class="blog-subtext">We’re working on insightful stories and resources. Subscribe to be the first to read them.</p>
+    </div>
 
     <!-- Teaser Carousel with immersive images -->
     <div class="slider-container blog-hero">
@@ -139,16 +148,16 @@
           <div class="hero-content">
             <h3 class="hero-title">Stories that move careers forward</h3>
             <p class="hero-excerpt">Tips, journeys, and hiring insights for second‑chance talent.</p>
-            <a href="{% url 'contact' %}" class="hero-btn">Notify Me</a>
+            <a href="{% url 'contact' %}" class="hero-btn hero-btn--small">Notify Me</a>
           </div>
         </article>
         <article class="slide hero-slide">
-          <div class="hero-media" style="background-image:url('{% static 'images/dream_team.jpg' %}');"></div>
+          <div class="hero-media hero-media--logo" style="background-image:url('{% static 'images/reroute-trans-logo.png' %}');"></div>
           <div class="hero-overlay"></div>
           <div class="hero-content">
             <h3 class="hero-title">Resources that make a difference</h3>
             <p class="hero-excerpt">We’re crafting practical guides you can use right away.</p>
-            <a href="{% url 'contact' %}" class="hero-btn">Notify Me</a>
+            <a href="{% url 'contact' %}" class="hero-btn hero-btn--small">Notify Me</a>
           </div>
         </article>
       </div>
@@ -161,9 +170,7 @@
     </div>
     <div class="slider-dots" id="sliderDots"></div>
 
-    <div class="blog-foot-cta">
-      <a href="{% url 'contact' %}" class="view-all-link">Notify Me</a>
-    </div>
+    <!-- Removed duplicate Notify Me CTA under the carousel per request -->
   {% endif %}
 </section>
 

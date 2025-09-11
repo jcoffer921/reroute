@@ -1,6 +1,7 @@
 /* ===== Slider Layout ===== */
-.blog-section { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
-.blog-section h2 { margin: 0 0 .5rem; font-size: clamp(1.6rem, 2.8vw, 2.1rem); }
+.blog-section { padding: 2rem 0; }
+.blog-header { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+.blog-section h2 { margin: 0 0 .35rem; font-size: clamp(1.8rem, 3.2vw, 2.3rem); }
 .blog-subtext { margin: 0 0 1rem; color: #555; }
 
 .slider-container {
@@ -23,15 +24,21 @@
 .slide { padding: 1.5rem; box-sizing: border-box; }
 
 /* Blog hero */
-.blog-hero { background: #0b0f19; border: none; }
+.blog-hero { background: #0b0f19; border: none; width: 100vw; margin-left: calc(50% - 50vw); border-radius: 0; }
 .hero-slide { position: relative; min-height: 380px; color: #fff; display: flex; align-items: stretch; }
 .hero-slide .hero-media { position: absolute; inset: 0; background-size: cover; background-position: center; filter: saturate(1.05); }
 .hero-slide .hero-overlay { position: absolute; inset: 0; background: linear-gradient( to right, rgba(0,0,0,.55) 0%, rgba(0,0,0,.35) 35%, rgba(0,0,0,0) 80% ); }
 .hero-slide .hero-content { position: relative; z-index: 1; padding: 2rem; max-width: 560px; display: grid; gap: .75rem; }
 .hero-slide .hero-title { font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.2rem); line-height: 1.15; margin: 0; }
 .hero-slide .hero-excerpt { color: rgba(255,255,255,.92); margin: 0; }
-.hero-btn { display: inline-block; margin-top: .25rem; background: var(--accent-cyan, #00beb8); color: #0F172A; padding: .7rem 1.1rem; border-radius: 10px; font-weight: 800; text-decoration: none; }
+.hero-btn { display: inline-block; margin-top: .25rem; background: rgba(255,255,255,0.9); color: #0B0F19; padding: .55rem .9rem; border-radius: 999px; font-weight: 800; text-decoration: none; font-size: .92rem; }
+.hero-btn--small { padding: .5rem .85rem; font-weight: 700; }
 .hero-btn:hover { filter: brightness(.95); }
+.hero-media--logo { background-color: #000; background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+/* Subtle arrows for hero */
+.blog-hero .slider-btn { width: 40px; height: 40px; background: rgba(0,0,0,.35); box-shadow: 0 6px 16px rgba(0,0,0,.2); }
+.blog-hero .slider-btn:hover { background: rgba(0,0,0,.45); }
 
 /* Headings & text cleanup */
 .blog-slider h2 {
