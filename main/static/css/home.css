@@ -136,29 +136,30 @@
   z-index: 1; /* over image, under text */
   background: linear-gradient(
     135deg,
-    var(--vision-bg, #ffffff) 0%,
-    var(--vision-bg, #ffffff) 35%,
-    rgba(255,255,255,0) 70%
+    var(--vision-overlay, rgba(255,255,255,0.96)) 0%,
+    var(--vision-overlay, rgba(255,255,255,0.96)) 38%,
+    rgba(255,255,255,0) 75%
   );
 }
 
 .vision-left {
-  background: var(--vision-bg, #ffffff); /* solid, themeable text background */
-  color: #0f172a;
+  background: transparent; /* image shows through; color provided by overlay */
+  color: #ffffff;
   padding: 2.5rem;
   position: relative;
   z-index: 2;
 }
 
-.vision-left h2 { margin: 0 0 1rem; font-size: 2rem; }
-.vision-left p { margin: 0 0 1rem; line-height: 1.65; color: #334155; }
+.vision-left h2 { margin: 0 0 1rem; font-size: 2.5rem; line-height: 1.1; font-weight: 900; }
+.vision-left p { margin: 0 0 1rem; line-height: 1.65; color: rgba(255,255,255,0.9); }
 
 /* Diagonal merge: extend the left background over the image with a clipped shape */
 /* No extra left-side overlay needed; global ::before handles the merge */
 .vision-left::after { content: none; }
 
 .vision-right {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 0;
   background-image: var(--vision-image);
   background-size: cover;
@@ -167,13 +168,17 @@
 
 /* Mobile/Tablet responsiveness */
 @media (max-width: 900px) {
-  .vision-inner {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-  .vision-right {
-    height: 40vh;
-    min-height: 260px;
+  .vision-inner { grid-template-columns: 1fr; min-height: auto; }
+  .vision-right { position: relative; inset: auto; height: 40vh; min-height: 260px; }
+  .vision-left { color: #0f172a; }
+  .vision-left p { color: #334155; }
+  /* Simplify overlay for stacked layout */
+  .vision-inner::before {
+    background: linear-gradient(
+      to bottom,
+      var(--vision-overlay, rgba(255,255,255,0.9)) 0%,
+      rgba(255,255,255,0) 60%
+    );
   }
   .vision-left::after { display: none; }
   /* Keep a subtle angled overlay at the bottom of the image to preserve the merge feel */
@@ -185,7 +190,7 @@
     background: linear-gradient(
       to bottom left,
       rgba(255,255,255,0) 25%,
-      var(--vision-bg, #ffffff) 90%
+      var(--vision-overlay, rgba(255,255,255,1)) 90%
     );
     pointer-events: none;
   }
