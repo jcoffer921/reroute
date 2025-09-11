@@ -116,20 +116,15 @@
 }
 
 /* ===== Vision Split Section ===== */
-.vision-split {
-  padding: 3rem 1rem;
-}
+.vision-split { padding: 0; }
 
 .vision-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  min-height: 440px;
+  width: 100%;
+  min-height: 60vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-radius: 18px;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
 }
 
 .vision-left {
@@ -149,9 +144,10 @@
   position: absolute;
   top: 0; right: 0;
   height: 100%;
-  width: 16vw;              /* responsive width for the diagonal extension */
+  width: 20vw;              /* responsive width for the diagonal extension */
   background: #ffffff;      /* same as left background */
-  clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  pointer-events: none;
 }
 
 .vision-right {
