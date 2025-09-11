@@ -36,18 +36,14 @@
 .hero-slide .hero-excerpt { color: rgba(255,255,255,.92); margin: 0; }
 .hero-btn {
   display: inline-block;
-  margin-top: .25rem;
-  background: linear-gradient(135deg, var(--accent-cyan, #00beb8) 0%, var(--primary-blue, #006da0) 100%);
-  color: #ffffff;
-  padding: .6rem 1rem;
-  border-radius: 8px;
-  font-weight: 900;
+  background: var(--accent-cyan, #00beb8);
+  color: #0F172A;
+  padding: .8rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 800;
   text-decoration: none;
-  font-size: .92rem;
-  text-transform: uppercase;
-  letter-spacing: .4px;
-  box-shadow: 0 8px 18px rgba(0,0,0,.18);
-  transition: filter .2s ease, box-shadow .2s ease;
+  letter-spacing: .3px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.16);
 }
 .hero-btn--small { padding: .55rem .9rem; font-size: .9rem; }
 .hero-btn:hover { filter: brightness(.92); box-shadow: 0 10px 22px rgba(0,0,0,.22); }
@@ -238,7 +234,7 @@
 
 /* Mobile/Tablet responsiveness */
 @media (max-width: 900px) {
-  .vision-inner { grid-template-columns: 1fr; min-height: auto; }
+  .vision-inner { grid-template-columns: 1fr; }
   .vision-right { position: relative; inset: auto; height: 40vh; min-height: 260px; }
   .vision-left { color: #0f172a; }
   .vision-left p { color: #334155; }
