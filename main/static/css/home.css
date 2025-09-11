@@ -36,16 +36,22 @@
 .hero-slide .hero-excerpt { color: rgba(255,255,255,.92); margin: 0; }
 .hero-btn {
   display: inline-block;
-  background: var(--accent-cyan, #00beb8);
-  color: #0F172A;
-  padding: .8rem 1.25rem;
-  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-cyan, #00beb8) 0%, var(--primary-blue, #006da0) 100%);
+  color: #ffffff;
+  padding: .45rem .85rem;
+  border-radius: 8px;
   font-weight: 800;
   text-decoration: none;
-  letter-spacing: .3px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.16);
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+  justify-self: start; /* avoid grid stretch */
+  align-self: start;
+  width: auto;
+  max-width: max-content;
 }
-.hero-btn:hover { filter: brightness(.92); box-shadow: 0 10px 22px rgba(0,0,0,.22); }
+.hero-btn:hover { filter: brightness(.95); box-shadow: 0 10px 22px rgba(0,0,0,.22); }
 .hero-media--logo { background-color: #000; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
 /* Coming Soon badge */
