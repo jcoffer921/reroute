@@ -114,3 +114,72 @@
   .slide { padding: 1rem; }
   .slider-btn { width: 38px; height: 38px; }
 }
+
+/* ===== Vision Split Section ===== */
+.vision-split {
+  padding: 3rem 1rem;
+}
+
+.vision-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 440px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+.vision-left {
+  background: #ffffff; /* solid, clean text background */
+  color: #0f172a;
+  padding: 2.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.vision-left h2 { margin: 0 0 1rem; font-size: 2rem; }
+.vision-left p { margin: 0 0 1rem; line-height: 1.65; color: #334155; }
+
+/* Diagonal merge: extend the left background over the image with a clipped shape */
+.vision-left::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  height: 100%;
+  width: 16vw;              /* responsive width for the diagonal extension */
+  background: #ffffff;      /* same as left background */
+  clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%);
+}
+
+.vision-right {
+  position: relative;
+  z-index: 1;
+  background-image: var(--vision-image);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Mobile/Tablet responsiveness */
+@media (max-width: 900px) {
+  .vision-inner {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .vision-right {
+    height: 40vh;
+    min-height: 260px;
+  }
+  .vision-left::after { display: none; }
+  /* Keep a subtle angled overlay at the bottom of the image to preserve the merge feel */
+  .vision-right::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 18vw;
+    background: #ffffff;
+    clip-path: polygon(0 65%, 100% 0, 100% 100%, 0% 100%);
+  }
+}
