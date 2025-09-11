@@ -67,7 +67,7 @@
         {% if featured_posts %}
           {% for post in featured_posts %}
             <article class="slide hero-slide">
-              <div class="hero-media" style="background-image:url('{{ post.image.url if post.image else static('images/your_voice.jpg') }}');"></div>
+              <div class="hero-media" style="background-image:url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'images/your_voice.jpg' %}{% endif %}');"></div>
               <div class="hero-overlay"></div>
               <div class="hero-content">
                 <h3 class="hero-title">{{ post.title }}</h3>
@@ -82,7 +82,7 @@
         {% else %}
           {% for post in recent_posts|slice:':1' %}
             <article class="slide hero-slide">
-              <div class="hero-media" style="background-image:url('{{ post.image.url if post.image else static('images/your_voice.jpg') }}');"></div>
+              <div class="hero-media" style="background-image:url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'images/your_voice.jpg' %}{% endif %}');"></div>
               <div class="hero-overlay"></div>
               <div class="hero-content">
                 <h3 class="hero-title">{{ post.title }}</h3>
@@ -111,7 +111,7 @@
       <div class="recent-row">
         {% for post in recent_posts %}
           <article class="post-card">
-            <a href="{% url 'blog_detail' slug=post.slug %}" class="post-media" style="background-image:url('{{ post.image.url if post.image else static('images/dream_team.jpg') }}');" aria-label="{{ post.title }}"></a>
+            <a href="{% url 'blog_detail' slug=post.slug %}" class="post-media" style="background-image:url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'images/dream_team.jpg' %}{% endif %}');" aria-label="{{ post.title }}"></a>
             <div class="post-body">
               <h4 class="post-title"><a href="{% url 'blog_detail' slug=post.slug %}">{{ post.title }}</a></h4>
               <p class="post-excerpt">{{ post.content|truncatechars:110 }}</p>
