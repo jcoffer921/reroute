@@ -17,8 +17,8 @@
 <!-- Hero 2: Background Video Section (replaces old Featured Video) -->
 <section class="resource-hero-2">
   <video id="hero2BgVideo" class="hero2-video" autoplay muted loop playsinline preload="metadata"
-         poster="{% static 'images/dont_say_in_interview.png' %}">
-    <source src="{% static 'resources/videos/dontSayInInterview.mp4' %}" type="video/mp4">
+         poster="{% static 'images/dont_say_interview.png' %}">
+    <source src="/static/resources/videos/dontSayInInterview.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
   <div class="hero2-overlay"></div>
@@ -40,8 +40,8 @@
     <div class="hero2-modal-dialog" role="dialog" aria-modal="true" aria-label="Hero video">
       <button id="hero2Close" class="hero2-modal-close" aria-label="Close video">✕</button>
       <video id="hero2ModalVideo" class="hero2-modal-video" controls preload="metadata">
-        <source src="{% static 'resources/videos/hero2.mp4' %}" type="video/mp4">
-      </video>
+        <source src="/static/resources/videos/dontSayInInterview.mp4" type="video/mp4">
+        </video>
     </div>
   </div>
 </section>
