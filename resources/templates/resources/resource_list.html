@@ -14,7 +14,39 @@
   </div>
 </section>
 
-<div class="resource-container">
+<!-- Hero 2: Background Video Section (replaces old Featured Video) -->
+<section class="resource-hero-2">
+  <video id="hero2BgVideo" class="hero2-video" autoplay muted loop playsinline preload="metadata"
+         poster="{% static 'images/dont_say_in_interview.png' %}">
+    <source src="{% static 'resources/videos/dontSayInInterview.mp4' %}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div class="hero2-overlay"></div>
+  <div class="hero2-content">
+    <span class="hero2-label">ReRoute Resources</span>
+    <h2 class="hero2-title">Work Ready in 60 Seconds</h2>
+    <p class="hero2-subtext">Quick tips to stand out in interviews, resumes, and at work.</p>
+    <div class="hero2-actions">
+      <a href="#resource-library" class="hero2-cta">Explore All Resources</a>
+      <button id="hero2Play" class="hero2-play-button" aria-label="Play video">
+        <span class="hero2-play-icon">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Fullscreen Modal for Video Playback with Sound -->
+  <div id="hero2Modal" class="hero2-modal" hidden>
+    <div class="hero2-modal-backdrop" data-hero2-close></div>
+    <div class="hero2-modal-dialog" role="dialog" aria-modal="true" aria-label="Hero video">
+      <button id="hero2Close" class="hero2-modal-close" aria-label="Close video">✕</button>
+      <video id="hero2ModalVideo" class="hero2-modal-video" controls preload="metadata">
+        <source src="{% static 'resources/videos/hero2.mp4' %}" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+
+<div id="resource-library" class="resource-container">
   <h2>Resources to Help You Succeed</h2>
   <p>Explore our curated collection of tools, courses, and support services designed to empower your journey.</p>
 
@@ -50,19 +82,7 @@
     </div>
   </div>
 
-  <div class="featured-video">
-    <h2>Featured Video</h2>
-    <div class="video-card">
-      <div class="video-aspect">
-        <iframe src="https://www.youtube.com/embed/SAMPLE_VIDEO_ID" title="How to Tie a Tie" allowfullscreen></iframe>
-      </div>
-      <div class="video-meta">
-        <h3>How to Tie a Tie</h3>
-        <p>Learn a simple knot and show up with confidence. Clean presentation helps you make a strong first impression.</p>
-        <a href="https://www.youtube.com/results?search_query=how+to+tie+a+tie" target="_blank" rel="noopener" class="btn-secondary">More videos →</a>
-      </div>
-    </div>
-  </div>
+  {# Former Featured Video section removed and replaced by Hero 2 above #}
 
   <div class="resource-quote">
     <blockquote>“Don't worry about what other people think of you. Just be sure you think correctly about yourself. - Jason Coffer”</blockquote>
@@ -74,4 +94,8 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'resources/js/resource.js' %}" defer></script>
 {% endblock %}
