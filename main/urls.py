@@ -22,6 +22,10 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
     path('resources/', views.resources_view, name='resources'),
 
+    # ================ Email Verification Helpers ================
+    path('verify-email/', views.verify_email_notice, name='verify_email_notice'),
+    path('resend-verification/', views.resend_verification_view, name='resend_verification'),
+
     # ================ Employer Auth & Dashboard ================
     path('employer/login/', views.employer_login_view, name='employer_login'),
     path('employer/signup/', views.employer_signup_view, name='employer_signup'),

@@ -76,6 +76,8 @@
     <!-- Secondary actions (best home for Employer/User switch) -->
     <div class="secondary-actions">
       <span>Not an employer? <a class="link" href="{% url 'login' %}">User login</a>.</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <a class="link" href="{% url 'resend_verification' %}">Resend verification</a>
     </div>
 
     <!-- Optional: AJAX error slot if JS posts JSON -->

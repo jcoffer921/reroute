@@ -40,6 +40,7 @@ from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.contrib.auth.password_validation import validate_password
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_GET, require_POST
 
 from job_list.models import Application
 from main.forms import UserSignupForm
@@ -78,6 +79,14 @@ import logging
 from django.apps import apps
 
 logger = logging.getLogger(__name__)
+
+# Allauth helpers for email verification (guarded import)
+try:
+    from allauth.account.utils import send_email_confirmation
+    from allauth.account.models import EmailAddress
+except Exception:  # allauth is installed per settings, but guard anyway
+    send_email_confirmation = None
+    EmailAddress = None
 
 def home(request):
     """
@@ -246,19 +255,20 @@ def signup_view(request):
     if request.method == 'POST':
         try:
             if user_form.is_valid():
-                # Form.save() already hashes the password (per our form code)
+                # Create the user account
                 user = user_form.save()
-                login(request, user)
 
-                # Respect ?next= if provided and safe; else go to dashboard
-                # Respect ?next= if provided and safe; else go to dashboard router
-                requested_next = request.POST.get('next') or request.GET.get('next')
-                if requested_next and url_has_allowed_host_and_scheme(requested_next, {request.get_host()}):
-                    return redirect(requested_next)
-                try:
-                    return redirect(reverse('dashboard:my_dashboard'))
-                except NoReverseMatch:
-                    return redirect('/dashboard/')
+                # Send verification email via allauth and show confirmation screen
+                if send_email_confirmation is not None:
+                    try:
+                        send_email_confirmation(request, user)
+                    except Exception:
+                        logger.exception("Failed to send verification email for user signup")
+
+                return render(request, 'main/verification_sent.html', {
+                    'email': user.email,
+                    'is_employer': False,
+                })
 
             # Log validation errors to server logs (won't crash now)
             logger.info("Signup validation errors: %s", user_form.errors)
@@ -352,6 +362,23 @@ def login_view(request):
             code = 401 if err == "Invalid credentials" else 400
             return JsonResponse({"status": "fail", "message": err}, status=code)
 
+        # Require verified email before login
+        if EmailAddress is not None:
+            try:
+                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+            except Exception:
+                is_verified = True
+            if not is_verified:
+                if send_email_confirmation is not None:
+                    try:
+                        send_email_confirmation(request, user)
+                    except Exception:
+                        logger.exception("Failed to resend verification email during login")
+                return JsonResponse({
+                    "status": "fail",
+                    "message": "Please verify your email. We just sent a new link.",
+                }, status=403)
+
         login(request, user)
         # Session persistence based on Remember checkbox
         try:
@@ -379,6 +406,24 @@ def login_view(request):
                 "next": requested_next,  # keep it if present
             }, status=401 if err == "Invalid credentials" else 400)
 
+        # Require verified email before login
+        if EmailAddress is not None:
+            try:
+                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+            except Exception:
+                is_verified = True
+            if not is_verified:
+                if send_email_confirmation is not None:
+                    try:
+                        send_email_confirmation(request, user)
+                    except Exception:
+                        logger.exception("Failed to resend verification email during login")
+                return render(request, "main/login.html", {
+                    "error": "Please verify your email. We just sent a new link.",
+                    "prefill_identifier": identifier,
+                    "next": requested_next,
+                }, status=403)
+
         login(request, user)
         # Session persistence based on Remember checkbox
         try:
@@ -394,6 +439,55 @@ def logout_view(request):
     """Log out anyone (user or employer) and bounce to login."""
     logout(request)
     return redirect('login')
+
+# =========================================================================
+# Email Verification Helpers
+# =========================================================================
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def verify_email_notice(request):
+    """
+    For logged-in users who are not verified. Shows a reminder and lets them
+    resend the verification email.
+    """
+    sent = False
+    if request.method == 'POST' and send_email_confirmation is not None:
+        try:
+            send_email_confirmation(request, request.user)
+            sent = True
+            messages.success(request, "Verification email sent. Please check your inbox.")
+        except Exception:
+            logger.exception("Failed to send verification email from verify_email_notice")
+            messages.error(request, "We couldn't send the verification email right now. Please try again soon.")
+    return render(request, 'main/verify_email.html', {
+        'email': request.user.email,
+        'sent': sent,
+    })
+
+
+@require_http_methods(["GET", "POST"])
+def resend_verification_view(request):
+    """
+    For users not logged in who want to request a verification email again.
+    Does not reveal whether the email exists.
+    """
+    sent = False
+    if request.method == 'POST' and send_email_confirmation is not None:
+        email = (request.POST.get('email') or '').strip().lower()
+        if email:
+            try:
+                user = User.objects.filter(email__iexact=email).first()
+                if user:
+                    send_email_confirmation(request, user)
+                sent = True
+            except Exception:
+                logger.exception("Failed resend_verification for %s", email)
+                # Still respond the same to avoid enumeration
+                sent = True
+        else:
+            messages.error(request, "Please enter a valid email address.")
+    return render(request, 'main/resend_verification.html', {'sent': sent})
 
 # =========================================================================
 # Auth: EMPLOYER Signup/Login & Dashboard
@@ -504,10 +598,17 @@ def employer_signup_view(request):
         # Don’t block signup on group issues
         pass
 
-    # Login and redirect to employer dashboard
-    login(request, user)
-    dest = _safe_redirect("employer_dashboard", "/employer/dashboard/")
-    return redirect(dest)
+    # Send verification email (no auto-login)
+    if send_email_confirmation is not None:
+        try:
+            send_email_confirmation(request, user)
+        except Exception:
+            logger.exception("Failed to send verification email for employer signup")
+
+    return render(request, 'main/verification_sent.html', {
+        'email': user.email,
+        'is_employer': True,
+    })
 
 
 @csrf_protect
@@ -570,6 +671,23 @@ def employer_login_view(request):
             code = 401 if err == "Invalid credentials" else (403 if err == "This account is not an employer." else 400)
             return JsonResponse({"status": "fail", "message": err}, status=code)
 
+        # Require verified email before employer login
+        if EmailAddress is not None:
+            try:
+                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+            except Exception:
+                is_verified = True
+            if not is_verified:
+                if send_email_confirmation is not None:
+                    try:
+                        send_email_confirmation(request, user)
+                    except Exception:
+                        logger.exception("Failed to resend verification email (employer login)")
+                return JsonResponse({
+                    "status": "fail",
+                    "message": "Please verify your email. We just sent a new link.",
+                }, status=403)
+
         login(request, user)
         # Session persistence based on Remember checkbox
         try:
@@ -590,6 +708,23 @@ def employer_login_view(request):
             "error": err,
             "prefill_identifier": identifier,
         })
+
+    # Require verified email before employer login
+    if EmailAddress is not None:
+        try:
+            is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+        except Exception:
+            is_verified = True
+        if not is_verified:
+            if send_email_confirmation is not None:
+                try:
+                    send_email_confirmation(request, user)
+                except Exception:
+                    logger.exception("Failed to resend verification email (employer login)")
+            return render(request, "main/employer_login.html", {
+                "error": "Please verify your email. We just sent a new link.",
+                "prefill_identifier": identifier,
+            }, status=403)
 
     login(request, user)
     # Session persistence based on Remember checkbox
