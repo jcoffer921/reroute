@@ -15,6 +15,8 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
             "img-src 'self' data: https:; "
             "font-src 'self' data: https:; "
             "connect-src 'self' https:; "
+            # Allow embedding third-party iframes such as Google reCAPTCHA
+            "frame-src 'self' https:; "
             f"frame-ancestors {frame_ancestors}; "
             "upgrade-insecure-requests"
         )
