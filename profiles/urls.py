@@ -25,4 +25,5 @@ urlpatterns = [
 
     # Employer profile (separate from employer dashboard)
     path("employer/profile/", views.employer_profile_view, name="employer_profile"),
+    path("employer/logo/remove/", views.remove_employer_logo, name="remove_employer_logo"),
 ]

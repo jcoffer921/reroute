@@ -1,32 +1,58 @@
-/*
-  Employer Profile styles
-  - Clean card layout with subtle shadow
-  - Flex header: company name left, badge right
-  - Primary and secondary buttons
-  - Slide-out edit panel on the right, smooth transitions
-*/
+/* Employer Profile page styles (modern, clean, Inter) */
 
-/* --------- Page layout --------- */
+:root {
+  --blue-500: #2563eb;
+  --blue-600: #1d4ed8;
+  --muted: #aaa;
+  --border: #eee;
+}
+
 .employer-profile-page {
-  max-width: 900px;           /* Keep content readable */
-  margin: 24px auto 64px;     /* Space below fixed navbar and above footer */
-  padding: 0 16px;            /* Some breathing room on mobile */
+  max-width: 720px;
+  margin: 24px auto 64px;
+  padding: 0 16px;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
-/* --------- Card --------- */
+/* Card container */
 .card {
-  background: #fff;                       /* White surface */
-  border-radius: 12px;                    /* Softer corners */
-  box-shadow: 0 6px 24px rgba(0,0,0,0.06);/* Subtle elevation */
-  overflow: hidden;                       /* Clip child edges */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  overflow: hidden;
 }
 
-.card-header {
-  display: flex;               /* Place title and badge on one line */
+/* Profile header: avatar left, details right */
+.profile-header {
+  display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
   padding: 20px 24px;
   border-bottom: 1px solid #eef0f3;
+}
+
+.avatar-wrapper { flex-shrink: 0; }
+.company-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  display: inline-block;
+}
+.avatar-initials {
+  background: #9aa4af;
+  color: #fff;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 96px;
+  text-align: center;
+}
+
+.header-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .company-name {
@@ -42,56 +68,35 @@
   padding: 6px 10px;
   border-radius: 999px;
   font-weight: 600;
+  border: 1px solid transparent;
 }
-
 .badge-verified {
-  color: #0a5c2a;
-  background: #e5f7eb; /* light green */
-  border: 1px solid #bfe9cf;
+  background: #e6f7ec;
+  color: #1e7e34;
+  border-color: #c7ead2;
 }
-
 .badge-pending {
-  color: #8a6d00;
-  background: #fff7d6; /* light yellow */
-  border: 1px solid #ffe89a;
+  background: #fff8e6;
+  color: #8a6d3b;
+  border-color: #f4d9a9;
 }
 
-.card-body {
-  padding: 20px 24px;
-}
+.card-body { padding: 20px 24px; }
 
 .details-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px 24px;
 }
-
-.detail {
-  display: flex;
-  flex-direction: column;
-}
-
-.detail.full {
-  grid-column: 1 / -1; /* Span both columns */
-}
-
-.label {
-  color: #5c6773;
-  font-size: 0.85rem;
-  margin-bottom: 6px;
-}
-
-.value {
-  font-size: 1rem;
-}
-
-.value .muted {
-  color: #9aa4af;
-}
+.detail { display: flex; flex-direction: column; }
+.detail.full { grid-column: 1 / -1; }
+.label { color: #5c6773; font-size: 0.85rem; margin-bottom: 6px; }
+.value { font-size: 1rem; }
+.value .muted { color: var(--muted); }
 
 .actions { margin-top: 18px; }
 
-/* --------- Buttons --------- */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -105,71 +110,41 @@
   cursor: pointer;
   transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
-
-.btn-primary {
-  background: #2563eb;    /* blue */
-  color: #fff;
-}
-.btn-primary:hover { background: #1e4fcc; }
-.btn-primary:active { background: #183ea6; }
-
-.btn-secondary {
-  background: #f3f4f6;    /* light gray */
-  color: #1f2937;         /* dark text */
-  border-color: #e5e7eb;  /* subtle border */
-}
+.btn-primary { background: var(--blue-500); color: #fff; }
+.btn-primary:hover { background: var(--blue-600); }
+.btn-secondary { background: #f3f4f6; color: #1f2937; border-color: #e5e7eb; }
 .btn-secondary:hover { background: #e9eaee; }
-.btn-secondary:active { background: #e1e3e8; }
 
-/* --------- Slide-out edit panel --------- */
+/* Slide-out edit panel */
 .edit-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  width: 380px;                  /* Comfortable form width */
-  max-width: 92vw;               /* Keep it usable on small screens */
-  height: 100vh;                 /* Full height */
+  top: 0; right: 0;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
   background: #fff;
   box-shadow: -12px 0 24px rgba(0,0,0,0.08);
   border-left: 1px solid #eef0f3;
-  transform: translateX(100%);   /* Start off-screen to the right */
+  transform: translateX(100%);
   transition: transform 260ms ease-in-out, opacity 180ms ease-in-out;
-  opacity: 0.98;                 /* Slightly translucent for a modern feel */
-  z-index: 60;                   /* Above content, below nav if needed */
+  opacity: 0.98;
+  z-index: 60;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
-
-.edit-panel.active {
-  transform: translateX(0);      /* Slide in */
-}
-
-.edit-panel.hidden {
-  display: none;                 /* Fully hidden when not animating */
-}
-
+.edit-panel.active { transform: translateX(0); }
+.edit-panel.hidden { display: none; }
 .edit-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px;
+  padding: 16px;
   border-bottom: 1px solid #eef0f3;
 }
+.edit-form { padding: 16px; }
+.edit-form p { margin-bottom: 12px; }
+.form-actions { display: flex; gap: 10px; margin-top: 8px; }
 
-.edit-form {
-  padding: 16px;
-}
-
-.edit-form p {  /* default Django form paragraphs */
-  margin-bottom: 12px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-/* --------- Responsive tweaks --------- */
+/* Responsive */
 @media (max-width: 640px) {
   .details-grid { grid-template-columns: 1fr; }
 }
-

@@ -148,7 +148,8 @@ class EmployerProfile(models.Model):
     company_name = models.CharField(max_length=255)
     website = models.URLField(blank=True)
     description = models.TextField(blank=True)
-    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    # Company logo (employer profile picture). Note: update upload_to path per request.
+    logo = models.ImageField(upload_to='employers/logos/', blank=True, null=True)
 
     def __str__(self):
         return self.company_name

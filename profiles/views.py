@@ -384,8 +384,8 @@ def employer_profile_view(request):
     employer_profile, _ = EmployerProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        # Bind submitted values to the form, updating this employer's profile
-        form = EmployerProfileForm(request.POST, instance=employer_profile)
+        # Bind submitted values and files (for logo uploads)
+        form = EmployerProfileForm(request.POST, request.FILES, instance=employer_profile)
         if form.is_valid():
             form.save()
             # After saving, redirect back to this page (named URL: employer_profile)
@@ -402,6 +402,28 @@ def employer_profile_view(request):
             "form": form,                          # used in the slide-out editor
         },
     )
+
+
+@login_required
+@require_POST
+def remove_employer_logo(request):
+    """
+    Remove the current employer's logo.
+    Keeps the rest of the profile intact. Redirects back to employer profile.
+    """
+    prof, _ = EmployerProfile.objects.get_or_create(user=request.user)
+    if prof.logo:
+        try:
+            prof.logo.delete(save=False)
+        except Exception:
+            # Ignore storage errors — absence is fine
+            pass
+        prof.logo = None
+        prof.save(update_fields=["logo"])
+        messages.success(request, "Company logo removed.")
+    else:
+        messages.info(request, "No company logo to remove.")
+    return redirect('employer_profile')
 
 # ----------------------------- Onboarding Final (example) ---------------
 @login_required

@@ -1,19 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 
-{#
+{% comment %}
   Employer Profile page
-  - Shows basic employer information in a clean card
-  - Provides an Edit Profile button that opens a slide-out panel on the right
-  - The slide-out contains a Django form (EmployerProfileForm) to update fields
-  - We avoid backend changes; this is purely front-end markup + client behavior
-  - Notes:
-    * Some fields (e.g., phone, address, state, verified) may not exist on your
-      current EmployerProfile model. The template safely falls back to related
-      UserProfile values where possible and shows blank values otherwise.
-    * The verified badge falls back to the linked UserProfile. If neither exists,
-      we show a Pending state by default.
-%}
+  - Clean card layout with a header showing logo/initials and company name
+  - Edit Profile button opens a slide-out panel with a form
+  - Badge indicates verification status
+  - Some fields may not exist on EmployerProfile; we fall back to UserProfile
+{% endcomment %}
 
 {% block title %}Employer Profile{% endblock %}
 
@@ -28,31 +22,44 @@
     separate the company name (left) and verification badge (right).
   -->
   <section class="card employer-card">
-    <header class="card-header">
-      <h1 class="company-name">{{ employer_profile.company_name|default:"Your Company" }}</h1>
+    <header class="profile-header">
+      <div class="avatar-wrapper">
+        {% if employer_profile.logo %}
+          <img src="{{ employer_profile.logo.url }}" alt="{{ employer_profile.company_name|default:'Company' }} logo" class="company-avatar">
+        {% else %}
+          {% comment %} If we have a company name, show its initial; otherwise show placeholder image {% endcomment %}
+          {% if employer_profile.company_name %}
+            {% with first=employer_profile.company_name|slice:":1" %}
+              <div class="company-avatar avatar-initials">{{ first|upper }}</div>
+            {% endwith %}
+          {% else %}
+            <img src="{% static 'img/company-placeholder.svg' %}" alt="Company placeholder" class="company-avatar">
+          {% endif %}
+        {% endif %}
+      </div>
 
-      {#
-        Show a Verified badge if available.
-        - Prefer employer_profile.verified if it exists.
-        - Fall back to employer_profile.user.profile.verified.
-        - Default to Pending (yellow) if neither is available.
-      #}
-      {% if employer_profile.verified or employer_profile.user.profile.verified %}
-        <span class="badge badge-verified" title="Verified">
-          ✔ Verified
-        </span>
-      {% else %}
-        <span class="badge badge-pending" title="Verification Pending">
-          Pending Verification
-        </span>
-      {% endif %}
+      <div class="header-details">
+        <h1 class="company-name">{{ employer_profile.company_name|default:"Your Company" }}</h1>
+
+        {% comment %} Verification badge (green if verified, yellow otherwise) {% endcomment %}
+        {% if employer_profile.verified or employer_profile.user.profile.verified %}
+          <span class="badge badge-verified" title="Verified">✔ Verified</span>
+        {% else %}
+          <span class="badge badge-pending" title="Verification Pending">Pending Verification</span>
+        {% endif %}
+
+        {% comment %} Optional action: remove logo when one is set {% endcomment %}
+        {% if employer_profile.logo %}
+          <form method="post" action="{% url 'remove_employer_logo' %}" style="margin-top: 8px;" onsubmit="return confirm('Are you sure you want to remove your logo?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Remove Logo</button>
+          </form>
+        {% endif %}
+      </div>
     </header>
 
     <div class="card-body">
-      <!--
-        Display common employer details. If the field is not present on
-        EmployerProfile, we try to display a sensible fallback or leave blank.
-      -->
+      {% comment %} Details grid: common employer information {% endcomment %}
       <div class="details-grid">
         <div class="detail">
           <div class="label">Website</div>
@@ -105,7 +112,7 @@
             {% if employer_profile.address %}
               {{ employer_profile.address }}
             {% else %}
-              {# Fallback to UserProfile address pieces if available #}
+              {% comment %} Fallback to UserProfile address pieces if available {% endcomment %}
               {% if employer_profile.user.profile.street_address or employer_profile.user.profile.city or employer_profile.user.profile.state %}
                 {{ employer_profile.user.profile.street_address }}
                 {% if employer_profile.user.profile.city %}
@@ -145,7 +152,7 @@
       </button>
     </div>
 
-    <form method="post" class="edit-form">
+    <form method="post" enctype="multipart/form-data" class="edit-form">
       {% csrf_token %}
       {{ form.as_p }}
 
@@ -161,4 +168,3 @@
 {% block extra_js %}
   <script src="{% static 'js/employer_profile.js' %}" defer></script>
 {% endblock %}
-

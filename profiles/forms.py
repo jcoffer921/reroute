@@ -223,6 +223,7 @@ class EmployerProfileForm(forms.ModelForm):
             'company_name',
             'website',
             'description',
+            'logo',
             # Optional: add 'phone', 'address', 'state', 'verified' here if present in your model
         ]
         widgets = {
@@ -234,4 +235,29 @@ class EmployerProfileForm(forms.ModelForm):
             'company_name': 'Company Name',
             'website': 'Website',
             'description': 'Description',
+            'logo': 'Company Logo',
         }
+
+    def clean_logo(self):
+        """
+        Basic server-side validation for uploaded logo files.
+        - Max size: 2 MB
+        - Allowed content types: JPEG, PNG, GIF, WEBP
+        """
+        logo = self.cleaned_data.get('logo')
+        if not logo:
+            return logo
+
+        # Size check
+        max_bytes = 2 * 1024 * 1024  # 2 MB
+        size = getattr(logo, 'size', 0) or 0
+        if size > max_bytes:
+            raise forms.ValidationError("Logo file is too large (max 2MB).")
+
+        # Content type check (best-effort; some storage backends may not set it)
+        allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+        ctype = getattr(logo, 'content_type', None)
+        if ctype and ctype.lower() not in allowed:
+            raise forms.ValidationError("Unsupported logo type. Use JPG, PNG, GIF, or WebP.")
+
+        return logo
