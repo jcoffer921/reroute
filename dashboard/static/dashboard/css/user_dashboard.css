@@ -178,13 +178,13 @@
   gap: 1rem;
   padding: 1rem 0;
   scroll-snap-type: x mandatory;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-  }
-  
-  /* Hide scrollbar for WebKit browsers */
-  .carousel-track::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Hide scrollbar for WebKit browsers */
+.carousel-track::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .carousel-track::-webkit-scrollbar {
@@ -379,7 +379,11 @@
   scroll-behavior: smooth;
   gap: 1rem;
   scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  #suggestedJobsCarousel::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   padding-bottom: 1rem;
 }
 
