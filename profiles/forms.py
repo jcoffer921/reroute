@@ -193,9 +193,18 @@ class Step4Form(forms.ModelForm):
 
 
 class EmploymentInfoForm(forms.ModelForm):
+    # Note: these map to actual fields on UserProfile
     class Meta:
         model = UserProfile
-        fields = ['work_in_us', 'sponsorship_needed', 'lgbtq', 'disability', 'gender', 'veteran']
+        fields = [
+            'work_in_us',          # yes/no: authorized to work in US
+            'sponsorship_needed',  # yes/no: needs sponsorship
+            'lgbtq',               # yes/no
+            'disability',          # yes/no
+            'gender',              # free text/choice
+            'veteran_status',      # yes/no (correct field name)
+            'status',              # journey status (optional but useful)
+        ]
 
 
 # -------------------------------------------------------
