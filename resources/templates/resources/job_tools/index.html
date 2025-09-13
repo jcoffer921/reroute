@@ -4,43 +4,76 @@
 {% block title %}Job Tools | ReRoute Resources{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'resources/css/resources.css' %}">
+<link rel="stylesheet" href="{% static 'resources/css/job_tools/job_tools.css' %}">
 
-<section class="resource-hero">
+<!-- Keep blue gradient hero; soften transition into section -->
+<section class="resource-hero jobtools-hero">
   <div class="resource-hero-content">
     <h1>Job Tools</h1>
     <p>All our job search tools in one place.</p>
   </div>
-  </section>
+</section>
 
-<div class="resource-container">
-  <h2>Everything You Need to Get Hired</h2>
-  <p>Prep guides, templates, and learning resources to move faster.</p>
+<section class="jobtools-section">
+  <div class="jobtools-inner">
+    <a href="{% url 'resource_list' %}" class="back-link">← Back to Resources</a>
+    <h2>Everything You Need to Get Hired</h2>
+    <p class="section-subtext">Prep guides, templates, and learning resources to move faster.</p>
 
-  <div class="resource-grid">
-    <div class="resource-card">
-      <h3>🎤 Interview Prep</h3>
-      <p>Common questions, do's & don'ts, and confidence tips.</p>
-      <ul><li><a href="{% url 'interview_prep' %}">Open →</a></li></ul>
+    <div class="jobtools-cards">
+      <!-- Interview Prep -->
+      <article class="jobtool-card">
+        <div class="card-icon" aria-hidden="true">
+          <!-- Mic icon -->
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="3" width="6" height="10" rx="3" fill="#6495ED" opacity=".25"/>
+            <rect x="9" y="3" width="6" height="10" rx="3" stroke="#6495ED" stroke-width="1.6"/>
+            <path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="#0F172A" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Interview Prep</h3>
+        <p>Common questions, do's & don'ts, and confidence tips.</p>
+        <div class="card-actions">
+          <a href="{% url 'interview_prep' %}" class="btn-pill">Open</a>
+        </div>
+      </article>
+
+      <!-- Email Guidance -->
+      <article class="jobtool-card">
+        <div class="card-icon" aria-hidden="true">
+          <!-- Mail icon -->
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="6" width="18" height="12" rx="2" stroke="#0F172A" stroke-width="1.6"/>
+            <path d="M4 8l8 5 8-5" stroke="#6495ED" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <h3>Email Guidance</h3>
+        <p>Ready-to-use templates for follow‑ups and outreach.</p>
+        <div class="card-actions">
+          <a href="{% url 'email_guidance' %}" class="btn-pill">Open</a>
+        </div>
+      </article>
+
+      <!-- Tech Courses -->
+      <article class="jobtool-card">
+        <div class="card-icon" aria-hidden="true">
+          <!-- Laptop icon -->
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="6" width="16" height="10" rx="2" stroke="#0F172A" stroke-width="1.6"/>
+            <path d="M2 18h20" stroke="#6495ED" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <h3>Tech Courses</h3>
+        <p>Beginner‑friendly, free or low‑cost programs with certificates.</p>
+        <div class="card-actions">
+          <a href="{% url 'tech_courses' %}" class="btn-pill">Open</a>
+        </div>
+      </article>
     </div>
 
-    <div class="resource-card">
-      <h3>✉️ Email Guidance</h3>
-      <p>Ready-to-use templates for follow‑ups and outreach.</p>
-      <ul><li><a href="{% url 'email_guidance' %}">Open →</a></li></ul>
-    </div>
-
-    <div class="resource-card">
-      <h3>💻 Tech Courses</h3>
-      <p>Beginner‑friendly, free or low‑cost programs with certificates.</p>
-      <ul><li><a href="{% url 'tech_courses' %}">Open →</a></li></ul>
+    <div class="jobtools-cta">
+      <a href="{% url 'resource_list' %}" class="btn-pill">All Categories</a>
     </div>
   </div>
-
-  <div class="resource-footer-cta">
-    <p>Back to Resources</p>
-    <a href="{% url 'resource_list' %}" class="btn-secondary">All Categories</a>
-  </div>
-</div>
+</section>
 {% endblock %}
-
