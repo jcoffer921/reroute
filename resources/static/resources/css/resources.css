@@ -196,6 +196,8 @@ html { scroll-behavior: smooth; }
 }
 
 .hero2-cta:hover { background: #5a86d6; transform: translateY(-1px); }
+.hero2-cta.alt { background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.6); box-shadow: none; }
+.hero2-cta.alt:hover { background: rgba(255,255,255,0.22); }
 
 .hero2-play-button {
   width: 52px;
@@ -257,6 +259,124 @@ html { scroll-behavior: smooth; }
   .resource-hero-2 { max-height: none; min-height: 64vw; }
   .hero2-modal-dialog { width: 96vw; }
 }
+
+/* ===== Resource Categories (Cards) ===== */
+.resource-categories-section {
+  background: linear-gradient(180deg, #f3f8ff 0%, #ffffff 60%);
+}
+
+.resource-section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+.resource-section h2 {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 900;
+  color: #0F172A;
+  margin-bottom: .5rem;
+}
+.resource-section .section-subtext {
+  text-align: center;
+  color: #6b7280; /* softer gray */
+  margin-bottom: 2.5rem;
+}
+
+.resource-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px){
+  .resource-cards { grid-template-columns: 1fr; }
+}
+
+.resource-card {
+  background: #fff;
+  padding: 1.75rem;
+  border-radius: 16px;
+  border: 1px solid #e6ecfb;
+  box-shadow: 0 8px 24px rgba(10, 34, 80, 0.06);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.resource-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(10, 34, 80, 0.12);
+  border-color: rgba(100, 149, 237, 0.45);
+}
+.resource-card .card-icon { margin-bottom: .75rem; }
+.resource-card h3 { font-size: 1.25rem; margin-bottom: .25rem; color: #0F172A; }
+.resource-card p { color: #334155; margin-bottom: 1rem; }
+.resource-card .card-actions { display: flex; gap: .5rem; }
+.learn-more-btn {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  background: #6495ED;
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(100,149,237,0.35);
+}
+.learn-more-btn:hover { background: #5a86d6; }
+.categories-footer-cta { text-align: center; margin-top: 2rem; }
+.btn-secondary.outline {
+  border: 2px solid #6495ED;
+  color: #6495ED;
+  background: transparent;
+}
+.btn-secondary.outline:hover { background: rgba(100,149,237,0.08); }
+
+/* ===== Quick Job-Ready Videos ===== */
+.quick-videos-section {
+  background: #fff;
+  padding: 4rem 1.5rem;
+}
+.quick-videos-container { max-width: 1100px; margin: 0 auto; }
+.quick-videos-title {
+  text-align: center;
+  font-size: clamp(1.8rem, 3.6vw, 2.5rem);
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0 0 .5rem;
+}
+.quick-videos-subtitle { text-align: center; color: #6b7280; margin: 0 0 2rem; }
+
+.quick-videos-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+.video-preview-card { width: min(920px, 100%); }
+.video-preview {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(10,34,80,.15);
+}
+.video-thumb { width: 100%; height: auto; display: block; object-fit: cover; }
+.video-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient( circle at center, rgba(0,0,0,0.15), rgba(0,0,0,0.45) );
+  color: #fff;
+  font-size: 2rem;
+  border: 0;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.video-play-overlay:hover { background: radial-gradient( circle at center, rgba(0,0,0,0.2), rgba(0,0,0,0.55) ); }
+.video-play-overlay span {
+  width: 64px; height: 64px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; border: 2px solid rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(2px);
+}
+.video-info { padding: 0.9rem 0.25rem; }
+.video-info h3 { margin: 0.25rem 0; font-size: 1.125rem; color: #0F172A; }
+.video-desc { color: #334155; margin: 0; }
+.videos-footer-cta { text-align: center; margin-top: 1.5rem; }
 
 /* Quote Section */
 .resource-quote {
