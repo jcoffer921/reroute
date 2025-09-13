@@ -42,7 +42,12 @@
 
       <div class="carousel-track" id="cardCarousel">
         <!-- Complete Profile -->
-        <a href="{% url 'my_profile' %}" class="carousel-card-link">
+        {# Route to correct profile page based on role #}
+        {% if IS_EMPLOYER %}
+          <a href="{% url 'employer_profile' %}" class="carousel-card-link">
+        {% else %}
+          <a href="{% url 'my_profile' %}" class="carousel-card-link">
+        {% endif %}
           <div class="carousel-card {% if onboarding_steps.profile %}completed{% elif current_step == 'profile' %}current{% endif %}">
             <div class="card-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -284,7 +289,11 @@
             <h4>No job suggestions yet</h4>
             <p>Complete your profile and add skills to see matches tailored to you.</p>
             <div class="empty-actions">
-              <a href="{% url 'my_profile' %}" class="btn btn-outline">Complete Profile</a>
+              {% if IS_EMPLOYER %}
+                <a href="{% url 'employer_profile' %}" class="btn btn-outline">Complete Profile</a>
+              {% else %}
+                <a href="{% url 'my_profile' %}" class="btn btn-outline">Complete Profile</a>
+              {% endif %}
               <a href="{% url 'resumes:resume_welcome' %}" class="btn btn-primary">Create Resume</a>
               <a href="{% url 'opportunities' %}" class="btn btn-outline">Browse Jobs</a>
             </div>

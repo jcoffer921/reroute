@@ -16,7 +16,6 @@ from django.utils.safestring import mark_safe
 from PIL import Image, UnidentifiedImageError
 
 from .models import UserProfile, EmployerProfile
-from .forms import EmployerProfileForm
 
 # Optional integrations — guarded to avoid hard crashes if app not installed
 try:
@@ -379,6 +378,9 @@ def employer_profile_view(request):
     - The green Verified badge appears if verification is true; otherwise a yellow pending badge shows.
     """
     # Get or create an EmployerProfile linked to the current user so the page always has data to show/edit
+    # Lazy import to avoid any circular import surprises at module load time
+    from .forms import EmployerProfileForm
+
     employer_profile, _ = EmployerProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":

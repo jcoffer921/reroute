@@ -38,6 +38,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Provide IS_EMPLOYER and DASHBOARD_URL to all templates
+                'main.context_processors.role_flags',
             ],
         },
     },
