@@ -25,11 +25,16 @@
         <a href="{% url 'create_job' %}" class="btn btn-secondary">
           <i class="fas fa-plus"></i> Create Job
         </a>
-        <label for="sort_by">Sort by:</label>
-        <select id="sort_by" name="sort_by">
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-        </select>
+        <a href="{{ PROFILE_URL }}" class="btn btn-secondary" title="Edit Employer Profile">
+          <i class="fas fa-building"></i> Profile
+        </a>
+        <form method="get" class="sort-form" style="display:inline-flex; align-items:center; gap:.5rem;">
+          <label for="sort_by">Sort by:</label>
+          <select id="sort_by" name="sort_by" onchange="this.form.submit()">
+            <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>Newest</option>
+            <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest</option>
+          </select>
+        </form>
       </div>
     </div>
 
@@ -53,7 +58,16 @@
             </span>
           </td>
           <td>
-            <a href="#" class="btn btn-sm btn-outline">Manage</a>
+            <form method="post" action="{% url 'dashboard:employer_job_toggle' job.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm {% if job.is_active %}btn-outline{% else %}btn-primary{% endif %}" title="Toggle active/inactive">
+                {% if job.is_active %}Close{% else %}Open{% endif %}
+              </button>
+            </form>
+            <button type="button" class="btn btn-sm btn-outline view-applicants"
+                    data-url="{% url 'dashboard:job_applicants' job.id %}" title="View Applicants">
+              Applicants
+            </button>
           </td>
         </tr>
         {% empty %}
@@ -151,4 +165,17 @@
   </section>
 
 </div>
+
+<!-- ====== Modal for applicants ====== -->
+<div id="modalBackdrop" class="modal-backdrop hidden"></div>
+<div id="modalRoot" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-content">
+    <button class="modal-close" aria-label="Close">✕</button>
+    <div id="modalBody">Loading…</div>
+  </div>
+  
+  
+</div>
+
+<script src="{% static 'dashboard/js/employer_dashboard.js' %}" defer></script>
 {% endblock %}

@@ -28,4 +28,8 @@ urlpatterns = [
 
     # ===== Employer analytics =====
     path('employer/analytics/', views.employer_analytics, name='employer_analytics'),
+
+    # ===== Employer job management =====
+    path('employer/job/<int:job_id>/toggle/', views.employer_job_toggle, name='employer_job_toggle'),
+    path('employer/job/<int:job_id>/applicants/', views.job_applicants, name='job_applicants'),
 ]

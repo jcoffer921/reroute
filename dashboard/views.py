@@ -240,8 +240,10 @@ def employer_dashboard(request):
     """
     employer_user = request.user
 
-    # Jobs "owned" by this employer
-    jobs = Job.objects.filter(employer=employer_user).order_by('-id')
+    # Jobs "owned" by this employer, with simple sort control
+    sort_by = (request.GET.get('sort_by') or 'newest').lower()
+    order = '-created_at' if sort_by == 'newest' else 'created_at'
+    jobs = Job.objects.filter(employer=employer_user).order_by(order)
 
     # Match candidates to this employer's jobs (top few per job)
     from job_list.matching import match_seekers_for_employer
@@ -277,6 +279,7 @@ def employer_dashboard(request):
         'notifications': notifications,
         'interviews': interviews,
         'analytics': analytics,
+        'sort_by': sort_by,
     })
 
 
@@ -336,6 +339,52 @@ def employer_analytics(request):
     return render(request, 'dashboard/employer_analytics.html', {
         'jobs': jobs,
         'job_data': job_data
+    })
+
+
+# =========================
+# Employer: Toggle job active
+# =========================
+@login_required
+@require_POST
+def employer_job_toggle(request, job_id: int):
+    """Allow an employer to toggle their own job's active flag."""
+    job = Job.objects.filter(id=job_id).first()
+    if not job:
+        messages.error(request, 'Job not found.')
+        return redirect('dashboard:employer')
+    if job.employer != request.user:
+        messages.error(request, 'You do not have permission to modify this job.')
+        return redirect('dashboard:employer')
+    job.is_active = not job.is_active
+    job.save(update_fields=['is_active'])
+    messages.success(request, f"{'Activated' if job.is_active else 'Deactivated'}: {job.title}")
+    return redirect('dashboard:employer')
+
+
+# =========================
+# Employer: View applicants (modal content)
+# =========================
+@login_required
+def job_applicants(request, job_id: int):
+    """
+    Render a small partial with applicants for the given job.
+    Only the owning employer may view this list.
+    """
+    job = Job.objects.filter(id=job_id).first()
+    if not job or job.employer != request.user:
+        # Be conservative: do not leak existence
+        return render(request, 'dashboard/partials/job_applicants_modal.html', {
+            'job': None,
+            'applications': [],
+            'error': "Not authorized or job not found.",
+        })
+
+    apps = Application.objects.select_related('applicant').filter(job=job).order_by('-submitted_at')
+    return render(request, 'dashboard/partials/job_applicants_modal.html', {
+        'job': job,
+        'applications': apps,
+        'error': None,
     })
 
 

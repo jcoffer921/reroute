@@ -118,17 +118,19 @@
 /* Slide-out edit panel */
 .edit-panel {
   position: fixed;
-  top: 0; right: 0;
-  width: 420px;
+  top: 0;
+  right: 0;
+  width: 400px;                /* Required width */
   max-width: 92vw;
-  height: 100vh;
-  background: #fff;
-  box-shadow: -12px 0 24px rgba(0,0,0,0.08);
+  height: 100vh;               /* Full height */
+  background: #fff;            /* White background */
+  box-shadow: -12px 0 24px rgba(0,0,0,0.08); /* Subtle shadow */
   border-left: 1px solid #eef0f3;
-  transform: translateX(100%);
+  transform: translateX(100%); /* Hidden by default */
   transition: transform 260ms ease-in-out, opacity 180ms ease-in-out;
   opacity: 0.98;
   z-index: 60;
+  overflow-y: auto;            /* Scroll content if long */
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 .edit-panel.active { transform: translateX(0); }
@@ -137,12 +139,74 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid #eef0f3;
+  padding: 16px 16px;
+  border-bottom: 1px solid #eef0f3; /* Light separation */
 }
+.edit-panel-header h2 {
+  margin: 0;
+  font-size: 1.25rem;          /* Larger heading */
+  font-weight: 700;             /* Bold */
+}
+.panel-content,
 .edit-form { padding: 16px; }
-.edit-form p { margin-bottom: 12px; }
-.form-actions { display: flex; gap: 10px; margin-top: 8px; }
+.edit-form p { margin-bottom: 1rem; }
+
+/* Form labels */
+.edit-panel .edit-form label {
+  display: block;
+  margin-bottom: 6px;
+  color: #5c6773;              /* Muted gray */
+  font-weight: 600;            /* Medium weight */
+}
+
+/* Inputs, selects, textareas */
+.edit-panel .edit-form input[type="text"],
+.edit-panel .edit-form input[type="email"],
+.edit-panel .edit-form input[type="url"],
+.edit-panel .edit-form input[type="tel"],
+.edit-panel .edit-form input[type="number"],
+.edit-panel .edit-form select,
+.edit-panel .edit-form textarea {
+  width: 100%;
+  appearance: none;
+  border: 1px solid #e5e7eb;   /* Subtle border */
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px 12px;
+  font: inherit;
+  color: #111827;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.edit-panel .edit-form textarea { resize: vertical; min-height: 96px; }
+.edit-panel .edit-form input:focus,
+.edit-panel .edit-form select:focus,
+.edit-panel .edit-form textarea:focus {
+  outline: none;
+  border-color: var(--blue-500);                 /* Blue focus */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); /* Soft glow */
+}
+
+/* File input (logo) */
+.edit-panel .edit-form input[type="file"] {
+  width: 100%;
+  border: 2px dashed #d1d5db;   /* Dashed border */
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fafafa;
+  cursor: pointer;
+}
+.edit-panel .edit-form input[type="file"]:hover {
+  background: #f5f6f8;
+}
+
+/* Actions: align right with spacing */
+.panel-actions,
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;  /* Right align */
+  margin-top: 8px;
+}
 
 /* Responsive */
 @media (max-width: 640px) {
