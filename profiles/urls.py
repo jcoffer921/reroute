@@ -22,4 +22,7 @@ urlpatterns = [
     # Profile picture
     path("update-picture/", views.update_profile_picture, name="update_profile_picture"),
     path("remove-picture/", views.remove_profile_picture, name="remove_profile_picture"),
+
+    # Employer profile (separate from employer dashboard)
+    path("employer/profile/", views.employer_profile_view, name="employer_profile"),
 ]

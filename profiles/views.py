@@ -15,7 +15,8 @@ from django.utils.safestring import mark_safe
 
 from PIL import Image, UnidentifiedImageError
 
-from .models import UserProfile
+from .models import UserProfile, EmployerProfile
+from .forms import EmployerProfileForm
 
 # Optional integrations — guarded to avoid hard crashes if app not installed
 try:
@@ -362,6 +363,43 @@ def remove_profile_picture(request):
         messages.info(request, "You don't have a profile picture set.")
     return redirect("my_profile")
 
+
+# ----------------------------- Employer Profile -------------------------
+@login_required
+def employer_profile_view(request):
+    """
+    Employer Profile view (front-end focused)
+    - Ensures the current user has an EmployerProfile row (creates a blank one if missing)
+    - Renders a simple form to update employer details inside a slide-out panel
+    - Avoids any changes to the employer dashboard or other flows
+
+    Notes for non-technical partners:
+    - When you click "Edit Profile", a panel slides in from the right.
+    - Submitting the form saves changes and reloads this page.
+    - The green Verified badge appears if verification is true; otherwise a yellow pending badge shows.
+    """
+    # Get or create an EmployerProfile linked to the current user so the page always has data to show/edit
+    employer_profile, _ = EmployerProfile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        # Bind submitted values to the form, updating this employer's profile
+        form = EmployerProfileForm(request.POST, instance=employer_profile)
+        if form.is_valid():
+            form.save()
+            # After saving, redirect back to this page (named URL: employer_profile)
+            return redirect('employer_profile')
+    else:
+        # First page load or GET after save: show current values
+        form = EmployerProfileForm(instance=employer_profile)
+
+    return render(
+        request,
+        "profiles/employer_profile.html",
+        {
+            "employer_profile": employer_profile,  # used for displaying values
+            "form": form,                          # used in the slide-out editor
+        },
+    )
 
 # ----------------------------- Onboarding Final (example) ---------------
 @login_required

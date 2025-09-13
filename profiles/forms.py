@@ -1,4 +1,5 @@
 from django import forms
+from .models import EmployerProfile
 
 from resumes import models
 from .models import UserProfile
@@ -195,3 +196,33 @@ class EmploymentInfoForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['work_in_us', 'sponsorship_needed', 'lgbtq', 'disability', 'gender', 'veteran']
+
+
+# -------------------------------------------------------
+# EmployerProfileForm
+# -------------------------------------------------------
+# Lightweight ModelForm to edit employer details without
+# changing any backend logic or models. We include only
+# fields guaranteed by the current EmployerProfile model.
+# If your EmployerProfile model includes additional fields
+# like `phone`, `address`, `state`, or `verified`, simply
+# add them to the fields list below.
+class EmployerProfileForm(forms.ModelForm):
+    class Meta:
+        model = EmployerProfile
+        fields = [
+            'company_name',
+            'website',
+            'description',
+            # Optional: add 'phone', 'address', 'state', 'verified' here if present in your model
+        ]
+        widgets = {
+            'company_name': forms.TextInput(attrs={'placeholder': 'Company name'}),
+            'website': forms.URLInput(attrs={'placeholder': 'https://example.com'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Brief description of your company'}),
+        }
+        labels = {
+            'company_name': 'Company Name',
+            'website': 'Website',
+            'description': 'Description',
+        }

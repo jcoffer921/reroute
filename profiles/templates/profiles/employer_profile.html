@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{#
+  Employer Profile page
+  - Shows basic employer information in a clean card
+  - Provides an Edit Profile button that opens a slide-out panel on the right
+  - The slide-out contains a Django form (EmployerProfileForm) to update fields
+  - We avoid backend changes; this is purely front-end markup + client behavior
+  - Notes:
+    * Some fields (e.g., phone, address, state, verified) may not exist on your
+      current EmployerProfile model. The template safely falls back to related
+      UserProfile values where possible and shows blank values otherwise.
+    * The verified badge falls back to the linked UserProfile. If neither exists,
+      we show a Pending state by default.
+%}
+
+{% block title %}Employer Profile{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/employer_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="employer-profile-page">
+  <!--
+    Main profile card: clean surface with a header using flexbox to
+    separate the company name (left) and verification badge (right).
+  -->
+  <section class="card employer-card">
+    <header class="card-header">
+      <h1 class="company-name">{{ employer_profile.company_name|default:"Your Company" }}</h1>
+
+      {#
+        Show a Verified badge if available.
+        - Prefer employer_profile.verified if it exists.
+        - Fall back to employer_profile.user.profile.verified.
+        - Default to Pending (yellow) if neither is available.
+      #}
+      {% if employer_profile.verified or employer_profile.user.profile.verified %}
+        <span class="badge badge-verified" title="Verified">
+          ✔ Verified
+        </span>
+      {% else %}
+        <span class="badge badge-pending" title="Verification Pending">
+          Pending Verification
+        </span>
+      {% endif %}
+    </header>
+
+    <div class="card-body">
+      <!--
+        Display common employer details. If the field is not present on
+        EmployerProfile, we try to display a sensible fallback or leave blank.
+      -->
+      <div class="details-grid">
+        <div class="detail">
+          <div class="label">Website</div>
+          <div class="value">
+            {% if employer_profile.website %}
+              <a href="{{ employer_profile.website }}" target="_blank" rel="noopener">{{ employer_profile.website }}</a>
+            {% else %}
+              <span class="muted">Add a website</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="detail full">
+          <div class="label">Description</div>
+          <div class="value">
+            {{ employer_profile.description|default:"Tell candidates about your company and mission." }}
+          </div>
+        </div>
+
+        <div class="detail">
+          <div class="label">Phone</div>
+          <div class="value">
+            {# If EmployerProfile.phone doesn't exist, show UserProfile phone_number #}
+            {% if employer_profile.phone %}
+              {{ employer_profile.phone }}
+            {% elif employer_profile.user.profile.phone_number %}
+              {{ employer_profile.user.profile.phone_number }}
+            {% else %}
+              <span class="muted">Add a phone number</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="detail">
+          <div class="label">State</div>
+          <div class="value">
+            {% if employer_profile.state %}
+              {{ employer_profile.state }}
+            {% elif employer_profile.user.profile.state %}
+              {{ employer_profile.user.profile.state }}
+            {% else %}
+              <span class="muted">Add a state</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="detail full">
+          <div class="label">Address</div>
+          <div class="value">
+            {% if employer_profile.address %}
+              {{ employer_profile.address }}
+            {% else %}
+              {# Fallback to UserProfile address pieces if available #}
+              {% if employer_profile.user.profile.street_address or employer_profile.user.profile.city or employer_profile.user.profile.state %}
+                {{ employer_profile.user.profile.street_address }}
+                {% if employer_profile.user.profile.city %}
+                  , {{ employer_profile.user.profile.city }}
+                {% endif %}
+                {% if employer_profile.user.profile.state %}
+                  , {{ employer_profile.user.profile.state }}
+                {% endif %}
+              {% else %}
+                <span class="muted">Add an address</span>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Primary action: open editor -->
+      <div class="actions">
+        <button id="openEditPanel" class="btn btn-primary" type="button">
+          Edit Profile
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!--
+    Slide-out edit panel:
+    - Hidden by default (using .hidden), slides in when .active is applied.
+    - Contains EmployerProfileForm rendered via {{ form.as_p }}.
+    - Cancel button closes the panel without saving.
+  -->
+  <aside id="editPanel" class="edit-panel hidden" aria-hidden="true">
+    <div class="edit-panel-header">
+      <h2>Edit Employer Profile</h2>
+      <button id="closeEditPanel" class="btn btn-secondary" type="button" aria-label="Close">
+        Cancel
+      </button>
+    </div>
+
+    <form method="post" class="edit-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button id="cancelInside" type="button" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </aside>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/employer_profile.js' %}" defer></script>
+{% endblock %}
+
