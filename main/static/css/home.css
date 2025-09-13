@@ -173,6 +173,55 @@
   .hero-slide { min-height: 340px; }
 }
 
+/* ===== Services (Tech Training | Resume Help | Job Matching) ===== */
+.services-section {
+  background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 65%);
+  padding: 3.5rem 1.25rem;
+}
+.services-inner { max-width: 1200px; margin: 0 auto; }
+.services-header { text-align: center; margin: 0 0 1.25rem; }
+.services-header h2 { margin: 0 0 .35rem; font-size: clamp(2rem, 3.8vw, 2.6rem); font-weight: 900; color: #0F172A; }
+.services-subtext { margin: 0 0 1rem; color: #6b7280; }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+@media (max-width: 900px){ .services-grid { grid-template-columns: 1fr; } }
+
+.service-card {
+  background: #fff;
+  border: 1px solid #e6ecfb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 18px rgba(10, 34, 80, 0.06);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.service-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(100,149,237,.5);
+  box-shadow: 0 14px 32px rgba(10, 34, 80, 0.12);
+}
+.service-icon { margin-bottom: .5rem; }
+.service-card h3 { margin: .25rem 0 .25rem; font-size: 1.35rem; font-weight: 900; color: #0F172A; }
+.service-card p { margin: 0 0 .85rem; color: #475569; }
+.card-actions { display: flex; align-items: center; gap: .5rem; }
+
+.btn-pill {
+  display: inline-block;
+  padding: .6rem 1.1rem;
+  background: #6495ED; /* cornflower */
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  border: none;
+  box-shadow: 0 8px 22px rgba(100,149,237,0.35);
+  cursor: pointer;
+}
+.btn-pill:hover { background: #5a86d6; }
+.btn-pill[disabled], .btn-pill:disabled { opacity: .6; cursor: not-allowed; filter: grayscale(.15); }
+
 /* ===== Vision Split Section ===== */
 .vision-split { padding: 0; }
 
