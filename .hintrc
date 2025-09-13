@@ -25,6 +25,14 @@
           "user-select"
         ]
       }
+    ],
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "video[playsinline]"
+        ]
+      }
     ]
   }
 }
