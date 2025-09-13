@@ -5,8 +5,18 @@ from django.conf.urls.static import static
 
 # project urls.py (add these imports)
 from main import views as main_views                   # for dashboard view
-from profiles.views import update_demographics, update_emergency_contact, update_employment_info, update_personal_info, update_skills, user_profile_view           # for owner profile
-from profiles.views import user_profile_view, update_profile_picture, remove_profile_picture, update_bio
+from profiles.views import (
+    update_demographics,
+    update_emergency_contact,
+    update_employment_info,
+    update_personal_info,
+    update_skills,
+    user_profile_view,            # owner profile
+    update_profile_picture,
+    remove_profile_picture,
+    update_bio,
+    employer_profile_view,        # employer profile alias
+)
 
 
 urlpatterns = [
@@ -15,6 +25,8 @@ urlpatterns = [
 
     # Aliases (exact paths for convenience) --> NEEDED
     path('profile/', user_profile_view, name='my_profile'),  # exact-path alias
+    # Ensure a global name for employer profile to support `{% url 'employer_profile' %}` in templates
+    path('profile/employer/profile/', employer_profile_view, name='employer_profile'),
     path('profile/update-picture/', update_profile_picture, name='update_profile_picture'),
     path('profile/remove-picture/', remove_profile_picture, name='remove_profile_picture'),
     path('profile/update-bio/', update_bio, name='update_bio'), 
