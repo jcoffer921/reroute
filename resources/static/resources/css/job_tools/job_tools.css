@@ -1,6 +1,33 @@
 /* ===== Job Tools Index (Interview Prep, Email Guidance, Tech Courses) ===== */
 /* Extend gradient hero; smooth transition into content */
-.jobtools-hero { padding-bottom: 2.5rem; }
+.jobtools-hero {
+    background: linear-gradient(135deg, #0F172A, #5d8dfd);
+    color: #F3F4F6; /* rich navy blue for contrast */
+    padding: 10rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.jobtools-hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.jobtools-hero h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    color: #F3F4F6;
+}
+
+.jobtools-hero p {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    color: #F3F4F6;
+}
 
 .jobtools-section { background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 60%); padding: 2.5rem 1.25rem 3.5rem; }
 .jobtools-inner { max-width: 1200px; margin: 0 auto; }
