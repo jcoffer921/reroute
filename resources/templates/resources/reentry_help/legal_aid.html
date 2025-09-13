@@ -6,99 +6,132 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'resources/css/reentry_help/legal_aid.css' %}">
 
-<div class="legal-hero">
-  <h1>Legal Aid That Works for You</h1>
-  <p>Know your rights. Clear your record. Access support for housing, employment, family, and more — all in one place.</p>
-</div>
-
-<div class="legal-section">
-  <h2>Expungement + Record Clearing</h2>
-  <p>Need to clear your record? You may qualify for expungement or sealing depending on your state and charges.</p>
-  <ul>
-    <li><a href="https://www.nacdl.org/Content/Second-Chance-Resources" target="_blank">NACDL: Second Chance Resource Center →</a></li>
-    <li><a href="https://www.pardons.org" target="_blank">National Pardon Center →</a></li>
-    <li><a href="https://cleanslateinitiative.org/" target="_blank">Clean Slate Initiative →</a></li>
-  </ul>
-</div>
-
-<div class="legal-section">
-  <h2>Housing + Employment Rights</h2>
-  <p>Did you know many cities have "Fair Chance" hiring laws that protect applicants with records? Learn your rights before you apply.</p>
-  <ul>
-    <!--<li><a href="https://www.nelp.org/explore-the-issues/workers-with-records/" target="_blank">Know Your Employment Rights - NELP →</a></li>-->
-    <li>
-      <a href="#" id="triggerModal" class="clickable-li">Know Your Employment Rights - NELP →</a>
-    </li>
-
-    <li><a href="https://www.hud.gov/program_offices/fair_housing_equal_opp" target="_blank">Fair Housing Guidelines (HUD) →</a></li>
-  </ul>
-</div>
-
-<!-- RIGHTS MODAL -->
-<div id="rightsModal" class="modal">
-  <div class="modal-content">
-    <span id="closeRightsModal" class="close">&times;</span>
-    <h3>📜 Your Rights When Applying for a Job</h3>
-    <ul>
-      <li>
-        <strong>No criminal record questions</strong> on job applications.
-        <div class="truth-box">
-          ✅ <span class="label-true">TRUE</span> - In Philly: Employers cannot ask about criminal convictions on job applications. It's part of the city's “Ban the Box” ordinance (amended in 2021).
-        </div>
-      </li>
-      <li>
-        <strong>Background checks</strong> only after a conditional job offer.
-        <div class="truth-box">
-          ✅ <span class="label-true">TRUE</span> — Philly employers may only run a background check after making a conditional offer of employment.
-        </div>
-      </li>
-
-      <li>
-        <strong>Context matters:</strong> Employers must consider the time passed, your record, and the job role.
-        <div class="truth-box">
-          ✅ <span class="label-true">TRUE</span> — Employers are required to do an individualized assessment under local law.
-        </div>
-      </li>
-
-      <li>
-        <strong>Discrimination is illegal</strong> under Philly's Fair Chance Hiring Law.
-        <div class="truth-box">
-          ✅ <span class="label-true">TRUE</span> — Employers can't automatically reject you based on a record without following the required review and notice process. Blanket policies = illegal.
-        </div>
-      </li>
-    </ul>
-    <p class="last-updated">Updated as of July 2025</p>
-    <a href="https://www.nelp.org/explore-the-issues/workers-with-records/" 
-       target="_blank" class="btn-primary">View Full Guide at NELP →</a>
+<!-- Hero -->
+<section class="la-hero">
+  <div class="la-hero-inner">
+    <div class="la-hero-icon" aria-hidden="true">
+      <!-- Legal/justice icon -->
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 4v16M7 9l-3 4h6l-3-4zm10 0l-3 4h6l-3-4z" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>Legal Aid That Works for You</h1>
+    <p class="la-subtext">Know your rights. Clear your record. Access support for housing, employment, family, and more — all in one place.</p>
   </div>
-</div>
+  <div class="la-hero-bg" aria-hidden="true"></div>
+</section>
 
-<div class="legal-section">
-  <h2>Family, Child Support + Custody</h2>
-  <p>Get guidance on visitation rights, back child support, and how to reconnect with your family legally and safely.</p>
-  <ul>
-    <li><a href="https://www.lawhelp.org" target="_blank">Find Legal Help Near You →</a></li>
-    <li><a href="https://www.childsupport.state.pa.us/" target="_blank">PA Child Support Portal →</a></li>
-  </ul>
-</div>
+<!-- Category Cards -->
+<section class="la-section">
+  <div class="la-inner">
+    <div class="la-cards">
+      <!-- Expungement -->
+      <article class="la-card">
+        <div class="la-card-icon" aria-hidden="true">
+          <!-- eraser/clean slate icon -->
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 15l6-6 6 6-4 4H7l-4-4z" stroke="#0F172A" stroke-width="1.6"/></svg>
+        </div>
+        <h2>Expungement & Record Clearing</h2>
+        <p>See if you qualify to seal or clear your record. Start with trusted programs.</p>
+        <div class="la-actions">
+          <a class="btn-pill" target="_blank" href="https://www.nacdl.org/Content/Second-Chance-Resources">NACDL</a>
+          <a class="btn-pill" target="_blank" href="https://cleanslateinitiative.org/">Clean Slate</a>
+          <a class="btn-pill" target="_blank" href="https://www.pardons.org">Pardons</a>
+        </div>
+      </article>
 
-<div class="legal-section">
-  <h2>Free Legal Aid Organizations</h2>
-  <ul>
-    <li><strong>Philadelphia Lawyers for Social Equity (PLSE)</strong> – <a href="https://plsephilly.org" target="_blank">plsephilly.org →</a></li>
-    <li><strong>Legal Aid of Southeastern PA</strong> – <a href="https://lasp.org/" target="_blank">lasp.org →</a></li>
-    <li><strong>JustLeadershipUSA</strong> – <a href="https://jlusa.org" target="_blank">jlusa.org →</a></li>
-  </ul>
-</div>
+      <!-- Housing & Employment Rights -->
+      <article class="la-card">
+        <div class="la-card-icon" aria-hidden="true">
+          <!-- shield/rights icon -->
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l7 3v5c0 5.25-3.5 8.75-7 10-3.5-1.25-7-4.75-7-10V6l7-3z" stroke="#0F172A" stroke-width="1.6"/></svg>
+        </div>
+        <h2>Housing & Employment Rights</h2>
+        <p>Fair Chance laws protect applicants with records. Learn your rights before you apply.</p>
+        <div class="la-actions">
+          <a class="btn-pill" target="_blank" href="https://www.nelp.org/explore-the-issues/workers-with-records/">Employment (NELP)</a>
+          <a class="btn-pill" target="_blank" href="https://www.hud.gov/program_offices/fair_housing_equal_opp">Housing (HUD)</a>
+        </div>
+      </article>
 
-<div class="legal-faq">
-  <h2>Common Questions</h2>
-  <ul>
-    <li><strong>Can I get hired with a felony?</strong><br>Yes. Many employers do second-chance hiring. “Ban the Box” laws protect you in some states.</li>
-    <li><strong>Can I be denied housing?</strong><br>It depends. Public housing laws vary by state — but denial can't always be based on record alone.</li>
-    <li><strong>Can I get custody of my kids again?</strong><br>Yes — it takes time and documentation, but it's possible. Start by speaking with a family attorney.</li>
-  </ul>
-</div>
+      <!-- Family & Child Support -->
+      <article class="la-card">
+        <div class="la-card-icon" aria-hidden="true">
+          <!-- family icon -->
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="2.5" stroke="#0F172A"/><circle cx="16" cy="8" r="2.5" stroke="#0F172A"/><path d="M2 20a6 6 0 0 1 12 0M10 20a6 6 0 0 1 12 0" stroke="#6495ED" stroke-width="1.6"/></svg>
+        </div>
+        <h2>Family, Child Support & Custody</h2>
+        <p>Find guidance for visitation rights, child support, and family reconnection.</p>
+        <div class="la-actions">
+          <a class="btn-pill" target="_blank" href="https://www.lawhelp.org">Find Help Near You</a>
+          <a class="btn-pill" target="_blank" href="https://www.childsupport.state.pa.us/">PA Child Support</a>
+        </div>
+      </article>
+
+      <!-- Free Legal Aid Orgs -->
+      <article class="la-card">
+        <div class="la-card-icon" aria-hidden="true">
+          <!-- hands/help icon -->
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 12l4 4 6-6" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"/><path d="M4 12a8 8 0 0 1 16 0v4a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-4z" stroke="#0F172A" stroke-width="1.6"/></svg>
+        </div>
+        <h2>Free Legal Aid</h2>
+        <p>Local organizations offering clinics, advice, and representation.</p>
+        <div class="la-actions">
+          <a class="btn-pill" target="_blank" href="https://plsephilly.org">PLSE</a>
+          <a class="btn-pill" target="_blank" href="https://lasp.org/">LASP</a>
+          <a class="btn-pill" target="_blank" href="https://jlusa.org">JLUSA</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Accordion -->
+<section class="la-section">
+  <div class="la-inner">
+    <h2 class="la-h2">Common Questions</h2>
+    <div class="la-accordion" id="laAccordion">
+      <div class="la-acc-item">
+        <button class="la-acc-toggle" aria-expanded="false">
+          <span class="la-acc-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#6495ED" stroke-width="1.6"/><path d="M12 16h0" stroke="#0F172A" stroke-width="2" stroke-linecap="round"/><path d="M9.8 10.5a2.2 2.2 0 1 1 3.9 1.5c-.5.5-1 .8-1.2 1.4" stroke="#0F172A" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <span class="la-acc-title">Can I get hired with a felony?</span>
+          <span class="la-acc-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="la-acc-panel" hidden>
+          <p>Yes. Many employers practice second-chance hiring. In some states/cities, “Ban the Box” and Fair Chance laws limit when employers can ask about records.</p>
+        </div>
+      </div>
+
+      <div class="la-acc-item">
+        <button class="la-acc-toggle" aria-expanded="false">
+          <span class="la-acc-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#6495ED" stroke-width="1.6"/><path d="M12 16h0" stroke="#0F172A" stroke-width="2" stroke-linecap="round"/><path d="M9.8 10.5a2.2 2.2 0 1 1 3.9 1.5c-.5.5-1 .8-1.2 1.4" stroke="#0F172A" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <span class="la-acc-title">Can I be denied housing?</span>
+          <span class="la-acc-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="la-acc-panel" hidden>
+          <p>It depends on local laws and housing type. Public housing policies vary, but denials cannot always be based solely on a record. Check local guidance and appeal options.</p>
+        </div>
+      </div>
+
+      <div class="la-acc-item">
+        <button class="la-acc-toggle" aria-expanded="false">
+          <span class="la-acc-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#6495ED" stroke-width="1.6"/><path d="M12 16h0" stroke="#0F172A" stroke-width="2" stroke-linecap="round"/><path d="M9.8 10.5a2.2 2.2 0 1 1 3.9 1.5c-.5.5-1 .8-1.2 1.4" stroke="#0F172A" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <span class="la-acc-title">Can I get custody of my kids again?</span>
+          <span class="la-acc-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="la-acc-panel" hidden>
+          <p>Often yes, with time and documentation. Courts consider the child’s best interest. Start by consulting a family law attorney or clinic in your area.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 {% if related_articles %}
   <section class="related-articles">
@@ -116,9 +149,25 @@
   </section>
 {% endif %}
 
-<div class="legal-cta">
-  <p>Need more help with your specific situation?</p>
-  <a href="{% url 'contact' %}" class="btn-primary">Contact ReRoute Support →</a>
-</div>
-<script src="{% static 'resources/js/reentry_help/legal_aid.js' %}"></script>
+<!-- CTA Banner -->
+<section class="la-cta">
+  <div class="la-cta-inner">
+    <div class="la-cta-left">
+      <h3>Need more help with your specific situation?</h3>
+      <p>Our team can help point you to the right resources.</p>
+    </div>
+    <div class="la-cta-right">
+      <a href="{% url 'contact' %}" class="btn-pill la-support-btn" aria-label="Talk to a Support Specialist">
+        <!-- chat icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5l-4 4v-4H8a4 4 0 0 1-4-4V7z" stroke="#fff" stroke-width="1.8"/></svg>
+        <span>Talk to a Support Specialist</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'resources/js/reentry_help/legal_aid.js' %}" defer></script>
 {% endblock %}

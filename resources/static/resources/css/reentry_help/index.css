@@ -1,10 +1,15 @@
 /* ===== Reentry Help — Polished Cards ===== */
 
 /* Hero */
-.rehelp-hero { position: relative; background: linear-gradient(135deg, #0F172A, #345dbd); color: #fff; padding: 6rem 1.5rem 4rem; overflow: hidden; }
+.rehelp-hero { position: relative; background: linear-gradient(135deg, #0F172A, #345dbd); color: #fff; padding: 4.5rem 1.5rem 3rem; overflow: hidden; }
 .rehelp-hero-inner { max-width: 1100px; margin: 0 auto; text-align: left; position: relative; z-index: 1; }
 .rehelp-hero-icon { display: inline-block; margin-bottom: .6rem; opacity: .95; }
-.rehelp-hero h1 { margin: 0 0 .35rem; font-size: clamp(2.2rem, 4.8vw, 3.2rem); font-weight: 900; }
+.rehelp-hero h1 { margin: 0 0 .25rem; font-size: clamp(2.2rem, 4.8vw, 3.1rem); font-weight: 900; }
+.rehelp-subtext { margin-top: .1rem; }
+
+@media (max-width: 640px){
+  .rehelp-hero { padding: 3.5rem 1rem 2.25rem; }
+}
 .rehelp-subtext { margin: 0; color: #e6e9f2; max-width: 720px; }
 .rehelp-hero-bg { position: absolute; inset: 0; pointer-events: none; opacity: .25; background-image:
   radial-gradient(circle at 20% 10%, rgba(255,255,255,.25) 0 2px, transparent 2px),
@@ -36,4 +41,3 @@
 .rehelp-cta { background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%); padding: 2.2rem 1.5rem; }
 .rehelp-cta-inner { max-width: 900px; margin: 0 auto; text-align: center; }
 .rehelp-cta h3 { margin: 0 0 .6rem; font-size: clamp(1.5rem, 3vw, 1.9rem); font-weight: 900; color: #0F172A; }
-

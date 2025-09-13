@@ -1,30 +1,20 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("rightsModal");
-  const closeModal = document.getElementById("closeRightsModal");
-  const trigger = document.getElementById("triggerModal");
-
-  // Open modal
-  trigger.addEventListener("click", (e) => {
-    e.preventDefault(); // prevent anchor jump
-    modal.style.display = "block";
-  });
-
-  // Close modal with X
-  closeModal.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  // Close modal by clicking outside the content
-  window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-
-  // Optional: close modal with Escape key
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.style.display === "block") {
-      modal.style.display = "none";
-    }
+document.addEventListener('DOMContentLoaded', () => {
+  // Accordion behavior: one open at a time
+  document.querySelectorAll('.la-acc-item').forEach(item => {
+    const btn = item.querySelector('.la-acc-toggle');
+    const panel = item.querySelector('.la-acc-panel');
+    if (!btn || !panel) return;
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.la-acc-toggle[aria-expanded="true"]').forEach(b => {
+        if (b !== btn) {
+          b.setAttribute('aria-expanded', 'false');
+          const p = b.parentElement.querySelector('.la-acc-panel');
+          if (p) p.hidden = true;
+        }
+      });
+      btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      panel.hidden = isOpen;
+    });
   });
 });
