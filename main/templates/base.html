@@ -38,11 +38,7 @@
                                 <a href="{% url 'dashboard:my_dashboard' %}">Dashboard</a>
                                 <a href="{% url 'dashboard:notifications' %}">Notifications</a>
                                 {# Route to the correct profile page by role #}
-                                {% if IS_EMPLOYER %}
-                                    <a href="{% url 'employer_profile' %}">Profile</a>
-                                {% else %}
-                                    <a href="{% url 'my_profile' %}">Profile</a>
-                                {% endif %}
+                                <a href="{{ PROFILE_URL }}">Profile</a>
                                 <a href="{% url 'contact' %}">Report Issues</a>
                                 <a href="{% url 'settings' %}">Settings</a>
                                 <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
@@ -75,11 +71,7 @@
                     <div class="user-dropdown" id="userDropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{% url 'dashboard:my_dashboard' %}">Dashboard</a>
                         <a href="{% url 'dashboard:notifications' %}">Notifications</a>
-                        {% if IS_EMPLOYER %}
-                            <a href="{% url 'employer_profile' %}">Profile</a>
-                        {% else %}
-                            <a href="{% url 'my_profile' %}">Profile</a>
-                        {% endif %}
+                        <a href="{{ PROFILE_URL }}">Profile</a>
                         <a href="{% url 'contact' %}">Report Issues</a>
                         <a href="{% url 'settings' %}">Settings</a>
                         <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
@@ -188,20 +180,12 @@
     {% if user.is_authenticated %}
     <div class="mobile-user-footer">
         {# ✅ Make the profile circle clickable to the profile page #}
-        {% if IS_EMPLOYER %}
-        <a href="{% url 'employer_profile' %}" class="user-initials-circle" aria-label="Go to your profile">
-        {% else %}
-        <a href="{% url 'my_profile' %}" class="user-initials-circle" aria-label="Go to your profile">
-        {% endif %}
+        <a href="{{ PROFILE_URL }}" class="user-initials-circle" aria-label="Go to your profile">
         {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
         </a>
 
         {# (Optional) Make the name clickable too #}
-        {% if IS_EMPLOYER %}
-        <a href="{% url 'employer_profile' %}" class="mobile-user-name">
-        {% else %}
-        <a href="{% url 'my_profile' %}" class="mobile-user-name">
-        {% endif %}
+        <a href="{{ PROFILE_URL }}" class="mobile-user-name">
         {{ user.first_name|default:user.username }}
         </a>
 
