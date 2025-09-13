@@ -109,14 +109,18 @@ def user_dashboard(request):
     # User's job applications
     applications = Application.objects.filter(applicant=request.user)
 
-    # Profile completeness (MVP: 3 signals)
+    # Onboarding progress: Complete Profile, Create Resume, Saved Jobs
+    saved_jobs_count = SavedJob.objects.filter(user=request.user).count()
     steps = {
-        "has_resume": bool(resume),
-        "has_picture": bool(user_profile.profile_picture),
-        "has_bio": bool(user_profile.bio),
+        "profile": bool(user_profile.bio or user_profile.profile_picture),
+        "resume": bool(resume),
+        "saved_jobs": saved_jobs_count > 0,
     }
-    steps_completed = sum(steps.values())
+    steps_completed = sum(1 for k in steps if steps[k])
     completion_percentage = int((steps_completed / 3) * 100)
+    # Determine the current (next) step name for highlighting
+    step_order = ["profile", "resume", "saved_jobs"]
+    current_step = next((name for name in step_order if not steps.get(name)), None)
 
     # Suggested jobs: only attempt if we detect skills
     skills_list = extract_resume_skills(resume)
@@ -170,6 +174,8 @@ def user_dashboard(request):
         'applications': applications,
         'completion_percentage': completion_percentage,
         'steps_completed': steps_completed,
+        'onboarding_steps': steps,
+        'current_step': current_step,
         'joined_date': joined_date,
         'suggested_jobs': suggested_jobs,
         'notifications': notifications,

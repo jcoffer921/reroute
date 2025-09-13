@@ -209,6 +209,18 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* Step states */
+.carousel-card.completed { border: 1px solid rgba(22,163,74,.4); position: relative; }
+.carousel-card.completed::after {
+  content: '';
+  position: absolute; right: 10px; top: 10px;
+  width: 18px; height: 18px; border-radius: 999px;
+  background: #16a34a; box-shadow: 0 0 0 2px #fff inset;
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path fill=%22white%22 d=%22M4 12l5 5 11-11z%22/></svg>') center/14px 14px no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path fill=%22white%22 d=%22M4 12l5 5 11-11z%22/></svg>') center/14px 14px no-repeat;
+}
+.carousel-card.current { outline: 2px solid #6495ED; box-shadow: 0 6px 18px rgba(100,149,237,.25); }
+
 .card-icon {
   font-size: 1.8rem;
   margin-right: 1rem;
@@ -322,6 +334,15 @@
   font-weight: 600;
   color: #008ba3;
 }
+
+/* Success card */
+.onboarding-success { background: var(--neutral-gray); border: 1px solid #e0e0e0; border-radius: 16px; padding: 2rem 1rem; margin: 2rem auto; max-width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.04); text-align: center; }
+.success-inner { max-width: 700px; margin: 0 auto; }
+.success-icon { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:999px; background: rgba(22,163,74,.12); margin-bottom:.5rem; }
+.onboarding-success h2 { margin: .25rem 0; font-size: 1.6rem; font-weight: 900; color: #0F172A; }
+.onboarding-success p { color: #334155; margin: 0 0 .75rem; }
+.onboarding-success .btn.btn-primary { background: #6495ED; color: #fff; border: none; padding: .6rem 1.1rem; border-radius: 999px; font-weight: 800; box-shadow: 0 8px 22px rgba(100,149,237,.35); text-decoration: none; display: inline-block; }
+.onboarding-success .btn.btn-primary:hover { background: #5a86d6; }
 
 .suggested-box {
   background: var(--neutral-gray);

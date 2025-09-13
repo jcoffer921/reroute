@@ -19,7 +19,8 @@
 <!-- Dashboard Cards -->
 <div class="dashboard-container">
 
-  <!-- Progress Carousel -->
+  {% if steps_completed < 3 %}
+  <!-- Progress Carousel (Onboarding) -->
   <div class="carousel-box">
     <div class="progress-header">
       <div class="progress-text">
@@ -28,9 +29,9 @@
       </div>
       <div class="progress-bar-wrapper">
         <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: 0%;"></div>
+          <div class="progress-bar-fill" style="width: {{ completion_percentage }}%;"></div>
         </div>
-        <div class="progress-count"><span id="progressCount">0</span>/3</div>
+        <div class="progress-count"><span id="progressCount">{{ steps_completed }}</span>/3</div>
       </div>
     </div>
 
@@ -42,7 +43,7 @@
       <div class="carousel-track" id="cardCarousel">
         <!-- Complete Profile -->
         <a href="{% url 'my_profile' %}" class="carousel-card-link">
-          <div class="carousel-card">
+          <div class="carousel-card {% if onboarding_steps.profile %}completed{% elif current_step == 'profile' %}current{% endif %}">
             <div class="card-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21a8 8 0 0 0-16 0"/>
@@ -59,7 +60,7 @@
 
         <!-- Upload Resume -->
         <a href="{% url 'resumes:resume_welcome' %}" class="carousel-card-link">
-          <div class="carousel-card">
+          <div class="carousel-card {% if onboarding_steps.resume %}completed{% elif current_step == 'resume' %}current{% endif %}">
             <div class="card-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16l4-4h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
@@ -75,7 +76,7 @@
 
         <!-- Saved Jobs -->
         <a href="{% url 'dashboard:saved_jobs' %}" class="carousel-card-link">
-          <div class="carousel-card">
+          <div class="carousel-card {% if onboarding_steps.saved_jobs %}completed{% elif current_step == 'saved_jobs' %}current{% endif %}">
             <div class="card-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 21s-6.716-4.271-9.192-6.747C.96 12.406.96 8.994 2.808 7.147a5 5 0 0 1 7.071 0L12 9.268l2.121-2.121a5 5 0 0 1 7.071 7.071C18.716 16.729 12 21 12 21z"/>
@@ -95,6 +96,19 @@
       </button>
     </div>
   </div>
+  {% else %}
+  <!-- Success State when onboarding is done -->
+  <section class="onboarding-success">
+    <div class="success-inner">
+      <div class="success-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12l5 5 11-11" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h2>You’re ready to get matched!</h2>
+      <p>Explore jobs tailored to your profile.</p>
+      <a href="{% url 'dashboard:matched_jobs' %}" class="btn btn-primary">Find Jobs Now</a>
+    </div>
+  </section>
+  {% endif %}
 
   <!-- ===== Resumes + Notifications Grid ===== -->
   <section class="resume-notifications-grid">
