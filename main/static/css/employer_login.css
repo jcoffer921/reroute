@@ -47,7 +47,7 @@ label{ font-weight:600; color:#374151; font-size:14.5px; }
 .micro-link{
   font-size:14px;
   text-decoration:none;
-  color:#4b5563;                     /* neutral; not sample teal */
+  color:#2563eb;                     /* brand primary for visibility */
 }
 .micro-link:hover{ text-decoration:underline; }
 
