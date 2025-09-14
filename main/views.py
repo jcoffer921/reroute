@@ -58,7 +58,7 @@ except Exception:
 # -----------------------------
 # Local Imports
 # -----------------------------
-from profiles.models import EmployerProfile, UserProfile
+from profiles.models import EmployerProfile, UserProfile, Subscription
 
 # Try to import a custom password form; if unavailable, we use Django's default.
 try:
@@ -817,7 +817,44 @@ def settings_view(request):
             messages.error(request, "Your account has been permanently deleted.")
             return redirect('home')
 
-    return render(request, 'main/settings.html', {'password_form': password_form})
+    # Build subscription context for the Subscription card
+    sub, _ = Subscription.objects.get_or_create(user=request.user)
+    employer = is_employer(request.user)
+
+    # Non-employers should always be on Free (enforce softly here as well)
+    if not employer and sub.plan_name != Subscription.PLAN_FREE:
+        sub.plan_name = Subscription.PLAN_FREE
+        sub.active = True
+        sub.expiry_date = None
+        try:
+            sub.save(update_fields=["plan_name", "active", "expiry_date"])
+        except Exception:
+            pass
+
+    # Determine email verification (via allauth if present)
+    is_verified = True
+    try:
+        if EmailAddress is not None:
+            is_verified = EmailAddress.objects.filter(user=request.user, verified=True).exists()
+    except Exception:
+        is_verified = True
+
+    # Pricing URL with correct tab
+    try:
+        if employer:
+            subscription_pricing_url = reverse('employer_signup') + '?tab=employer'
+        else:
+            subscription_pricing_url = reverse('signup') + '?tab=user'
+    except Exception:
+        subscription_pricing_url = '/'
+
+    return render(request, 'main/settings.html', {
+        'password_form': password_form,
+        'subscription': sub,
+        'is_employer': employer,
+        'is_verified': is_verified,
+        'subscription_pricing_url': subscription_pricing_url,
+    })
 
 # =========================================================================
 # Resume Helpers

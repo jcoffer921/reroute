@@ -21,8 +21,8 @@
   <div class="subscription-card">
     <div class="subscription-header">
       <h2>Your Plan</h2>
-      <span class="status-pill {{ 'active' if subscription.active else 'inactive' }}">
-        {{ 'Active' if subscription.active else 'Inactive' }}
+      <span class="status-pill {% if subscription.active %}active{% else %}inactive{% endif %}">
+        {% if subscription.active %}Active{% else %}Inactive{% endif %}
       </span>
     </div>
 
@@ -65,4 +65,3 @@
   </div>
 </div>
 {% endblock %}
-
