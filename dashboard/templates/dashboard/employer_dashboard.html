@@ -80,7 +80,10 @@
 
   <!-- 📈 Analytics Summary -->
   <section class="analytics-section">
-    <h2 class="section-title">Analytics</h2>
+    <div class="section-header" style="justify-content: space-between; align-items: center; margin-bottom:.5rem;">
+      <h2 class="section-title" style="margin:0;">Analytics</h2>
+      <a href="{% url 'dashboard:employer_analytics' %}" class="btn btn-secondary btn-sm" title="Open full Analytics">Open Analytics</a>
+    </div>
     <div class="analytics-cards">
       <a class="analytics-card" href="{% url 'dashboard:employer' %}" title="View applicants">
         <div class="icon-circle icon-green"><i class="fas fa-user"></i></div>
@@ -112,19 +115,21 @@
   <section class="card" style="margin-bottom: 1.5rem;">
     <div class="section-header" style="margin-bottom:.5rem;">
       <h2>Matcher</h2>
-      <a href="{% url 'dashboard:employer_analytics' %}" class="view-all-link">View All →</a>
     </div>
     {% if matched_seekers %}
       <ul class="list-group">
         {% for item in matched_seekers %}
           <li>
-            <div>
-              <strong>
-                <a href="{% url 'profiles:public_profile' item.user.username %}">
-                  {{ item.user.first_name|default:item.user.username }}
-                </a>
-              </strong>
-              <span class="time"> · Best fit for {{ item.job.title }} · {{ item.score }}%</span>
+            <div style="display:flex; justify-content: space-between; align-items:center; gap:.5rem;">
+              <div>
+                <strong>
+                  <a href="{% url 'profiles:public_profile' item.user.username %}">
+                    {{ item.user.first_name|default:item.user.username }}
+                  </a>
+                </strong>
+                <span class="time"> · Best fit for {{ item.job.title }} · {{ item.score }}%</span>
+              </div>
+              <a href="{% url 'dashboard:employer_job_matches' item.job.id %}" class="btn btn-sm btn-outline" title="View all matches for this job">View all</a>
             </div>
           </li>
         {% endfor %}
@@ -171,7 +176,7 @@
           {% for interview in interviews %}
             <li>
               <div><strong>{{ interview.job.title }}</strong></div>
-              <div class="time">{{ interview.date|date:"M d, Y g:ia" }} · {{ interview.candidate.get_full_name|default:interview.candidate.username }}</div>
+              <div class="time">{{ interview.scheduled_at|date:"M d, Y g:ia" }} · {{ interview.candidate.get_full_name|default:interview.candidate.username }}</div>
             </li>
           {% endfor %}
         </ul>
@@ -245,5 +250,5 @@
     const closeBtn2 = document.getElementById('scheduleInterviewClose2');
     if (closeBtn2) closeBtn2.addEventListener('click', close);
   })();
-}</script>
+</script>
 {% endblock %}

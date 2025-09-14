@@ -312,6 +312,28 @@ def employer_dashboard(request):
     })
 
 
+@login_required
+def employer_job_matches(request, job_id: int):
+    """
+    Show all matched candidates for a specific job owned by the employer.
+    """
+    job = Job.objects.filter(id=job_id, employer=request.user).first()
+    if not job:
+        messages.error(request, 'Job not found or not owned by you.')
+        return redirect('dashboard:employer')
+
+    # Use existing matcher and filter to this job, with a large per-job limit
+    from job_list.matching import match_seekers_for_employer
+    items = [
+        it for it in match_seekers_for_employer(request.user, limit_per_job=200)
+        if it.get('job') and it['job'].id == job.id
+    ]
+    return render(request, 'dashboard/employer_job_matches.html', {
+        'job': job,
+        'items': items,
+    })
+
+
 # =========================
 # Notifications
 # =========================

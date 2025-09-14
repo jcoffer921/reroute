@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Matches — {{ job.title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'dashboard/css/employer_dashboard.css' %}">
+<div class="employer-dashboard container">
+  <section class="card" style="margin-top:1rem;">
+    <div class="section-header" style="justify-content: space-between; align-items:center;">
+      <h2 style="margin:0;">Matches for {{ job.title }}</h2>
+      <a href="{% url 'dashboard:employer' %}" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+    </div>
+    {% if items %}
+      <ul class="list-group">
+        {% for it in items %}
+          <li>
+            <div>
+              <strong>
+                <a href="{% url 'profiles:public_profile' it.user.username %}">{{ it.user.first_name|default:it.user.username }}</a>
+              </strong>
+              <span class="time"> · Score {{ it.score }}%</span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state">No matches found for this job.</div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+

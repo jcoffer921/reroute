@@ -32,7 +32,7 @@
           backgroundColor: 'rgba(59, 130, 246, 0.25)'
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: { responsive: true, maintainAspectRatio: true, aspectRatio: 2 }
     });
 
     chartOverTime = new Chart(ctx2, {
@@ -48,7 +48,7 @@
           pointRadius: 2
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: { responsive: true, maintainAspectRatio: true, aspectRatio: 2 }
     });
 
     chartStatus = new Chart(ctx3, {
@@ -61,7 +61,7 @@
           backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1 }
     });
   }
 
@@ -112,4 +112,3 @@
   // Boot
   document.addEventListener('DOMContentLoaded', initCharts);
 })();
-
