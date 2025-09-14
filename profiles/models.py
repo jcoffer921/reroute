@@ -153,3 +153,44 @@ class EmployerProfile(models.Model):
 
     def __str__(self):
         return self.company_name
+
+
+# -----------------------------
+# Subscription
+# -----------------------------
+class Subscription(models.Model):
+    """
+    Subscription linked 1:1 to the Django User.
+    - For job seekers, plan_name is always 'Free'.
+    - For employers, plan_name is one of 'Basic', 'Pro', 'Enterprise'.
+    - Employers may have an expiry_date; seekers typically do not.
+    """
+
+    PLAN_FREE = "Free"
+    PLAN_BASIC = "Basic"
+    PLAN_PRO = "Pro"
+    PLAN_ENTERPRISE = "Enterprise"
+
+    PLAN_CHOICES = [
+        (PLAN_FREE, "Free"),
+        (PLAN_BASIC, "Basic"),
+        (PLAN_PRO, "Pro"),
+        (PLAN_ENTERPRISE, "Enterprise"),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="subscription")
+    plan_name = models.CharField(max_length=32, choices=PLAN_CHOICES, default=PLAN_FREE)
+    start_date = models.DateTimeField(auto_now_add=True)
+    expiry_date = models.DateTimeField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Subscription({self.user.username}: {self.plan_name})"
+
+    @property
+    def is_free(self) -> bool:
+        return self.plan_name == self.PLAN_FREE
+
+    class Meta:
+        verbose_name = "Subscription"
+        verbose_name_plural = "Subscriptions"

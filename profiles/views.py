@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 
 from PIL import Image, UnidentifiedImageError
 
-from .models import UserProfile, EmployerProfile
+from .models import UserProfile, EmployerProfile, Subscription
 
 # Optional integrations — guarded to avoid hard crashes if app not installed
 try:
@@ -33,6 +33,12 @@ try:
     from .constants import US_STATES, ETHNICITY_CHOICES
 except Exception:
     US_STATES, ETHNICITY_CHOICES = [], []
+
+# Optional: allauth email verification model
+try:
+    from allauth.account.models import EmailAddress
+except Exception:
+    EmailAddress = None
 
 
 # ----------------------------- JSON helpers -----------------------------
@@ -457,3 +463,80 @@ def final_view(request):
 
     # Optionally flash a message or update state before redirect
     return redirect("profiles:my_profile")
+
+
+# ----------------------------- Subscription Settings --------------------
+@login_required
+def subscription_settings(request):
+    """
+    Show the user's subscription details.
+    - Get or create Subscription row for the user.
+    - If the user is not an employer, enforce 'Free' plan.
+    - Provide a pricing_url that targets the correct tab (user vs employer).
+    """
+    sub, _ = Subscription.objects.get_or_create(user=request.user)
+
+    employer = is_employer(request.user)
+
+    # If not employer, force plan to Free and active True
+    if not employer and sub.plan_name != Subscription.PLAN_FREE:
+        sub.plan_name = Subscription.PLAN_FREE
+        sub.active = True
+        sub.expiry_date = None
+        try:
+            sub.save(update_fields=["plan_name", "active", "expiry_date"])
+        except Exception:
+            pass
+
+    # Email verified? (use allauth if present; otherwise assume True)
+    is_verified = True
+    if EmailAddress is not None:
+        try:
+            is_verified = EmailAddress.objects.filter(user=request.user, verified=True).exists()
+        except Exception:
+            is_verified = True
+
+    # Compute pricing URL with tab param
+    from django.urls import reverse, NoReverseMatch
+    try:
+        if employer:
+            pricing_url = reverse('employer_signup') + '?tab=employer'
+        else:
+            pricing_url = reverse('signup') + '?tab=user'
+    except NoReverseMatch:
+        pricing_url = '/'
+
+    context = {
+        "subscription": sub,
+        "is_employer": employer,
+        "is_verified": is_verified,
+        "pricing_url": pricing_url,
+    }
+    return render(request, "profiles/settings_subscription.html", context)
+
+
+@login_required
+@require_POST
+def cancel_subscription(request):
+    """
+    Employers only: cancel subscription.
+    - Set plan to 'Free'
+    - Mark subscription inactive
+    - Redirect back with success message
+    """
+    if not is_employer(request.user):
+        messages.error(request, "You do not have access to cancel a subscription.")
+        return redirect("profiles:subscription_settings")
+
+    sub, _ = Subscription.objects.get_or_create(user=request.user)
+    sub.plan_name = Subscription.PLAN_FREE
+    sub.active = False
+    try:
+        from django.utils import timezone
+        sub.expiry_date = timezone.now()
+    except Exception:
+        pass
+    sub.save()
+
+    messages.success(request, "Your subscription has been cancelled and reverted to Free.")
+    return redirect("profiles:subscription_settings")

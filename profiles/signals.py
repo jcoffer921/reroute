@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from profiles.models import UserProfile
+from profiles.models import UserProfile, Subscription
 from django.contrib.auth.models import User
 
 
@@ -13,6 +13,8 @@ from django.contrib.auth.models import User
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.get_or_create(user=instance)
+        # Ensure every user has a Subscription row
+        Subscription.objects.get_or_create(user=instance)
 
 
 @receiver(post_save, sender=UserProfile)
