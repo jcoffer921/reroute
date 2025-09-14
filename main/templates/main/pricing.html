@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ReRoute | Pricing{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}"> {# reuse card styles #}
+
+<section class="settings-hero">
+  <div class="settings-hero-content">
+    <h1>Pricing</h1>
+    <p>Choose the plan that fits your needs.</p>
+  </div>
+  <div class="settings-mini-nav">
+    <a class="mini-link" href="{% url 'settings' %}">Back to Settings</a>
+  </div>
+</section>
+
+<div class="settings-container">
+  <div class="settings-section">
+    <div class="settings-card">
+      <div class="settings-card__head">
+        <h3 class="settings-card__title">Plans</h3>
+      </div>
+
+      <div class="tabs" style="display:flex; gap:8px; margin-bottom:12px;">
+        <a href="{% url 'pricing' %}?tab=user" class="btn {% if active_tab == 'user' %}btn-primary{% else %}btn-secondary{% endif %}">Job Seeker</a>
+        <a href="{% url 'pricing' %}?tab=employer" class="btn {% if active_tab == 'employer' %}btn-primary{% else %}btn-secondary{% endif %}">Employer</a>
+      </div>
+
+      {% if active_tab == 'user' %}
+        <div class="settings-card" style="box-shadow:none; border:1px solid #e5e7eb; margin-top:8px;">
+          <div class="settings-card__head">
+            <h4 class="settings-card__title" style="font-size:1.1rem;">Free Plan</h4>
+          </div>
+          <ul style="margin:0 0 0.5rem 1rem;">
+            <li>Create a profile</li>
+            <li>Upload and manage resumes</li>
+            <li>Apply to jobs with no limits</li>
+            <li>Access dashboard: Suggested Jobs, Tips, Settings</li>
+            <li>Profile verification badge (once approved)</li>
+          </ul>
+          <div class="settings-card__actions settings-card__actions--footer">
+            {% if request.user.is_authenticated and not request.user|yesno:"" %}{% endif %}
+            {% if request.user.is_authenticated %}
+              {% if request.user.is_authenticated and request.user.groups.all %}
+                <a href="{% url 'pricing' %}?tab=employer" class="btn btn-secondary">View Employer Plans</a>
+              {% else %}
+                {# Assume seeker #}
+                {% url 'dashboard:user' as user_dash %}
+                <a href="{{ user_dash|default:'/dashboard/user/' }}" class="btn btn-primary">Go to Dashboard</a>
+              {% endif %}
+            {% else %}
+              <a href="{% url 'signup' %}" class="btn btn-primary">Get Started Free</a>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px;">
+          <div class="plan settings-card" style="box-shadow:none; border:1px solid #e5e7eb;">
+            <div class="settings-card__head" style="justify-content:space-between;">
+              <h4 class="settings-card__title" style="font-size:1.1rem;">Basic</h4>
+              {% if current_plan == 'basic' %}<span class="pill pill--ok">Current Plan</span>{% endif %}
+            </div>
+            <div class="kv__row"><div class="kv__label">Price</div><div class="kv__value"><strong>$50</strong> / month</div></div>
+            <div class="kv__row"><div class="kv__label">Per Hire</div><div class="kv__value">+ $1,000 per hire</div></div>
+            <ul style="margin:0.25rem 0 0.5rem 1rem;">
+              <li>Post up to 5 jobs per month</li>
+              <li>Access to candidate database</li>
+              <li>Standard analytics (views, applicants per job)</li>
+              <li>Email support</li>
+            </ul>
+            <div class="settings-card__actions settings-card__actions--footer">
+              <a href="{% url 'checkout' %}?plan=basic" class="btn btn-primary" {% if current_plan == 'basic' %}aria-disabled="true" data-disabled="true"{% endif %}>Choose Basic</a>
+            </div>
+          </div>
+          <div class="plan settings-card" style="box-shadow:none; border:2px solid #2563eb;">
+            <div class="settings-card__head" style="justify-content:space-between;">
+              <h4 class="settings-card__title" style="font-size:1.1rem;">Pro</h4>
+              <span class="pill pill--info">Most Popular</span>
+            </div>
+            {% if current_plan == 'pro' %}<div style="margin:-6px 0 6px 0;"><span class="pill pill--ok">Current Plan</span></div>{% endif %}
+            <div class="kv__row"><div class="kv__label">Price</div><div class="kv__value"><strong>$99</strong> / month</div></div>
+            <div class="kv__row"><div class="kv__label">Per Hire</div><div class="kv__value">+ $500 per hire</div></div>
+            <ul style="margin:0.25rem 0 0.5rem 1rem;">
+              <li>Unlimited job postings</li>
+              <li>Advanced analytics (conversion tracking, hire reports, application trends)</li>
+              <li>Priority support (faster response times)</li>
+              <li>Access to ReRoute’s interview scheduling system</li>
+            </ul>
+            <div class="settings-card__actions settings-card__actions--footer">
+              <a href="{% url 'checkout' %}?plan=pro" class="btn btn-primary" {% if current_plan == 'pro' %}aria-disabled="true" data-disabled="true"{% endif %}>Upgrade to Pro</a>
+            </div>
+          </div>
+          <div class="plan settings-card" style="box-shadow:none; border:1px solid #e5e7eb;">
+            <h4 style="display:flex; align-items:center; gap:8px;">
+              Enterprise
+              <span class="pill pill--warn">Coming Soon</span>
+            </h4>
+            <div class="kv__row"><div class="kv__label">Price</div><div class="kv__value"><strong>$300</strong> / month</div></div>
+            <div class="kv__row"><div class="kv__label">Per Hire</div><div class="kv__value">No per-hire fee</div></div>
+            <ul style="margin:0.25rem 0 0.5rem 1rem;">
+              <li>Unlimited job postings</li>
+              <li>Full custom analytics dashboard</li>
+              <li>Dedicated account manager</li>
+              <li>24/7 priority support</li>
+              <li>Custom integrations (ATS, HR systems)</li>
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

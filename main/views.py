@@ -151,6 +151,74 @@ def resources_view(request):
     return render(request, 'resources/resource_list.html')
 
 
+@require_GET
+def pricing(request):
+    """
+    Pricing page with tabs for job seekers and employers.
+    - Uses `?tab=user|employer` to select tab; defaults by role.
+    - Passes current subscription plan (for employers) to highlight/disable CTAs.
+    """
+    tab = (request.GET.get('tab') or '').lower()
+    if tab not in {"user", "employer"}:
+        tab = "employer" if is_employer(request.user) else "user"
+
+    current_plan = None
+    if request.user.is_authenticated and is_employer(request.user):
+        try:
+            from profiles.models import Subscription
+            sub, _ = Subscription.objects.get_or_create(user=request.user)
+            current_plan = (sub.plan_name or '').lower()
+        except Exception:
+            current_plan = None
+
+    return render(request, 'main/pricing.html', {
+        "active_tab": tab,
+        "current_plan": current_plan,
+    })
+
+
+@require_GET
+def pricing_checkout(request):
+    """
+    Placeholder checkout page for employer plans.
+    - If not authenticated: redirect to employer login with next back to this checkout URL.
+    - If authenticated but not employer: send to employer signup with next.
+    - Otherwise: render a non-functional checkout preview (no billing yet).
+    """
+    plan = (request.GET.get('plan') or '').lower()
+    PLAN_META = {
+        'basic': {
+            'name': 'Basic', 'price': '$50 / month', 'per_hire': '+ $1,000 per hire'
+        },
+        'pro': {
+            'name': 'Pro', 'price': '$99 / month', 'per_hire': '+ $500 per hire'
+        },
+    }
+
+    if plan not in PLAN_META:
+        messages.error(request, 'Unknown or unsupported plan.')
+        return redirect(reverse('pricing') + '?tab=employer')
+
+    checkout_url = f"{reverse('checkout')}?plan={plan}"
+
+    if not request.user.is_authenticated:
+        # Route to employer login with return back to checkout
+        return redirect(f"{reverse('employer_login')}?next={checkout_url}")
+
+    if not is_employer(request.user):
+        # Ask them to create an employer account, then return here
+        messages.info(request, 'Please create an employer account to continue.')
+        return redirect(f"{reverse('employer_signup')}?next={checkout_url}")
+
+    meta = PLAN_META[plan]
+    return render(request, 'main/pricing_checkout.html', {
+        'plan_key': plan,
+        'plan_name': meta['name'],
+        'plan_price': meta['price'],
+        'plan_per_hire': meta['per_hire'],
+    })
+
+
 def opportunities_view(request):
     """
     Public-facing job search page (filters + results).
@@ -852,9 +920,9 @@ def settings_view(request):
     # Pricing URL with correct tab
     try:
         if employer:
-            subscription_pricing_url = reverse('employer_signup') + '?tab=employer'
+            subscription_pricing_url = reverse('pricing') + '?tab=employer'
         else:
-            subscription_pricing_url = reverse('signup') + '?tab=user'
+            subscription_pricing_url = reverse('pricing') + '?tab=user'
     except Exception:
         subscription_pricing_url = '/'
 

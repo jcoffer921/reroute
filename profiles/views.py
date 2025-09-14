@@ -502,9 +502,9 @@ def subscription_settings(request):
     from django.urls import reverse, NoReverseMatch
     try:
         if employer:
-            pricing_url = reverse('employer_signup') + '?tab=employer'
+            pricing_url = reverse('pricing') + '?tab=employer'
         else:
-            pricing_url = reverse('signup') + '?tab=user'
+            pricing_url = reverse('pricing') + '?tab=user'
     except NoReverseMatch:
         pricing_url = '/'
 

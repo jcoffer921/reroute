@@ -21,6 +21,8 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('settings/', views.settings_view, name='settings'),
     path('resources/', views.resources_view, name='resources'),
+    path('pricing/', views.pricing, name='pricing'),
+    path('pricing/checkout/', views.pricing_checkout, name='checkout'),
 
     # ================ Email Verification Helpers ================
     path('verify-email/', views.verify_email_notice, name='verify_email_notice'),

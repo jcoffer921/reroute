@@ -228,6 +228,11 @@ button.danger {
   gap: 0.75rem;
 }
 
+.settings-card__actions--footer {
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
 /* Key/Value rows */
 .kv__row {
   display: grid;
@@ -263,6 +268,7 @@ button.danger {
 }
 .pill--ok { background: #16a34a; color: #fff; }
 .pill--warn { background: #dc2626; color: #fff; }
+.pill--info { background: #2563eb; color: #fff; }
 
 /* Buttons in card */
 .settings-card .btn-primary {

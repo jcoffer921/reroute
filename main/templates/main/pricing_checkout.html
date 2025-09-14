@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ReRoute | Checkout (Placeholder){% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}"> {# reuse card styles #}
+
+<section class="settings-hero">
+  <div class="settings-hero-content">
+    <h1>Checkout</h1>
+    <p>Preview your plan before continuing. Billing is not yet connected.</p>
+  </div>
+</section>
+
+<div class="settings-container">
+  <div class="settings-section">
+    <div class="settings-card" role="region" aria-labelledby="heading-checkout">
+      <div class="settings-card__head">
+        <h3 id="heading-checkout" class="settings-card__title">{{ plan_name }} Plan</h3>
+      </div>
+
+      <div class="kv">
+        <div class="kv__row">
+          <div class="kv__label">Price</div>
+          <div class="kv__value">{{ plan_price }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__label">Per Hire</div>
+          <div class="kv__value">{{ plan_per_hire }}</div>
+        </div>
+        <div class="kv__row">
+          <div class="kv__label">Status</div>
+          <div class="kv__value">
+            <span class="pill pill--warn">Placeholder</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card__actions settings-card__actions--footer">
+        <a href="{% url 'pricing' %}?tab=employer" class="btn btn-secondary">Back to Pricing</a>
+        <button class="btn btn-primary" disabled title="Billing integration pending">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
