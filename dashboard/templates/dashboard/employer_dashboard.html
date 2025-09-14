@@ -113,8 +113,9 @@
 
   <!-- 🧑‍🤝‍🧑 Matcher (Full-width card) -->
   <section class="card" style="margin-bottom: 1.5rem;">
-    <div class="section-header" style="margin-bottom:.5rem;">
+    <div class="section-header" style="margin-bottom:.5rem; justify-content: space-between; align-items:center;">
       <h2>Matcher</h2>
+      <a href="{% url 'dashboard:employer_matcher' %}" class="btn btn-secondary btn-sm" title="Open full Matcher">Open Matcher</a>
     </div>
     {% if matched_seekers %}
       <ul class="list-group">

@@ -334,6 +334,28 @@ def employer_job_matches(request, job_id: int):
     })
 
 
+@login_required
+def employer_matcher(request):
+    """Overall matcher view: grouped matches for all of this employer's jobs."""
+    from job_list.matching import match_seekers_for_employer
+    items = match_seekers_for_employer(request.user, limit_per_job=200)
+    # Group by job
+    grouped: dict[int, list] = {}
+    order: list = []
+    for it in items:
+        job = it.get('job')
+        if not job:
+            continue
+        if job.id not in grouped:
+            grouped[job.id] = []
+            order.append(job)
+        grouped[job.id].append(it)
+    return render(request, 'dashboard/employer_matcher.html', {
+        'grouped': grouped,
+        'jobs': order,
+    })
+
+
 # =========================
 # Notifications
 # =========================

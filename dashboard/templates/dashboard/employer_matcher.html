@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Matcher — All Jobs{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'dashboard/css/employer_dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'employers/css/dashboard.css' %}">
+
+<div class="employer-dashboard container">
+  <section class="card" style="margin-top:1rem;">
+    <div class="section-header" style="justify-content: space-between; align-items:center;">
+      <h2 style="margin:0;">Matcher — All Jobs</h2>
+      <a href="{% url 'dashboard:employer' %}" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+    </div>
+
+    {% if jobs %}
+      {% for j in jobs %}
+        <div class="card" style="margin-top:1rem;">
+          <div class="section-header" style="justify-content: space-between; align-items:center;">
+            <h3 style="margin:0;">{{ j.title }}</h3>
+            <a href="{% url 'dashboard:employer_job_matches' j.id %}" class="btn btn-sm btn-outline">View only this job</a>
+          </div>
+          {% if grouped.j.id %}
+            <ul class="list-group">
+              {% for it in grouped.j.id %}
+                <li>
+                  <div>
+                    <strong><a href="{% url 'profiles:public_profile' it.user.username %}">{{ it.user.first_name|default:it.user.username }}</a></strong>
+                    <span class="time"> · Score {{ it.score }}%</span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="empty-state">No matches for this job.</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">No jobs found.</div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
