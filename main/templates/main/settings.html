@@ -27,7 +27,7 @@
           <div class="kv__label">Current Plan</div>
           <div class="kv__value plan-name">
             {{ subscription.plan_name }}
-            {% if (is_employer and subscription.plan_name|lower == 'basic') or (is_employer and subscription.plan_name|lower == 'pro') or (is_employer and subscription.plan_name|lower == 'enterprise') %}
+            {% if is_employer and subscription.plan_name|lower == 'basic' or is_employer and subscription.plan_name|lower == 'pro' or is_employer and subscription.plan_name|lower == 'enterprise' %}
               <span class="pill pill--ok" style="margin-left:8px;">Current</span>
             {% endif %}
           </div>
@@ -52,7 +52,7 @@
       <div class="settings-card__actions settings-card__actions--footer">
         <a href="{{ subscription_pricing_url }}" class="btn btn-primary" {% if is_employer and not is_verified %}aria-disabled="true" data-disabled="true"{% endif %}>
           {% if is_employer %}
-            {% if (is_employer and subscription.plan_name|lower == 'basic') or (is_employer and subscription.plan_name|lower == 'pro') or (is_employer and subscription.plan_name|lower == 'enterprise') %}
+            {% if is_employer and subscription.plan_name|lower == 'basic' or is_employer and subscription.plan_name|lower == 'pro' or is_employer and subscription.plan_name|lower == 'enterprise' %}
               Manage Plan
             {% else %}
               Choose a Plan
