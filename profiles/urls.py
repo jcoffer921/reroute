@@ -23,7 +23,9 @@ urlpatterns = [
     path("update-picture/", views.update_profile_picture, name="update_profile_picture"),
     path("remove-picture/", views.remove_profile_picture, name="remove_profile_picture"),
 
-    # Employer profile (separate from employer dashboard)
+    # Employer profile (owner edit view)
     path("employer/profile/", views.employer_profile_view, name="employer_profile"),
+    # Public employer profile (read-only, by username)
+    path("employer/view/<str:username>/", views.employer_public_profile_view, name="employer_public_profile"),
     path("employer/logo/remove/", views.remove_employer_logo, name="remove_employer_logo"),
 ]

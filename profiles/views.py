@@ -404,6 +404,23 @@ def employer_profile_view(request):
     )
 
 
+def employer_public_profile_view(request, username: str):
+    """
+    Public, read-only employer profile page by username.
+    Shows logo, company details, website, and description in a simple card.
+    """
+    user = get_object_or_404(User, username=username)
+    employer_profile = get_object_or_404(EmployerProfile, user=user)
+    return render(
+        request,
+        "profiles/employer_public_profile.html",
+        {
+            "employer_profile": employer_profile,
+            "viewed_user": user,
+        },
+    )
+
+
 @login_required
 @require_POST
 def remove_employer_logo(request):

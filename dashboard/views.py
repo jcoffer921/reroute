@@ -165,6 +165,17 @@ def user_dashboard(request):
     except Exception:
         profile_views = 0
 
+    # Scheduled interviews for this user (upcoming)
+    try:
+        from .models import Interview
+        upcoming_interviews = Interview.objects.select_related('job', 'employer').filter(
+            candidate=request.user,
+            status__in=['planned', 'rescheduled'],
+            scheduled_at__gte=timezone.now(),
+        ).order_by('scheduled_at')[:8]
+    except Exception:
+        upcoming_interviews = []
+
     return render(request, 'dashboard/user_dashboard.html', {
         'profile': user_profile,
         'resume': resume,
@@ -183,7 +194,8 @@ def user_dashboard(request):
             'applications_sent': applications_sent,
             'profile_views': profile_views,
             'matches_found': matches_found,
-        }
+        },
+        'upcoming_interviews': upcoming_interviews,
     })
 
 
@@ -240,6 +252,13 @@ def employer_dashboard(request):
     """
     employer_user = request.user
 
+    # Ensure EmployerProfile exists (optional: not strictly required for counts)
+    try:
+        from profiles.models import EmployerProfile
+        EmployerProfile.objects.get_or_create(user=employer_user)
+    except Exception:
+        pass
+
     # Jobs "owned" by this employer, with simple sort control
     sort_by = (request.GET.get('sort_by') or 'newest').lower()
     order = '-created_at' if sort_by == 'newest' else 'created_at'
@@ -264,13 +283,18 @@ def employer_dashboard(request):
         notifications = []
     interviews = []
 
-    # Basic analytics (safe to run with current schema)
+    # Basic analytics (live numbers)
+    total_jobs = Job.objects.filter(employer=employer_user).count()
+    active_jobs = Job.objects.filter(employer=employer_user, is_active=True).count()
+    total_applications = Application.objects.filter(job__employer=employer_user).count()
+    # Treat "filled" as inactive jobs for this dashboard
+    jobs_filled = Job.objects.filter(employer=employer_user, is_active=False).count()
+
     analytics = {
-        "jobs_posted": Job.objects.filter(employer=employer_user).count(),
-        "active_jobs": Job.objects.filter(employer=employer_user, is_active=True).count(),
-        "total_applicants": Application.objects.filter(job__employer=employer_user).count(),
-        # Interpret "filled" as accepted offers in current schema
-        "jobs_filled": Application.objects.filter(job__employer=employer_user, status__iexact="accepted").count(),
+        "jobs_posted": total_jobs,
+        "active_jobs": active_jobs,
+        "total_applicants": total_applications,
+        "jobs_filled": jobs_filled,
     }
 
     return render(request, 'dashboard/employer_dashboard.html', {
@@ -279,6 +303,11 @@ def employer_dashboard(request):
         'notifications': notifications,
         'interviews': interviews,
         'analytics': analytics,
+        # Expose individual variables for template clarity
+        'total_jobs': total_jobs,
+        'active_jobs': active_jobs,
+        'total_applications': total_applications,
+        'jobs_filled': jobs_filled,
         'sort_by': sort_by,
     })
 
@@ -287,6 +316,10 @@ def employer_dashboard(request):
 # Notifications
 # =========================
 from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
+from django.utils.timezone import now as tz_now
+from django.db.models.functions import TruncDate
+from django.db.models import Count
 
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -322,24 +355,207 @@ def notifications_view(request):
 @login_required
 def employer_analytics(request):
     """
-    Simple employer analytics page.
+    Employer Analytics page.
+    - Renders a full page with metrics + charts on normal requests
+    - Returns JSON datasets when requested via AJAX (for time-range changes)
     """
-    # Job.employer is a FK to User, so filter by the user object
-    jobs = Job.objects.filter(employer=request.user).order_by('-id')
+    employer_user = request.user
 
-    job_data = []
-    for job in jobs:
-        num_apps = Application.objects.filter(job=job).count()
-        job_data.append({
-            'title': job.title,
-            'location': job.location,
-            'num_applicants': num_apps,
+    # Base job + application querysets for this employer
+    jobs_qs = Job.objects.filter(employer=employer_user)
+    apps_qs = Application.objects.filter(job__employer=employer_user)
+
+    # Top-level metrics (all time)
+    total_jobs = jobs_qs.count()
+    active_jobs = jobs_qs.filter(is_active=True).count()
+    jobs_filled = jobs_qs.filter(is_active=False).count()
+    total_applications = apps_qs.count()
+
+    # Time range filtering for chart datasets
+    time_range = (request.GET.get('time_range') or '30d').lower()
+    days_map = {'7d': 7, '30d': 30}
+    if time_range in days_map:
+        start_dt = tz_now() - timedelta(days=days_map[time_range])
+        apps_filtered = apps_qs.filter(submitted_at__gte=start_dt)
+    else:
+        # 'all' → no additional filter
+        apps_filtered = apps_qs
+
+    # Applications per Job (bar): labels = job titles, data = counts
+    per_job_counts = (
+        apps_filtered.values('job__title')
+        .annotate(c=Count('id'))
+        .order_by('-c', 'job__title')
+    )
+    applications_per_job = {
+        'labels': [row['job__title'] for row in per_job_counts],
+        'data': [row['c'] for row in per_job_counts],
+    }
+
+    # Applications over time (line): group by date
+    over_time = (
+        apps_filtered
+        .annotate(day=TruncDate('submitted_at'))
+        .values('day')
+        .annotate(c=Count('id'))
+        .order_by('day')
+    )
+    applications_over_time = {
+        'labels': [row['day'].isoformat() if row['day'] else '' for row in over_time],
+        'data': [row['c'] for row in over_time],
+    }
+
+    # Status breakdown (pie)
+    status_rows = (
+        apps_filtered.values('status')
+        .annotate(c=Count('id'))
+        .order_by('status')
+    )
+    status_breakdown = {
+        'labels': [row['status'] for row in status_rows],
+        'data': [row['c'] for row in status_rows],
+    }
+
+    # AJAX: return datasets only
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'ok': True,
+            'time_range': time_range,
+            'applications_per_job': applications_per_job,
+            'applications_over_time': applications_over_time,
+            'status_breakdown': status_breakdown,
         })
 
-    return render(request, 'dashboard/employer_analytics.html', {
+    # Non-AJAX: render full page
+    # Provide jobs for recent activity table
+    jobs = jobs_qs.order_by('-updated_at' if hasattr(Job, 'updated_at') else '-created_at')
+
+    # Initial bootstrap datasets (JSON-friendly dicts)
+    chart_bootstrap = {
+        'time_range': time_range,
+        'applications_per_job': applications_per_job,
+        'applications_over_time': applications_over_time,
+        'status_breakdown': status_breakdown,
+    }
+
+    return render(request, 'employers/analytics.html', {
+        'total_jobs': total_jobs,
+        'active_jobs': active_jobs,
+        'jobs_filled': jobs_filled,
+        'total_applications': total_applications,
+        'time_range': time_range,
+        'chart_bootstrap': chart_bootstrap,
         'jobs': jobs,
-        'job_data': job_data
     })
+
+
+# =========================
+# Employer: Schedule Interview (create with conflicts)
+# =========================
+@login_required
+@require_POST
+def schedule_interview(request):
+    from .models import Interview
+    job_id = request.POST.get('job_id')
+    cand_username = (request.POST.get('candidate_username') or '').strip()
+    dt_raw = request.POST.get('datetime')
+    notes = (request.POST.get('notes') or '').strip()
+
+    if not job_id or not cand_username or not dt_raw:
+        messages.error(request, 'Please fill Job, Candidate, and Date/Time.')
+        return redirect('dashboard:employer')
+
+    job = Job.objects.filter(id=job_id, employer=request.user).first()
+    if not job:
+        messages.error(request, 'Invalid job selection.')
+        return redirect('dashboard:employer')
+
+    from django.contrib.auth.models import User
+    candidate = User.objects.filter(username=cand_username).first()
+    if not candidate:
+        messages.error(request, 'Candidate not found.')
+        return redirect('dashboard:employer')
+    if not Application.objects.filter(job__employer=request.user, applicant=candidate).exists():
+        messages.error(request, 'Candidate has not applied to your jobs.')
+        return redirect('dashboard:employer')
+
+    from datetime import datetime, timedelta
+    try:
+        naive = datetime.fromisoformat(dt_raw)
+    except Exception:
+        messages.error(request, 'Invalid date/time format.')
+        return redirect('dashboard:employer')
+    try:
+        scheduled_dt = timezone.make_aware(naive)
+    except Exception:
+        scheduled_dt = naive
+    if scheduled_dt < timezone.now():
+        messages.error(request, 'Please choose a future date/time.')
+        return redirect('dashboard:employer')
+
+    win_start = scheduled_dt - timedelta(minutes=30)
+    win_end = scheduled_dt + timedelta(minutes=30)
+    overlap = Interview.objects.filter(
+        candidate=candidate,
+        status__in=[Interview.STATUS_PLANNED, Interview.STATUS_RESCHEDULED],
+        scheduled_at__gte=win_start,
+        scheduled_at__lte=win_end,
+    ).exists()
+    if overlap:
+        messages.error(request, 'Candidate has another interview around that time.')
+        return redirect('dashboard:employer')
+
+    Interview.objects.create(
+        job=job,
+        employer=request.user,
+        candidate=candidate,
+        scheduled_at=scheduled_dt,
+        notes=notes,
+        status=Interview.STATUS_PLANNED,
+    )
+    messages.success(request, 'Interview scheduled successfully.')
+    return redirect('dashboard:employer')
+
+
+# =========================
+# Employer: Candidate autocomplete (applicants only)
+# =========================
+@login_required
+def employer_candidates(request):
+    q = (request.GET.get('q') or '').strip()
+    from django.contrib.auth.models import User
+    qs = User.objects.filter(applications__job__employer=request.user).distinct()
+    if q:
+        qs = qs.filter(Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q))
+    results = list(qs.order_by('username')[:10].values('username', 'first_name', 'last_name'))
+    payload = [{
+        'username': r['username'],
+        'name': ((r.get('first_name') or '') + (' ' + (r.get('last_name') or '') if r.get('last_name') else '')).strip() or r['username']
+    } for r in results]
+    return JsonResponse({'ok': True, 'results': payload})
+
+
+# =========================
+# Employer: Schedule Interview (placeholder)
+# =========================
+@login_required
+@require_POST
+def schedule_interview(request):
+    """
+    Placeholder endpoint to accept interview scheduling submissions.
+    Stores nothing for now — flashes a message and redirects back to employer dashboard.
+    Expected fields: job_id, candidate_username, datetime, notes
+    """
+    job_id = request.POST.get('job_id')
+    candidate_username = (request.POST.get('candidate_username') or '').strip()
+    dt = request.POST.get('datetime')
+    # Basic validation
+    if not job_id or not candidate_username or not dt:
+        messages.error(request, 'Please fill Job, Candidate, and Date/Time.')
+        return redirect('dashboard:employer')
+
+    messages.success(request, 'Interview scheduled (placeholder).')
+    return redirect('dashboard:employer')
 
 
 # =========================

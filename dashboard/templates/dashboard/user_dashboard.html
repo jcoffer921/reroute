@@ -300,6 +300,33 @@
     </div>
   </div>
 
+  <!-- Scheduled Interviews (same width as tips) -->
+  <div class="tips-box rotating" style="margin-top: 1rem;">
+    <div class="tips-header">
+      <h2>Scheduled Interviews</h2>
+      <p>Upcoming interviews you have lined up</p>
+    </div>
+    {% if upcoming_interviews %}
+      <div class="notifications-list">
+        {% for iv in upcoming_interviews %}
+          <article class="notification-card">
+            <div class="content">
+              <div class="text-row">
+                <div class="title">
+                  <a href="{% url 'job_detail' iv.job.id %}">{{ iv.job.title }}</a>
+                  <span class="timestamp"> · with {{ iv.employer.username }}</span>
+                </div>
+                <time class="timestamp" datetime="{{ iv.scheduled_at|date:'c' }}">{{ iv.scheduled_at|date:"M d, Y g:ia" }}</time>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-notifications">No interviews scheduled.</div>
+    {% endif %}
+  </div>
+
   <!-- Tips -->
   <div class="tips-box rotating">
     <div class="tips-header">

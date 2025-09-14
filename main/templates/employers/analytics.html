@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Employer Analytics{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'employers/css/analytics.css' %}">
+
+<div class="analytics-page">
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="spacer"></div>
+    <label for="timeRange" class="sr-only">Time range</label>
+    <select id="timeRange" class="time-select">
+      <option value="7d" {% if time_range == '7d' %}selected{% endif %}>Last 7 days</option>
+      <option value="30d" {% if time_range == '30d' %}selected{% endif %}>Last 30 days</option>
+      <option value="all" {% if time_range == 'all' %}selected{% endif %}>All time</option>
+    </select>
+  </div>
+
+  <!-- Summary Cards -->
+  <section class="cards-grid">
+    <a class="card" href="{% url 'dashboard:employer' %}" title="View all applicants">
+      <div class="icon-circle icon-green"><i class="fas fa-user"></i></div>
+      <div class="card-number">{{ total_applications }}</div>
+      <div class="card-label">Total Applicants</div>
+    </a>
+
+    <a class="card" href="{% url 'dashboard:employer' %}" title="View jobs">
+      <div class="icon-circle icon-blue"><i class="fas fa-file-alt"></i></div>
+      <div class="card-number">{{ total_jobs }}</div>
+      <div class="card-label">Jobs Posted</div>
+    </a>
+
+    <a class="card" href="{% url 'dashboard:employer' %}" title="Active listings">
+      <div class="icon-circle icon-amber"><i class="fas fa-briefcase"></i></div>
+      <div class="card-number">{{ active_jobs }}</div>
+      <div class="card-label">Active Listings</div>
+    </a>
+
+    <a class="card" href="{% url 'dashboard:employer' %}" title="Filled jobs">
+      <div class="icon-circle icon-purple"><i class="fas fa-check-circle"></i></div>
+      <div class="card-number">{{ jobs_filled }}</div>
+      <div class="card-label">Jobs Filled via ReRoute</div>
+    </a>
+  </section>
+
+  <!-- Charts -->
+  <section class="charts-grid">
+    <div class="chart-card">
+      <h3>Applications per Job</h3>
+      <canvas id="chartPerJob"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Applications Over Time</h3>
+      <canvas id="chartOverTime"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Status Breakdown</h3>
+      <canvas id="chartStatus"></canvas>
+    </div>
+  </section>
+
+  <!-- Recent Activity Table -->
+  <section class="table-section">
+    <h3>Recent Activity</h3>
+    <div class="table-wrap">
+      <table class="striped">
+        <thead>
+          <tr>
+            <th>Job Title</th>
+            <th>Applications</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+            <tr>
+              <td>{{ job.title }}</td>
+              <td>{{ job.applications.count }}</td>
+              <td>
+                {% if job.updated_at %}
+                  {{ job.updated_at|date:"M d, Y" }}
+                {% else %}
+                  {{ job.created_at|date:"M d, Y" }}
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3">No recent activity.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+  <div class="spinner"></div>
+  <div class="loading-text">Updating…</div>
+  </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- Bootstrap data for charts -->
+<script>
+  window.ANALYTICS_BOOTSTRAP = {{ chart_bootstrap|safe }};
+  window.ANALYTICS_ENDPOINT = "{% url 'dashboard:employer_analytics' %}";
+</script>
+
+<!-- Page JS -->
+<script src="{% static 'employers/js/analytics.js' %}" defer></script>
+{% endblock %}
+

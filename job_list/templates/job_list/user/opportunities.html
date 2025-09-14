@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load profile_extras %}
 
 {% block title %}Job Opportunities{% endblock %}
 
@@ -51,14 +52,27 @@
             <a href="{% url 'job_detail' job.id %}" class="job-card-link">
               <div class="job-card">
                 <div class="job-header">
-                  <img src="{% static 'user/img/test-logo.png' %}" alt="Company Logo" class="job-logo">
+                  {% with emp=job.employer %}
+                    {% with logo=emp|employer_logo_url %}
+                      <a href="{{ emp|employer_public_url }}">
+                        {% if logo %}
+                          <img src="{{ logo }}" alt="{{ emp|employer_company }} logo" class="job-logo">
+                        {% else %}
+                          <img src="{% static 'img/company-placeholder.svg' %}" alt="Company" class="job-logo">
+                        {% endif %}
+                      </a>
+                    {% endwith %}
+                  {% endwith %}
                   <div class="job-info">
                     <h2 class="job-title">
                       <a href="{% url 'job_detail' job.id %}" class="job-title-link">
                         {{ job.title }}
                       </a>
                     </h2>
-                    <p class="job-company">{{ job.employer.username }} · {{ job.location }}</p>
+                    <p class="job-company">
+                      <a href="{{ job.employer|employer_public_url }}">{{ job.employer.username }}</a>
+                      · {{ job.location }}
+                    </p>
                   </div>
                 </div>
 

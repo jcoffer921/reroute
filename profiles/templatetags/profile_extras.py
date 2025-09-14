@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 
 register = template.Library()
 
@@ -50,3 +51,40 @@ def profile_picture_url(user):
     except Exception:
         pass
     return ""
+
+
+@register.filter(name="employer_logo_url")
+def employer_logo_url(user):
+    """Return employer logo URL if EmployerProfile and logo exist; else empty string."""
+    try:
+        emp = getattr(user, 'employerprofile', None)
+        logo = getattr(emp, 'logo', None)
+        url = getattr(logo, 'url', '') if logo else ''
+        return url or ""
+    except Exception:
+        return ""
+
+
+@register.filter(name="employer_company")
+def employer_company(user):
+    """Return company name from EmployerProfile if present; else username."""
+    try:
+        emp = getattr(user, 'employerprofile', None)
+        name = getattr(emp, 'company_name', '')
+        if name:
+            return name
+        return getattr(user, 'username', '')
+    except Exception:
+        return getattr(user, 'username', '')
+
+
+@register.filter(name="employer_public_url")
+def employer_public_url(user):
+    """Reverse the public employer profile URL by username. Returns path string."""
+    try:
+        uname = getattr(user, 'username', '')
+        if not uname:
+            return ''
+        return reverse('employer_public_profile', kwargs={'username': uname})
+    except Exception:
+        return ''

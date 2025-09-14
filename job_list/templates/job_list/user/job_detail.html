@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load profile_extras %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'user/css/job_details.css' %}">
@@ -8,9 +9,22 @@
 
   <!-- Job header -->
   <div class="job-header">
-    <img src="{% static 'user/img/test-logo.png' %}" alt="Company Logo" class="company-logo">
+    {% with emp=job.employer %}
+      {% with logo=emp|employer_logo_url %}
+        <a href="{{ emp|employer_public_url }}">
+          {% if logo %}
+            <img src="{{ logo }}" alt="{{ emp|employer_company }} logo" class="company-logo">
+          {% else %}
+            <img src="{% static 'img/company-placeholder.svg' %}" alt="Company" class="company-logo">
+          {% endif %}
+        </a>
+      {% endwith %}
+    {% endwith %}
     <h1 class="job-title">{{ job.title }}</h1>
-    <p class="meta-info">{{ job.employer.username }} · {{ job.location }} · Posted {{ job.created_at|timesince }} ago</p>
+    <p class="meta-info">
+      <a href="{{ job.employer|employer_public_url }}">{{ job.employer.username }}</a>
+      · {{ job.location }} · Posted {{ job.created_at|timesince }} ago
+    </p>
   </div>
 
   <!-- Highlight boxes -->

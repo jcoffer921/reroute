@@ -5,6 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'dashboard/css/employer_dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'employers/css/dashboard.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
@@ -81,89 +82,141 @@
   <section class="analytics-section">
     <h2 class="section-title">Analytics</h2>
     <div class="analytics-cards">
-      <div class="analytics-card">
-        <div class="icon-circle">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="analytics-value">{{ analytics.total_applicants }}</div>
+      <a class="analytics-card" href="{% url 'dashboard:employer' %}" title="View applicants">
+        <div class="icon-circle icon-green"><i class="fas fa-user"></i></div>
+        <div class="analytics-value">{{ total_applications }}</div>
         <div class="analytics-label">Total Applicants</div>
-      </div>
+      </a>
 
-      <div class="analytics-card">
-        <div class="icon-circle">
-          <i class="fas fa-file-alt"></i>
-        </div>
-        <div class="analytics-value">{{ analytics.jobs_posted }}</div>
+      <a class="analytics-card" href="{% url 'dashboard:employer' %}" title="View jobs">
+        <div class="icon-circle icon-blue"><i class="fas fa-file-alt"></i></div>
+        <div class="analytics-value">{{ total_jobs }}</div>
         <div class="analytics-label">Jobs Posted</div>
-      </div>
+      </a>
 
-      <div class="analytics-card">
-        <div class="icon-circle">
-          <i class="fas fa-circle text-green"></i>
-        </div>
-        <div class="analytics-value">{{ analytics.active_jobs }}</div>
+      <a class="analytics-card" href="{% url 'dashboard:employer' %}" title="Active listings">
+        <div class="icon-circle icon-amber"><i class="fas fa-briefcase"></i></div>
+        <div class="analytics-value">{{ active_jobs }}</div>
         <div class="analytics-label">Active Listings</div>
-      </div>
+      </a>
 
-      <div class="analytics-card">
-        <div class="icon-circle">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="analytics-value">{{ analytics.jobs_filled }}</div>
+      <a class="analytics-card" href="{% url 'dashboard:employer' %}" title="Filled jobs">
+        <div class="icon-circle icon-purple"><i class="fas fa-check-circle"></i></div>
+        <div class="analytics-value">{{ jobs_filled }}</div>
         <div class="analytics-label">Jobs Filled via ReRoute</div>
-      </div>
+      </a>
     </div>
   </section>
 
-  <!-- 🧑‍🤝‍🧑 Matcher -->
-  <section class="matcher">
-    <div class="section-header">
+  <!-- 🧑‍🤝‍🧑 Matcher (Full-width card) -->
+  <section class="card" style="margin-bottom: 1.5rem;">
+    <div class="section-header" style="margin-bottom:.5rem;">
       <h2>Matcher</h2>
       <a href="{% url 'dashboard:employer_analytics' %}" class="view-all-link">View All →</a>
     </div>
-    <div class="matcher-cards">
-      {% for item in matched_seekers %}
-        <div class="matcher-card">
-          {% if item.profile.profile_picture %}
-            <img src="{{ item.profile.profile_picture.url }}" alt="Profile" class="profile-pic">
-          {% else %}
-            <div class="profile-pic placeholder"></div>
-          {% endif %}
-          <p>{{ item.user.first_name|default:item.user.username }}</p>
-          <p class="small text-muted">Best fit for: {{ item.job.title }}</p>
-          <p class="small">Match: {{ item.score }}%</p>
-        </div>
-      {% empty %}
-        <p>No matches yet.</p>
-      {% endfor %}
+    {% if matched_seekers %}
+      <ul class="list-group">
+        {% for item in matched_seekers %}
+          <li>
+            <div>
+              <strong>
+                <a href="{% url 'profiles:public_profile' item.user.username %}">
+                  {{ item.user.first_name|default:item.user.username }}
+                </a>
+              </strong>
+              <span class="time"> · Best fit for {{ item.job.title }} · {{ item.score }}%</span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state"><i class="fas fa-user-friends"></i> No matches yet.</div>
+    {% endif %}
+  </section>
+
+  <!-- 🔔 Notifications + Interviews (2-column grid) -->
+  <section class="grid-2col">
+    <!-- Notifications -->
+    <div class="card">
+      <div class="section-header" style="justify-content: space-between; align-items: center;">
+        <h3 style="margin:0;">Notifications</h3>
+        <form method="post" action="{% url 'dashboard:notifications' %}" style="margin:0;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="mark_all_read">
+          <button type="submit" class="btn btn-secondary btn-sm">Mark all read</button>
+        </form>
+      </div>
+      {% if notifications %}
+        <ul class="list-group">
+          {% for note in notifications %}
+            <li>
+              <div>{{ note.message }}</div>
+              <div class="time">{{ note.created_at|timesince }} ago</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">No notifications.</div>
+      {% endif %}
+    </div>
+
+    <!-- Interviews Scheduled -->
+    <div class="card">
+      <div class="section-header" style="justify-content: space-between; align-items:center;">
+        <h3 style="margin:0;">Interviews Scheduled</h3>
+        <button type="button" class="btn btn-primary btn-sm" id="openScheduleInterview">Add Interview</button>
+      </div>
+      {% if interviews %}
+        <ul class="list-group">
+          {% for interview in interviews %}
+            <li>
+              <div><strong>{{ interview.job.title }}</strong></div>
+              <div class="time">{{ interview.date|date:"M d, Y g:ia" }} · {{ interview.candidate.get_full_name|default:interview.candidate.username }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state"><i class="far fa-calendar"></i> No interviews scheduled.</div>
+      {% endif %}
     </div>
   </section>
 
-  <!-- 🔔 Notifications + Interviews -->
-  <section class="notifications-interviews">
-    <div class="notification-box">
-      <h3>Notifications</h3>
-      <ul>
-        {% for note in notifications %}
-          <li>{{ note.message }}</li>
-        {% empty %}
-          <li>No new notifications.</li>
-        {% endfor %}
-      </ul>
-    </div>
+</div>
 
-    <div class="interview-box">
-      <h3>Interviews Scheduled</h3>
-      <ul>
-        {% for interview in interviews %}
-          <li>{{ interview.date|date:"M d, Y" }} with {{ interview.candidate.first_name }}</li>
-        {% empty %}
-          <li>No interviews scheduled.</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </section>
-
+<!-- ====== Schedule Interview Modal ====== -->
+<div id="scheduleInterviewBackdrop" class="modal-backdrop hidden"></div>
+<div id="scheduleInterviewModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="scheduleInterviewTitle">
+  <div class="modal-content">
+    <button class="modal-close" id="scheduleInterviewClose" aria-label="Close">✕</button>
+    <h3 id="scheduleInterviewTitle" style="margin-top:0;">Schedule Interview</h3>
+    <form method="post" action="{% url 'dashboard:schedule_interview' %}" class="edit-form" style="padding:0;">
+      {% csrf_token %}
+      <p>
+        <label for="jobSelect">Job</label>
+        <select required id="jobSelect" name="job_id">
+          {% for j in jobs %}
+            <option value="{{ j.id }}">{{ j.title }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p>
+        <label for="cand">Candidate Username</label>
+        <input type="text" id="cand" name="candidate_username" required placeholder="e.g. janedoe" />
+      </p>
+      <p>
+        <label for="dt">Date &amp; Time</label>
+        <input type="datetime-local" id="dt" name="datetime" required />
+      </p>
+      <p>
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Notes for the interview..."></textarea>
+      </p>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Schedule</button>
+        <button type="button" class="btn btn-secondary" id="scheduleInterviewClose2">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- ====== Modal for applicants ====== -->
@@ -178,4 +231,19 @@
 </div>
 
 <script src="{% static 'dashboard/js/employer_dashboard.js' %}" defer></script>
+<script>
+  (function(){
+    const openBtn = document.getElementById('openScheduleInterview');
+    const modal = document.getElementById('scheduleInterviewModal');
+    const backdrop = document.getElementById('scheduleInterviewBackdrop');
+    const closeBtn = document.getElementById('scheduleInterviewClose');
+    function open(){ modal.classList.remove('hidden'); backdrop.classList.remove('hidden'); }
+    function close(){ modal.classList.add('hidden'); backdrop.classList.add('hidden'); }
+    if (openBtn) openBtn.addEventListener('click', open);
+    if (backdrop) backdrop.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    const closeBtn2 = document.getElementById('scheduleInterviewClose2');
+    if (closeBtn2) closeBtn2.addEventListener('click', close);
+  })();
+}</script>
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Notification
+from .models import Notification, Interview
 
 
 @admin.register(Notification)
@@ -51,3 +51,14 @@ class NotificationAdmin(admin.ModelAdmin):
         updated = queryset.update(is_read=False)
         self.message_user(request, f"Marked {updated} notification(s) as unread.")
     mark_as_unread.short_description = "Mark selected as unread"
+
+
+@admin.register(Interview)
+class InterviewAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'job', 'employer', 'candidate', 'scheduled_at', 'status',
+    )
+    list_filter = ('status', 'scheduled_at', 'employer')
+    search_fields = ('job__title', 'employer__username', 'candidate__username')
+    autocomplete_fields = ('job', 'employer', 'candidate')
+    ordering = ('-scheduled_at', '-id')

@@ -16,6 +16,7 @@ from profiles.views import (
     remove_profile_picture,
     update_bio,
     employer_profile_view,        # employer profile alias
+    employer_public_profile_view,
 )
 
 
@@ -27,6 +28,7 @@ urlpatterns = [
     path('profile/', user_profile_view, name='my_profile'),  # exact-path alias
     # Ensure a global name for employer profile to support `{% url 'employer_profile' %}` in templates
     path('profile/employer/profile/', employer_profile_view, name='employer_profile'),
+    path('profile/employer/view/<str:username>/', employer_public_profile_view, name='employer_public_profile'),
     path('profile/update-picture/', update_profile_picture, name='update_profile_picture'),
     path('profile/remove-picture/', remove_profile_picture, name='remove_profile_picture'),
     path('profile/update-bio/', update_bio, name='update_bio'), 

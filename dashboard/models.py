@@ -85,3 +85,41 @@ class Notification(models.Model):
 
 
 
+
+class Interview(models.Model):
+    """
+    Scheduled interview between an employer and a candidate for a job.
+    """
+    STATUS_PLANNED = 'planned'
+    STATUS_RESCHEDULED = 'rescheduled'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CANCELED = 'canceled'
+    STATUS_CHOICES = [
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_RESCHEDULED, 'Rescheduled'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_CANCELED, 'Canceled'),
+    ]
+
+    job = models.ForeignKey('job_list.Job', on_delete=models.CASCADE, related_name='interviews')
+    employer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employer_interviews')
+    candidate = models.ForeignKey(User, on_delete=models.CASCADE, related_name='candidate_interviews')
+
+    scheduled_at = models.DateTimeField(db_index=True)
+    location = models.CharField(max_length=255, blank=True)
+    notes = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PLANNED, db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['scheduled_at', 'id']
+        indexes = [
+            models.Index(fields=['employer', 'scheduled_at']),
+            models.Index(fields=['candidate', 'scheduled_at']),
+            models.Index(fields=['job', 'scheduled_at']),
+        ]
+
+    def __str__(self):
+        return f"Interview({self.job.title} - {self.candidate.username} at {self.scheduled_at:%Y-%m-%d %H:%M})"
