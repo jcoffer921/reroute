@@ -41,14 +41,11 @@
             <li>Profile verification badge (once approved)</li>
           </ul>
           <div class="settings-card__actions settings-card__actions--footer">
-            {% if request.user.is_authenticated and not request.user|yesno:"" %}{% endif %}
             {% if request.user.is_authenticated %}
-              {% if request.user.is_authenticated and request.user.groups.all %}
+              {% if IS_EMPLOYER %}
                 <a href="{% url 'pricing' %}?tab=employer" class="btn btn-secondary">View Employer Plans</a>
               {% else %}
-                {# Assume seeker #}
-                {% url 'dashboard:user' as user_dash %}
-                <a href="{{ user_dash|default:'/dashboard/user/' }}" class="btn btn-primary">Go to Dashboard</a>
+                <a href="{{ DASHBOARD_URL }}" class="btn btn-primary">Go to Dashboard</a>
               {% endif %}
             {% else %}
               <a href="{% url 'signup' %}" class="btn btn-primary">Get Started Free</a>
