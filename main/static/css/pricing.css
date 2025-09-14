@@ -7,9 +7,14 @@
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
   margin-top: 10px;
+  align-items: stretch;             /* ensure equal height rows */
+  justify-items: stretch;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* desktop default: 3-up */
 }
 
 .price-card {
@@ -19,6 +24,8 @@
   box-shadow: 0 10px 20px rgba(0,0,0,0.06);
   text-align: center;
   position: relative;
+  display: flex;                    /* equal height with content push-down */
+  flex-direction: column;
 }
 .card-popular { border: 2px solid #2563eb; }
 .popular-tag { position: absolute; top: 12px; right: 12px; }
@@ -31,7 +38,7 @@
 .price-sub { color: #6b7280; font-size: 0.9rem; margin-bottom: 8px; }
 .plan-divider { border: 0; height: 1px; background: #e5e7eb; margin: 12px 0; }
 
-.plan-features { list-style: none; padding: 0; margin: 0 0 12px; text-align: left; }
+.plan-features { list-style: none; padding: 0; margin: 0 0 12px; text-align: left; flex: 1 1 auto; }
 .plan-features li { position: relative; padding-left: 26px; margin: 8px 0; color: #374151; }
 .plan-features li::before {
   content: '';
@@ -48,7 +55,17 @@
 .pricing-grid .btn-secondary { background: #0ea5e9; color: #fff; }
 .pricing-grid .btn-secondary:hover { background: #0284c7; }
 
+/* Push CTA zone to bottom for equal visual height */
+.price-card .settings-card__actions { margin-top: auto; }
+
+/* Responsive column counts */
+@media (max-width: 1024px) {
+  .pricing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .pricing-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+
 @media (max-width: 640px) {
   .pricing-title { font-size: 1.5rem; }
 }
-
