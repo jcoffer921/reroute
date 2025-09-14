@@ -197,64 +197,75 @@ button.danger {
 }
 
 /* ==========================
-   Subscription Card (Settings)
+   Settings Card (Subscription)
    ========================== */
-.subscription-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.25rem;
+.settings-card {
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
   background: #ffffff;
   border-radius: 12px;
   padding: 20px 24px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-.subscription-details {
-  flex: 1 1 auto;
+.settings-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.subscription-details h3 {
+.settings-card__title {
+  margin: 0;
   font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem 0;
+  font-weight: 800;
+  color: #0f172a;
 }
 
-.detail-row {
+.settings-card__actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 0.35rem 0;
 }
 
-.detail-label {
-  min-width: 120px;
+/* Key/Value rows */
+.kv__row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 6px 0;
+}
+
+.kv__label {
   color: #6b7280; /* muted */
   font-size: 0.9rem;
 }
 
-.plan-name {
-  font-size: 1.05rem;
-  font-weight: 600;
+.kv__value {
   color: #111827;
+  font-size: 1rem;
 }
 
-.subscription-status {
+.plan-name {
+  font-size: 1.1rem;
   font-weight: 700;
 }
-.subscription-status.active { color: #16a34a; }
-.subscription-status.inactive { color: #dc2626; }
 
-.subscription-actions {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-left: 1rem;
+/* Status pills */
+.pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
 }
+.pill--ok { background: #16a34a; color: #fff; }
+.pill--warn { background: #dc2626; color: #fff; }
 
-/* Button themes scoped for subscription card to avoid site-wide changes */
-.subscription-card .btn-primary {
+/* Buttons in card */
+.settings-card .btn-primary {
   background: #2563eb;
   color: #fff;
   border: none;
@@ -262,10 +273,9 @@ button.danger {
   border-radius: 8px;
   transition: background 0.15s ease;
 }
-.subscription-card .btn-primary:hover {
-  background: #1e40af;
-}
-.subscription-card .btn-danger {
+.settings-card .btn-primary:hover { background: #1e40af; }
+
+.settings-card .btn-danger {
   background: #dc2626;
   color: #fff;
   border: none;
@@ -273,13 +283,19 @@ button.danger {
   border-radius: 8px;
   transition: background 0.15s ease;
 }
-.subscription-card .btn-danger:hover {
-  background: #b91c1c;
-}
+.settings-card .btn-danger:hover { background: #b91c1c; }
 
-/* Disabled state for unverified employers */
-.subscription-card .btn-primary[aria-disabled="true"],
-.subscription-card .btn-primary[data-disabled="true"] {
+.settings-card .btn-primary[aria-disabled="true"],
+.settings-card .btn-primary[data-disabled="true"] {
   opacity: 0.6;
   pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .settings-card__head { flex-direction: column; align-items: stretch; }
+  .settings-card__actions { display: grid; grid-template-columns: 1fr; }
+  .settings-card__actions .btn, .settings-card__actions form { width: 100%; }
+  .settings-card__actions a.btn, .settings-card__actions button.btn { width: 100%; }
+  .kv__row { grid-template-columns: 1fr; align-items: start; }
 }
