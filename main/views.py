@@ -362,22 +362,24 @@ def login_view(request):
             code = 401 if err == "Invalid credentials" else 400
             return JsonResponse({"status": "fail", "message": err}, status=code)
 
-        # Require verified email before login
-        if EmailAddress is not None:
-            try:
-                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
-            except Exception:
-                is_verified = True
-            if not is_verified:
-                if send_email_confirmation is not None:
-                    try:
-                        send_email_confirmation(request, user)
-                    except Exception:
-                        logger.exception("Failed to resend verification email during login")
-                return JsonResponse({
-                    "status": "fail",
-                    "message": "Please verify your email. We just sent a new link.",
-                }, status=403)
+        # Require verified email before login (can be disabled via settings flag)
+        from django.conf import settings as django_settings
+        if not getattr(django_settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', True):
+            if EmailAddress is not None:
+                try:
+                    is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+                except Exception:
+                    is_verified = True
+                if not is_verified:
+                    if send_email_confirmation is not None:
+                        try:
+                            send_email_confirmation(request, user)
+                        except Exception:
+                            logger.exception("Failed to resend verification email during login")
+                    return JsonResponse({
+                        "status": "fail",
+                        "message": "Please verify your email. We just sent a new link.",
+                    }, status=403)
 
         login(request, user)
         # Session persistence based on Remember checkbox
@@ -406,23 +408,25 @@ def login_view(request):
                 "next": requested_next,  # keep it if present
             }, status=401 if err == "Invalid credentials" else 400)
 
-        # Require verified email before login
-        if EmailAddress is not None:
-            try:
-                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
-            except Exception:
-                is_verified = True
-            if not is_verified:
-                if send_email_confirmation is not None:
-                    try:
-                        send_email_confirmation(request, user)
-                    except Exception:
-                        logger.exception("Failed to resend verification email during login")
-                return render(request, "main/login.html", {
-                    "error": "Please verify your email. We just sent a new link.",
-                    "prefill_identifier": identifier,
-                    "next": requested_next,
-                }, status=403)
+        # Require verified email before login (can be disabled via settings flag)
+        from django.conf import settings as django_settings
+        if not getattr(django_settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', True):
+            if EmailAddress is not None:
+                try:
+                    is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+                except Exception:
+                    is_verified = True
+                if not is_verified:
+                    if send_email_confirmation is not None:
+                        try:
+                            send_email_confirmation(request, user)
+                        except Exception:
+                            logger.exception("Failed to resend verification email during login")
+                    return render(request, "main/login.html", {
+                        "error": "Please verify your email. We just sent a new link.",
+                        "prefill_identifier": identifier,
+                        "next": requested_next,
+                    }, status=403)
 
         login(request, user)
         # Session persistence based on Remember checkbox
@@ -671,22 +675,24 @@ def employer_login_view(request):
             code = 401 if err == "Invalid credentials" else (403 if err == "This account is not an employer." else 400)
             return JsonResponse({"status": "fail", "message": err}, status=code)
 
-        # Require verified email before employer login
-        if EmailAddress is not None:
-            try:
-                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
-            except Exception:
-                is_verified = True
-            if not is_verified:
-                if send_email_confirmation is not None:
-                    try:
-                        send_email_confirmation(request, user)
-                    except Exception:
-                        logger.exception("Failed to resend verification email (employer login)")
-                return JsonResponse({
-                    "status": "fail",
-                    "message": "Please verify your email. We just sent a new link.",
-                }, status=403)
+        # Require verified email before employer login (can be disabled via settings flag)
+        from django.conf import settings as django_settings
+        if not getattr(django_settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', True):
+            if EmailAddress is not None:
+                try:
+                    is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+                except Exception:
+                    is_verified = True
+                if not is_verified:
+                    if send_email_confirmation is not None:
+                        try:
+                            send_email_confirmation(request, user)
+                        except Exception:
+                            logger.exception("Failed to resend verification email (employer login)")
+                    return JsonResponse({
+                        "status": "fail",
+                        "message": "Please verify your email. We just sent a new link.",
+                    }, status=403)
 
         login(request, user)
         # Session persistence based on Remember checkbox
@@ -709,22 +715,24 @@ def employer_login_view(request):
             "prefill_identifier": identifier,
         })
 
-    # Require verified email before employer login
-    if EmailAddress is not None:
-        try:
-            is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
-        except Exception:
-            is_verified = True
-        if not is_verified:
-            if send_email_confirmation is not None:
-                try:
-                    send_email_confirmation(request, user)
-                except Exception:
-                    logger.exception("Failed to resend verification email (employer login)")
-            return render(request, "main/employer_login.html", {
-                "error": "Please verify your email. We just sent a new link.",
-                "prefill_identifier": identifier,
-            }, status=403)
+    # Require verified email before employer login (can be disabled via settings flag)
+    from django.conf import settings as django_settings
+    if not getattr(django_settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', True):
+        if EmailAddress is not None:
+            try:
+                is_verified = EmailAddress.objects.filter(user=user, verified=True).exists()
+            except Exception:
+                is_verified = True
+            if not is_verified:
+                if send_email_confirmation is not None:
+                    try:
+                        send_email_confirmation(request, user)
+                    except Exception:
+                        logger.exception("Failed to resend verification email (employer login)")
+                return render(request, "main/employer_login.html", {
+                    "error": "Please verify your email. We just sent a new link.",
+                    "prefill_identifier": identifier,
+                }, status=403)
 
     login(request, user)
     # Session persistence based on Remember checkbox
@@ -831,11 +839,13 @@ def settings_view(request):
         except Exception:
             pass
 
-    # Determine email verification (via allauth if present)
+    # Determine email verification; can be disabled for testing
     is_verified = True
     try:
-        if EmailAddress is not None:
-            is_verified = EmailAddress.objects.filter(user=request.user, verified=True).exists()
+        from django.conf import settings as django_settings
+        if not getattr(django_settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', True):
+            if EmailAddress is not None:
+                is_verified = EmailAddress.objects.filter(user=request.user, verified=True).exists()
     except Exception:
         is_verified = True
 

@@ -195,3 +195,91 @@ button.danger {
 .btn-danger:hover {
   background-color: #330005;
 }
+
+/* ==========================
+   Subscription Card (Settings)
+   ========================== */
+.subscription-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.subscription-details {
+  flex: 1 1 auto;
+}
+
+.subscription-details h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.35rem 0;
+}
+
+.detail-label {
+  min-width: 120px;
+  color: #6b7280; /* muted */
+  font-size: 0.9rem;
+}
+
+.plan-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subscription-status {
+  font-weight: 700;
+}
+.subscription-status.active { color: #16a34a; }
+.subscription-status.inactive { color: #dc2626; }
+
+.subscription-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+}
+
+/* Button themes scoped for subscription card to avoid site-wide changes */
+.subscription-card .btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.subscription-card .btn-primary:hover {
+  background: #1e40af;
+}
+.subscription-card .btn-danger {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.subscription-card .btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* Disabled state for unverified employers */
+.subscription-card .btn-primary[aria-disabled="true"],
+.subscription-card .btn-primary[data-disabled="true"] {
+  opacity: 0.6;
+  pointer-events: none;
+}

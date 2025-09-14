@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from PIL import Image, UnidentifiedImageError
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -488,13 +489,14 @@ def subscription_settings(request):
         except Exception:
             pass
 
-    # Email verified? (use allauth if present; otherwise assume True)
+    # Email verified? Can be disabled globally to simplify testing
     is_verified = True
-    if EmailAddress is not None:
-        try:
-            is_verified = EmailAddress.objects.filter(user=request.user, verified=True).exists()
-        except Exception:
-            is_verified = True
+    if not getattr(settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', True):
+        if EmailAddress is not None:
+            try:
+                is_verified = EmailAddress.objects.filter(user=request.user, verified=True).exists()
+            except Exception:
+                is_verified = True
 
     # Compute pricing URL with tab param
     from django.urls import reverse, NoReverseMatch

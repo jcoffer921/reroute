@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.http import HttpRequest
+from django.conf import settings
 from django.shortcuts import redirect
 
 try:
@@ -19,6 +20,10 @@ class EnforceVerifiedEmailMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest):
+        # Globally disable via settings flag for testing/demo
+        if getattr(settings, 'DISABLE_ALLAUTH_EMAIL_VERIFICATION', False):
+            return self.get_response(request)
+
         # Fast-path: only care about authenticated users
         user = getattr(request, 'user', None)
         if user and user.is_authenticated:
@@ -54,4 +59,3 @@ class EnforceVerifiedEmailMiddleware:
             '/privacy', '/terms',  # legal pages
         )
         return path.startswith(allow_prefixes)
-

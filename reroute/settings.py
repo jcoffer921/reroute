@@ -145,6 +145,11 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if not DEBUG else 'http'
 ACCOUNT_LOGIN_METHODS = ["email", "username"]
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 
+# ---------------- Custom Flags ----------------
+# Disable strict email verification checks (middleware + views) during testing/demo
+# Set to False in production to re-enable verification gates
+DISABLE_ALLAUTH_EMAIL_VERIFICATION = True
+
 # Legacy (ONLY if you’re on old allauth; comment out the two above and use these):
 # ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 # ACCOUNT_USERNAME_REQUIRED = True
