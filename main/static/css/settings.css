@@ -34,7 +34,7 @@
   max-width: 900px;
   margin: 2rem auto;
   padding: 2rem 1.25rem;
-  background-color: #66666617;
+  background-color: transparent; /* remove gray slab */
   border-radius: 12px;
 }
 
@@ -101,8 +101,8 @@ button.danger {
 }
 
 .settings-box.danger-zone {
-  background: var(--neutral-gray);
-  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 2rem 1rem;
   margin: 2rem auto;
@@ -142,13 +142,22 @@ button.danger {
 
 .settings-section {
   text-align: left ;
-  background: var(--neutral-gray);
-  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 2rem 1rem;
   margin: 2rem auto;
   max-width: 100%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* Flattened wrapper for sections that already contain their own cards */
+.settings-section--flat {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 1.25rem auto;
 }
 
 .button-row {
@@ -195,6 +204,9 @@ button.danger {
 .btn-danger:hover {
   background-color: #330005;
 }
+
+/* Pill option for buttons */
+.btn-pill { border-radius: 999px; padding-left: 1rem; padding-right: 1rem; }
 
 /* ==========================
    Settings Card (Subscription)

@@ -1,9 +1,39 @@
 /* Pricing page polish to match clean, modern cards */
-.pricing-wrap { background: #f3f4f6; border: none; }
+.pricing-wrap { background: transparent; border: none; box-shadow: none; }
 .pricing-card { background: transparent; box-shadow: none; }
 .pricing-head { justify-content: center; text-align: center; }
 .pricing-title { font-size: 1.75rem; font-weight: 900; color: #0f172a; margin-bottom: 4px; }
 .pricing-sub { color: #6b7280; font-size: 0.95rem; }
+
+/* Toggle buttons (Job Seeker / Employer) */
+.pricing-tabs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 12px 0 18px;
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px; /* pill */
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #0f172a;
+  text-decoration: none;
+  font-weight: 600;
+  min-height: 40px;
+  flex: 1 1 180px;          /* equal width items */
+  transition: background-color .3s ease, color .3s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.tab-btn:hover { background: #eef2ff; }
+.tab-btn--active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 8px rgba(37,99,235,.25);
+}
 
 .pricing-grid {
   display: grid;
@@ -68,4 +98,11 @@
 
 @media (max-width: 640px) {
   .pricing-title { font-size: 1.5rem; }
+}
+.pricing-container {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  max-width: 1200px;   /* allow full-width pricing grid */
+  padding: 0 1rem;     /* light gutter only */
 }

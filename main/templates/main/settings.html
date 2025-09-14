@@ -16,7 +16,7 @@
 <div class="settings-container">
 
   <!-- Subscription (polished card) -->
-  <div class="settings-section">
+  <div class="settings-section settings-section--flat">
     <div class="settings-card" role="region" aria-labelledby="heading-subscription">
       <div class="settings-card__head">
         <h3 id="heading-subscription" class="settings-card__title">Subscription</h3>
@@ -50,7 +50,7 @@
       </div>
 
       <div class="settings-card__actions settings-card__actions--footer">
-        <a href="{{ subscription_pricing_url }}" class="btn btn-primary" {% if is_employer and not is_verified %}aria-disabled="true" data-disabled="true"{% endif %}>
+        <a href="{{ subscription_pricing_url }}" class="btn btn-primary btn-pill" {% if is_employer and not is_verified %}aria-disabled="true" data-disabled="true"{% endif %}>
           {% if is_employer %}
             {% if is_employer and subscription.plan_name|lower == 'basic' or is_employer and subscription.plan_name|lower == 'pro' or is_employer and subscription.plan_name|lower == 'enterprise' %}
               Manage Plan
@@ -64,7 +64,7 @@
         {% if is_employer %}
           <form method="post" action="{% url 'profiles:cancel_subscription' %}" onsubmit="return confirm('Cancel your subscription and revert to Free?');">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Cancel Subscription</button>
+            <button type="submit" class="btn btn-danger btn-pill">Cancel Subscription</button>
           </form>
         {% endif %}
       </div>
@@ -95,7 +95,7 @@
         {{ password_form.new_password2 }}
       </div>
 
-      <button type="submit" name="change_password" class="btn-primary">Change Password</button>
+      <button type="submit" name="change_password" class="btn-primary btn-pill">Change Password</button>
     </form>
   </div>
 
@@ -108,7 +108,7 @@
         <label for="email">Email Address</label>
         <input type="email" name="email" id="email" class="input-small" value="{{ request.user.email }}" placeholder="Email Address" autocomplete="email" required>
       </div>
-      <button type="submit" name="update_email" class="btn-primary">Change Email</button>
+      <button type="submit" name="update_email" class="btn-primary btn-pill">Change Email</button>
     </form>
   </div>
 
@@ -119,8 +119,8 @@
     <form method="POST" aria-labelledby="heading-account-mgmt">
       {% csrf_token %}
       <div class="button-row">
-        <button type="submit" name="deactivate_account" class="btn btn-secondary">Deactivate Account</button>
-        <button type="submit" name="delete_account" class="btn btn-danger" onclick="return confirm('Are you sure? This will permanently delete your account.')">Delete Account</button>
+        <button type="submit" name="deactivate_account" class="btn btn-secondary btn-pill">Deactivate Account</button>
+        <button type="submit" name="delete_account" class="btn btn-danger btn-pill" onclick="return confirm('Are you sure? This will permanently delete your account.')">Delete Account</button>
       </div>
     </form>
   </div>
