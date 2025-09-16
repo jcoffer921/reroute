@@ -12,6 +12,7 @@ urlpatterns = [
     path('user/', views.user_dashboard, name='user'),
     path('employer/', views.employer_dashboard, name='employer'),
     path('admin/', views.admin_dashboard, name='admin'),
+    path('admin/analytics/', views.admin_analytics_events, name='admin_analytics_events'),
     # In-site admin management pages
     path('admin/jobs/', views.admin_jobs_manage, name='admin_jobs_manage'),
     path('admin/jobs/<int:job_id>/toggle/', views.admin_job_toggle_active, name='admin_job_toggle_active'),

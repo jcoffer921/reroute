@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from job_list.models import Job
 from core.models import Skill
+from core.utils.analytics import track_event
 from profiles.models import EmployerProfile
 
 # Show jobs posted by this employer
@@ -124,6 +125,12 @@ def create_job(request):
                 continue
             skill, _ = Skill.objects.get_or_create(name=name)
             job.skills_required.add(skill)
+
+        # Analytics: job created
+        try:
+            track_event(event_type='job_created', user=request.user, metadata={'job_id': job.id, 'title': job.title})
+        except Exception:
+            pass
 
         messages.success(request, "Job posted successfully.")
         return redirect('employer_dashboard')

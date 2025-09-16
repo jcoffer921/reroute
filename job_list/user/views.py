@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.mail import send_mail
+from core.utils.analytics import track_event
 from django.http import JsonResponse
 
 from job_list.models import Job, Application, SavedJob
@@ -145,6 +146,11 @@ def apply_to_job(request, job_id):
 
     # ✅ Create application
     application = Application.objects.create(applicant=request.user, job=job)
+    # Analytics: application submitted
+    try:
+        track_event(event_type='application_submitted', user=request.user, metadata={'job_id': job.id, 'application_id': application.id})
+    except Exception:
+        pass
 
     # 🔔 In-app notification for employer
     try:

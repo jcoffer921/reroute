@@ -761,6 +761,138 @@ def admin_dashboard(request):
     return render(request, 'dashboard/admin_dashboard.html', context)
 
 
+@login_required
+@staff_member_required
+def admin_analytics_events(request):
+    """
+    Admin analytics: visualize AnalyticsEvent data.
+    - Pie chart of page views by path (percent share)
+    - Tiles for totals (page views, unique visitors, profiles completed, resumes created)
+    - Top referrers
+    """
+    from core.models import AnalyticsEvent
+    from django.db.models import Count
+
+    try:
+        days = int(request.GET.get('days') or 30)
+    except ValueError:
+        days = 30
+    start_ts = now() - timedelta(days=days)
+
+    events = AnalyticsEvent.objects.filter(created_at__gte=start_ts)
+
+    # Page views by path (top N, rest grouped as Other)
+    page_views_qs = (
+        events.filter(event_type='page_view')
+              .values('path')
+              .annotate(count=Count('id'))
+              .order_by('-count')
+    )
+    page_views_total = sum(r['count'] for r in page_views_qs)
+
+    TOP_N = 7
+    top_rows = list(page_views_qs[:TOP_N])
+    other_count = page_views_total - sum(r['count'] for r in top_rows)
+
+    pie_labels = [(r['path'] or '/') for r in top_rows]
+    pie_counts = [r['count'] for r in top_rows]
+    if other_count > 0:
+        pie_labels.append('Other')
+        pie_counts.append(other_count)
+
+    # Unique visitors approximation by IP in metadata
+    try:
+        unique_visitors = (
+            events.filter(event_type='page_view')
+                  .exclude(metadata__ip__isnull=True)
+                  .exclude(metadata__ip='')
+                  .values('metadata__ip')
+                  .distinct()
+                  .count()
+        )
+    except Exception:
+        unique_visitors = 0
+
+    # Profiles completed
+    profiles_completed = events.filter(event_type='profile_completed').count()
+
+    # Resumes created (prefer event, fallback to model date)
+    try:
+        resumes_created = events.filter(event_type='resume_created').count()
+        if resumes_created == 0:
+            from resumes.models import Resume
+            resumes_created = Resume.objects.filter(created_at__gte=start_ts).count()
+    except Exception:
+        resumes_created = 0
+
+    # Top referrers
+    try:
+        ref_qs = (
+            events.filter(event_type='page_view')
+                  .exclude(metadata__referer__isnull=True)
+                  .exclude(metadata__referer='')
+                  .values('metadata__referer')
+                  .annotate(count=Count('id'))
+                  .order_by('-count')[:10]
+        )
+        top_referrers = [{'referer': r['metadata__referer'], 'count': r['count']} for r in ref_qs]
+    except Exception:
+        top_referrers = []
+
+    context = {
+        'days': days,
+        'pie_labels': pie_labels,
+        'pie_counts': pie_counts,
+        # Time-series: views per day
+        'views_by_day_labels': [],
+        'views_by_day_counts': [],
+        # Stacked: authed vs anon per day
+        'views_by_day_authed': [],
+        'views_by_day_anon': [],
+        'page_views_total': page_views_total,
+        'unique_visitors': unique_visitors,
+        'profiles_completed': profiles_completed,
+        'resumes_created': resumes_created,
+        'top_pages': list(page_views_qs[:10]),
+        'top_referrers': top_referrers,
+    }
+    # Build daily series for the selected window
+    try:
+        from django.db.models.functions import TruncDate
+        series_qs = (
+            events.filter(event_type='page_view')
+                  .annotate(day=TruncDate('created_at'))
+                  .values('day')
+                  .annotate(count=Count('id'))
+                  .order_by('day')
+        )
+        # Full day list to fill zeros
+        days_list = [ (now() - timedelta(days=i)).date() for i in range(days-1, -1, -1) ]
+        by_day_map = { r['day']: r['count'] for r in series_qs }
+        context['views_by_day_labels'] = [d.strftime('%b %d') for d in days_list]
+        context['views_by_day_counts'] = [ by_day_map.get(d, 0) for d in days_list ]
+
+        # Stacked: authed vs anon per day
+        authed_qs = (
+            events.filter(event_type='page_view').exclude(user__isnull=True)
+                  .annotate(day=TruncDate('created_at'))
+                  .values('day').annotate(count=Count('id'))
+        )
+        anon_qs = (
+            events.filter(event_type='page_view', user__isnull=True)
+                  .annotate(day=TruncDate('created_at'))
+                  .values('day').annotate(count=Count('id'))
+        )
+        authed_map = { r['day']: r['count'] for r in authed_qs }
+        anon_map = { r['day']: r['count'] for r in anon_qs }
+        context['views_by_day_authed'] = [ authed_map.get(d, 0) for d in days_list ]
+        context['views_by_day_anon'] = [ anon_map.get(d, 0) for d in days_list ]
+    except Exception:
+        pass
+
+    return render(request, 'dashboard/admin_analytics_events.html', context)
+
+
 # =========================
 # In-site Admin: Manage Jobs
 # =========================

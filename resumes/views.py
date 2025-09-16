@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string, get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from core.utils.analytics import track_event
 
 """
 Avoid importing heavy optional deps at module import time.
@@ -170,6 +171,12 @@ def parse_resume_upload(request):
                     graduation_year=(edu.get("graduation_year") or "")[:4],
                 )
 
+        # Analytics: resume imported
+        try:
+            track_event(event_type='resume_imported', user=request.user, metadata={'resume_id': resume.id, 'ext': ext})
+        except Exception:
+            pass
+
         # Provide a redirect URL so the front-end doesn't hardcode paths
         from django.urls import reverse
         redirect_url = reverse('resumes:imported_resume', args=[resume.id])
@@ -207,6 +214,11 @@ def upload_resume_only(request):
             file=file,
             is_imported=True,
         )
+        # Analytics: resume uploaded (file-only)
+        try:
+            track_event(event_type='resume_uploaded', user=request.user, metadata={'resume_id': resume.id, 'ext': ext})
+        except Exception:
+            pass
         # Send user to the dashboard router (chooses user/employer/admin)
         from django.urls import reverse
         redirect_url = reverse('dashboard:my_dashboard')
@@ -254,6 +266,11 @@ def contact_info_step(request):
             except Exception:
                 # Non-fatal: do not block the flow if optional fields fail
                 pass
+            # Analytics: resume contact info saved (builder step)
+            try:
+                track_event(event_type='resume_builder_contact_saved', user=request.user, metadata={'resume_id': resume.id})
+            except Exception:
+                pass
             return redirect('resumes:resume_education_step')
     else:
         contact_form = ContactInfoForm(instance=contact_info)
@@ -285,6 +302,10 @@ def education_step(request):
                 instance = form.save(commit=False)
                 instance.resume = resume
                 instance.save()
+            try:
+                track_event(event_type='resume_builder_education_saved', user=request.user, metadata={'resume_id': resume.id, 'rows': len(formset.forms)})
+            except Exception:
+                pass
             return redirect('resumes:resume_experience_step')
 
     return render(request, 'resumes/steps/education_step.html', {'formset': formset})
@@ -309,6 +330,10 @@ def experience_step(request):
                 instance = form.save(commit=False)
                 instance.resume = resume
                 instance.save()
+            try:
+                track_event(event_type='resume_builder_experience_saved', user=request.user, metadata={'resume_id': resume.id, 'rows': len(formset.forms)})
+            except Exception:
+                pass
             return redirect('resumes:resume_skills_step')
 
     return render(request, 'resumes/steps/experience_step.html', {'formset': formset})
@@ -347,6 +372,10 @@ def skills_step(request):
             pass
 
         # Continue to your preview/created page
+        try:
+            track_event(event_type='resume_builder_skills_saved', user=request.user, metadata={'resume_id': resume.id, 'skills_count': len(names)})
+        except Exception:
+            pass
         return redirect('resumes:created_resume_view', resume_id=resume.id)
 
     # For initial hydration, show what the resume already has
