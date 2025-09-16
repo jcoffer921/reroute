@@ -188,10 +188,34 @@ def pricing_checkout(request):
     plan = (request.GET.get('plan') or '').lower()
     PLAN_META = {
         'basic': {
-            'name': 'Basic', 'price': '$50 / month', 'per_hire': '+ $1,000 per hire'
+            'name': 'Basic',
+            'price': '$50 / month',
+            'per_hire': '+ $1,000 per hire',
+            'features': [
+                'For small employers testing ReRoute or hiring occasionally.',
+                'Up to 5 job postings / month',
+                'Limited candidate database access (basic profiles, no direct contact until candidate applies)',
+                'Standard analytics (views & applicants per job)',
+                'Standard listings (no company logo / no featured placement)',
+                'Email support only',
+                '❌ No interview scheduling',
+                '❌ No integrations',
+            ],
         },
         'pro': {
-            'name': 'Pro', 'price': '$99 / month', 'per_hire': '+ $500 per hire'
+            'name': 'Pro',
+            'price': '$99 / month',
+            'per_hire': '+ $500 per hire',
+            'features': [
+                'For active employers who want to hire faster.',
+                'Unlimited job postings',
+                'Full candidate database access (advanced search + contact details)',
+                'Advanced analytics (conversion tracking, hire reports, trends)',
+                'Company logo + featured listings',
+                'Priority support (faster response times)',
+                '✅ Interview scheduling built-in',
+                '✅ Basic integrations (CSV export / ATS import)',
+            ],
         },
     }
 
@@ -216,6 +240,7 @@ def pricing_checkout(request):
         'plan_name': meta['name'],
         'plan_price': meta['price'],
         'plan_per_hire': meta['per_hire'],
+        'plan_features': meta.get('features', []),
     })
 
 

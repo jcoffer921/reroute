@@ -13,6 +13,9 @@
 <section class="dash-hero">
   <div class="dash-hero-content">
     <h1>Welcome, {{ request.user.first_name|default:request.user.username }}!</h1>
+    <p style="margin-top:6px; font-size:.9rem;">
+      <a href="{% url 'contact' %}" class="link">Give Feedback</a>
+    </p>
   </div>
 </section>
 

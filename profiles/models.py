@@ -151,6 +151,11 @@ class EmployerProfile(models.Model):
     # Company logo (employer profile picture). Note: update upload_to path per request.
     logo = models.ImageField(upload_to='employers/logos/', blank=True, null=True)
 
+    # Manual verification to prevent spam/fake listings
+    verified = models.BooleanField(default=False, help_text="Manually verified by ReRoute staff")
+    verified_at = models.DateTimeField(blank=True, null=True)
+    verification_notes = models.TextField(blank=True, help_text="Internal notes for verification decisions")
+
     def __str__(self):
         return self.company_name
 

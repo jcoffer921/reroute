@@ -10,6 +10,9 @@
 <section class="auth-card auth-card--wide">
   <h1 class="auth-title">Create your employer account</h1>
   <p class="subtitle">Post jobs, review applicants, and manage your company profile.</p>
+  <p class="micro-hint" style="margin-top:6px">
+    Not sure? <a href="{% url 'pricing' %}?tab=employer" class="link">Check our plans first →</a>
+  </p>
 
   <form method="post" action="{% url 'employer_signup' %}" novalidate>
     {% csrf_token %}

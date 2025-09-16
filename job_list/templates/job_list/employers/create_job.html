@@ -7,6 +7,11 @@
 <link rel="stylesheet" href="{% static 'employers/css/create_job.css' %}">
 
 <div class="job-post">
+  {% if employer_verified is not defined or not employer_verified %}
+  <div class="alert warning" role="status" style="margin:12px 0;">
+    <strong>Pending verification:</strong> Your employer account must be verified by ReRoute before you can post jobs. Please complete your company profile; we’ll notify you when approved.
+  </div>
+  {% endif %}
   <!-- Header: icon + title -->
   <div class="jp-header">
     <div class="jp-icon" aria-hidden="true">🧾</div>
@@ -17,7 +22,7 @@
   </div>
 
   <!-- Form -->
-  <form method="post" class="jp-form" novalidate>
+  <form method="post" class="jp-form" novalidate {% if not employer_verified %}aria-disabled="true" onsubmit="return false;"{% endif %}>
     {% csrf_token %}
 
     <div class="jp-grid">

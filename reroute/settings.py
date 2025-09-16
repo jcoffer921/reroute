@@ -74,15 +74,16 @@ def _csv_env(name, default):
     raw = os.getenv(name, default)
     return [h.strip() for h in raw.split(",") if h.strip()]
 
-ALLOWED_HOSTS = ['reroute-backend.onrender.com', 'reroutejobs.com', "www.reroutejobs.com", 'localhost', '127.0.0.1', '10.220.68.190', '10.220.71.47']
+ALLOWED_HOSTS = _csv_env(
+    "ALLOWED_HOSTS",
+    "reroute-backend.onrender.com, reroutejobs.com, www.reroutejobs.com, localhost, 127.0.0.1"
+)
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://reroute-backend.onrender.com",
-    "https://reroutejobs.com",
-    "https://www.reroutejobs.com",
-    "http://localhost",
-    "http://127.0.0.1",
-]
+# CSRF trusted origins must include scheme. Use CSV env or sensible defaults.
+CSRF_TRUSTED_ORIGINS = _csv_env(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://reroute-backend.onrender.com, https://reroutejobs.com, https://www.reroutejobs.com, http://localhost, http://127.0.0.1"
+)
 # Behind Render’s proxy:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
@@ -209,34 +210,36 @@ EMAIL_HOST_PASSWORD = 'rfwkrwlvqomsmcry'  # Use App Password (never your real on
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CONTACT_RECEIVER_EMAIL = 'support@reroutejobs.com' 
 
-# ---------- SECURITY (production) ----------
-# These are enabled only when DEBUG is False (i.e., on Render)
+"""
+Security hardening
+- Secure cookies in production
+- HSTS in production
+- Referrer policy
+- SSL redirect behind proxy
+Values can be overridden via environment variables.
+"""
+
+# Defaults appropriate for development; tighten automatically in production.
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "strict-origin-when-cross-origin")
+
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
+    # HSTS (1 year) with preload once confident on apex + subdomains
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    # Additional hardening headers
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-if not DEBUG:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
-
-if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000      # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True          # allows you to submit to hstspreload.org later
+ 
 
 LANGUAGE_CODE = 'en-us'
 

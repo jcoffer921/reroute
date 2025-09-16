@@ -17,6 +17,11 @@
 
 {% block content %}
 <div class="employer-profile-page">
+  {% if not employer_profile.verified %}
+  <div class="alert warning" role="status" style="margin-bottom: 12px;">
+    <strong>Pending verification:</strong> We’ll review your company shortly. You’ll receive an email once verified.
+  </div>
+  {% endif %}
   <!--
     Main profile card: clean surface with a header using flexbox to
     separate the company name (left) and verification badge (right).

@@ -5,6 +5,8 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/settings.css' %}"> {# reuse card styles #}
+<link rel="stylesheet" href="{% static 'css/pricing.css' %}"> {# reuse plan list styles #}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}"> {# minor checkout polish #}
 
 <section class="settings-hero">
   <div class="settings-hero-content">
@@ -19,6 +21,16 @@
       <div class="settings-card__head">
         <h3 id="heading-checkout" class="settings-card__title">{{ plan_name }} Plan</h3>
       </div>
+
+      {% if plan_features %}
+      <hr class="plan-divider">
+      <h4 class="checkout-subtitle">What’s included</h4>
+      <ul class="plan-features">
+        {% for item in plan_features %}
+          <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
 
       <div class="kv">
         <div class="kv__row">
@@ -45,4 +57,3 @@
   </div>
 </div>
 {% endblock %}
-

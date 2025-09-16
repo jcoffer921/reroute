@@ -4,11 +4,11 @@ function toggleFilters() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Auto-submit when checkboxes change
-  document.querySelectorAll('#jobFilterForm input[type="checkbox"]').forEach(box => {
-    box.addEventListener('change', () => {
-      document.getElementById('jobFilterForm').submit();
-    });
+  // Auto-submit when filters change (checkboxes, radios, selects)
+  const form = document.getElementById('jobFilterForm');
+  const inputs = form ? form.querySelectorAll('input[type="checkbox"], input[type="radio"], select') : [];
+  inputs.forEach(el => {
+    el.addEventListener('change', () => form.submit());
   });
 });
 

@@ -43,21 +43,24 @@ def opportunities_view(request):
 
     # --- Job type filter (use the job_type field, not tags regex) ---
     job_types = request.GET.getlist('type')
+    # Track normalized types for template checked-state
+    normalized_types = []
     if job_types:
         # Normalize display labels like "Full-Time" → internal values "full_time"
-        normalized = []
         for t in job_types:
             t = (t or "").strip()
             # Accept both internal values and labels
             tv = t.lower().replace('-', '_').replace(' ', '_')
             # Map common label forms to internal constants
             if tv in {"full_time", "part_time", "contract", "internship", "temporary"}:
-                normalized.append(tv)
-        if normalized:
-            jobs_qs = jobs_qs.filter(job_type__in=normalized)
+                normalized_types.append(tv)
+        if normalized_types:
+            jobs_qs = jobs_qs.filter(job_type__in=normalized_types)
 
     # --- Optional radius filter by ZIP ---
-    user_zip = (request.GET.get('zip') or "").strip()
+    # Support preset radios without conflicting with the free-text ZIP input
+    preset_zip = (request.GET.get('preset_zip') or "").strip()
+    user_zip = preset_zip or (request.GET.get('zip') or "").strip()
     radius = request.GET.get('radius')
     try:
         radius = int(radius) if radius not in (None, "") else 25
@@ -84,7 +87,12 @@ def opportunities_view(request):
     return render(request, 'job_list/user/opportunities.html', {
         'jobs': jobs,
         'saved_job_ids': saved_job_ids,
-        'request': request,
+        # expose current filters for template state
+        'q': q,
+        'user_zip': user_zip,
+        'radius': radius,
+        'selected_job_types': normalized_types,
+        'selected_preset_zip': preset_zip,
     })
 
 @require_POST

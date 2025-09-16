@@ -13,19 +13,31 @@
   <div class="employer-hero-content">
     <h1>Dashboard</h1>
     <p>Take the leap of faith</p>
+    <p style="margin-top:6px; font-size:.9rem;"><a href="{% url 'contact' %}" class="link">Give Feedback</a></p>
   </div>
 </section>
 
 <div class="employer-dashboard container">
+  {% if not employer_verified %}
+  <div class="alert warning" role="status" style="margin:12px 0;">
+    <strong>Pending verification:</strong> Your employer account must be verified by ReRoute before you can post jobs. Complete your profile and we’ll review shortly.
+  </div>
+  {% endif %}
 
   <!-- 📋 Job Listings -->
   <section class="job-listings">
     <div class="section-header">
       <h2>Job Listings</h2>
       <div class="sort-control">
-        <a href="{% url 'create_job' %}" class="btn btn-secondary">
-          <i class="fas fa-plus"></i> Create Job
-        </a>
+        {% if employer_verified %}
+          <a href="{% url 'create_job' %}" class="btn btn-secondary">
+            <i class="fas fa-plus"></i> Create Job
+          </a>
+        {% else %}
+          <a class="btn btn-secondary" aria-disabled="true" title="Pending verification">
+            <i class="fas fa-plus"></i> Create Job
+          </a>
+        {% endif %}
         <a href="{{ PROFILE_URL }}" class="btn btn-secondary" title="Edit Employer Profile">
           <i class="fas fa-building"></i> Profile
         </a>

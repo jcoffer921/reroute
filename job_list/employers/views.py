@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from job_list.models import Job
 from core.models import Skill
+from profiles.models import EmployerProfile
 
 # Show jobs posted by this employer
 @login_required
@@ -23,7 +24,15 @@ def dashboard_view(request):
         return redirect('dashboard:my_dashboard')
 
     jobs = Job.objects.filter(employer=request.user)
-    return render(request, 'dashboard/employer_dashboard.html', {'jobs': jobs})
+    # Verification flag for gating UI affordances
+    try:
+        employer_verified = bool(getattr(request.user.employerprofile, 'verified', False))
+    except Exception:
+        employer_verified = False
+    return render(request, 'dashboard/employer_dashboard.html', {
+        'jobs': jobs,
+        'employer_verified': employer_verified,
+    })
 
 
 @login_required
@@ -34,6 +43,20 @@ def create_job(request):
       - Validates pay ranges
       - Supports skills chips via skills[]=...
     """
+    # Require verified employer profile before allowing job creation
+    try:
+        employer_profile = request.user.employerprofile
+        employer_verified = bool(getattr(employer_profile, 'verified', False))
+    except Exception:
+        employer_profile = None
+        employer_verified = False
+
+    if not employer_profile or not employer_verified:
+        messages.error(request, "Your employer account is pending verification. Please complete your profile and wait for approval before posting jobs.")
+        return render(request, 'job_list/employers/create_job.html', {
+            'employer_verified': employer_verified,
+        })
+
     if request.method == 'POST':
         # Required
         title = (request.POST.get('title') or '').strip()
@@ -105,4 +128,6 @@ def create_job(request):
         messages.success(request, "Job posted successfully.")
         return redirect('employer_dashboard')
 
-    return render(request, 'job_list/employers/create_job.html')
+    return render(request, 'job_list/employers/create_job.html', {
+        'employer_verified': employer_verified,
+    })
