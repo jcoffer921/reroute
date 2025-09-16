@@ -78,6 +78,14 @@
   box-shadow: inset 0 0 0 2px #22c1dc;
 }
 
+/* When using explicit SVG icons, hide the default bullet */
+.plan-features li.with-icon { padding-left: 0; display: flex; align-items: flex-start; gap: 10px; }
+.plan-features li.with-icon::before { display: none; }
+.feat-icon { display: inline-flex; width: 18px; height: 18px; margin-top: 2px; }
+.feat-icon.ok svg { stroke: #16a34a; fill: none; stroke-width: 2; }
+.feat-icon.no svg { stroke: #dc2626; fill: none; stroke-width: 2; }
+.feat-text { display: inline-block; }
+
 /* Pill buttons */
 .btn-pill { border-radius: 999px !important; padding-left: 18px; padding-right: 18px; }
 .pricing-grid .btn-primary { background: #22c1dc; }

@@ -27,7 +27,31 @@
       <h4 class="checkout-subtitle">What’s included</h4>
       <ul class="plan-features">
         {% for item in plan_features %}
-          <li>{{ item }}</li>
+          {% if item|slice":1" == "✅" %}
+            {% with text=item|slice:"2:" %}
+            <li class="with-icon">
+              <span class="feat-icon ok" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </span>
+              <span class="feat-text">{{ text }}</span>
+            </li>
+            {% endwith %}
+          {% elif item|slice":1" == "❌" %}
+            {% with text=item|slice:"2:" %}
+            <li class="with-icon">
+              <span class="feat-icon no" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6l-12 12" />
+                </svg>
+              </span>
+              <span class="feat-text">{{ text }}</span>
+            </li>
+            {% endwith %}
+          {% else %}
+            <li>{{ item }}</li>
+          {% endif %}
         {% endfor %}
       </ul>
       {% endif %}
