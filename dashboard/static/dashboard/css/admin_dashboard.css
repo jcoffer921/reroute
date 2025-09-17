@@ -239,22 +239,34 @@ a:hover {
 /* Charts Grid */
 .charts-grid {
   display: grid;
-  grid-template-columns: 1fr; /* stack by default */
-  gap: 16px;
+  grid-template-columns: 1fr; /* mobile/tablet: stack */
+  gap: 18px;
   margin-bottom: 32px;
+}
+
+.charts-grid section {
+  min-width: 360px; /* allow smaller on narrow screens */
+}
+
+@media (min-width: 980px) {
+  .charts-grid {
+    grid-template-columns: repeat(2, minmax(420px, 1fr)); /* desktop: 2-up with min width */
+    align-items: stretch;
+  }
+  .charts-grid .grid-span-2 { grid-column: 1 / -1; }
 }
 
 .charts-grid canvas {
   background: #fff;
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px; /* consistent inner padding so charts breathe */
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   width: 100%;
-  height: 200px; /* more compact height for grid charts */
+  height: 280px; /* clearer readability (250–300px target) */
 }
 
 /* Smaller chart helper */
-.chart-sm { height: 200px !important; max-width: 720px; }
+.chart-sm { height: 280px !important; max-width: 100%; }
 
 /* Carousel charts sizing */
 .charts-carousel__slide canvas { height: 220px !important; }
