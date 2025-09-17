@@ -35,6 +35,7 @@ from .utils.resume_parser import (
     read_upload_file, extract_resume_information, validate_file_extension,
     validate_file_size
 )
+from .utils.summaries import random_generic_summary
 
 # ------------------ Helpers ------------------
 
@@ -212,7 +213,8 @@ def parse_resume_upload(request):
                 file=file,
                 raw_text=content,
                 ai_summary=json.dumps(extracted),
-                is_imported=True
+                is_imported=True,
+                summary=random_generic_summary(),  # seed with a professional generic summary
             )
 
             # --- Contact Info ---
@@ -297,6 +299,7 @@ def upload_resume_only(request):
             user=request.user,
             file=file,
             is_imported=True,
+            summary=random_generic_summary(),
         )
         # Analytics: resume uploaded (file-only)
         try:

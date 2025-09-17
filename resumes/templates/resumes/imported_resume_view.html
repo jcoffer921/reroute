@@ -10,9 +10,13 @@
 
   <!-- AI Summary Section -->
   <div class="ai-summary-card">
-    <h3>AI-Powered Summary</h3>
+    <h3>Professional Summary</h3>
     <div class="ai-summary-content">
-      {{ ai_summary_snippet }}
+      {% if resume.summary %}
+        {{ resume.summary }}
+      {% else %}
+        {{ ai_summary_snippet }}
+      {% endif %}
     </div>
   </div>
 
