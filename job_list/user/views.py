@@ -3,7 +3,7 @@
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -129,9 +129,13 @@ def job_detail_view(request, job_id):
 @login_required
 def apply_to_job(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
-    profile_url = request.build_absolute_uri(
-        reverse('public_profile', kwargs={'username': request.user.username})
-    )
+    # Build a link to the applicant's public profile for the employer email/notifications.
+    # Prefer namespaced route; fall back to global alias if project URLconf isn't namespaced.
+    try:
+        public_profile_path = reverse('profiles:public_profile', kwargs={'username': request.user.username})
+    except NoReverseMatch:
+        public_profile_path = reverse('public_profile', kwargs={'username': request.user.username})
+    profile_url = request.build_absolute_uri(public_profile_path)
 
     # 🔒 Resume required
     resume = Resume.objects.filter(user=request.user).first()

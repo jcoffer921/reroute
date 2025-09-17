@@ -171,6 +171,8 @@ def user_profile_view(request):
 # ----------------------------- Updates: Personal ------------------------
 @require_POST
 @login_required
+@require_POST
+@login_required
 def update_personal_info(request):
     profile = get_object_or_404(UserProfile, user=request.user)
 
@@ -180,6 +182,8 @@ def update_personal_info(request):
     email = (request.POST.get("personal_email") or "").strip()
     state = (request.POST.get("state") or "").strip()
     city  = (request.POST.get("city") or "").strip()
+    street = (request.POST.get("street_address") or "").strip()
+    zip_code = (request.POST.get("zip_code") or "").strip()
 
     errors = {}
     if not first: errors["firstname"] = "First name is required."
@@ -200,14 +204,29 @@ def update_personal_info(request):
     profile.personal_email = email
     profile.state = state
     profile.city = city
+    if hasattr(profile, "street_address"):
+        profile.street_address = street
+    if hasattr(profile, "zip_code"):
+        profile.zip_code = zip_code
     profile.save()
 
     updated = {
         "full_name": f"{first} {last}",
         "initials": (first[:1] + last[:1]).upper(),
-        "phone_number": phone, "personal_email": email, "state": state, "city": city,
+        "phone_number": phone,
+        "personal_email": email,
+        "state": state,
+        "city": city,
+        "street_address": street,
+        "zip_code": zip_code,
     }
-    return json_ok(updated) if is_ajax(request) else redirect("my_profile")
+    if is_ajax(request):
+        return json_ok(updated)
+    # Non-AJAX: allow caller to specify a return URL
+    next_url = (request.POST.get("next") or "").strip()
+    if next_url:
+        return redirect(next_url)
+    return redirect("my_profile")
 
 
 # ----------------------------- Updates: Emergency -----------------------

@@ -176,6 +176,8 @@ def user_dashboard(request):
     except Exception:
         upcoming_interviews = []
 
+    # Charts for seeker dashboard were removed per request.
+
     return render(request, 'dashboard/user_dashboard.html', {
         'profile': user_profile,
         'resume': resume,
