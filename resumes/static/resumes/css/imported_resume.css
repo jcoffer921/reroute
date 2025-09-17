@@ -195,3 +195,43 @@
   justify-content: flex-end;
   align-items: center;
 }
+
+/* ReRoute pill buttons */
+.rr-btn {
+  --btn-bg: var(--primary-blue, #006da0);
+  --btn-fg: #fff;
+  --btn-bg-hover: #005a83;
+  --btn-ring: rgba(0, 109, 160, 0.3);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  min-width: 220px;
+  transition: background .2s ease, transform .04s ease;
+}
+.rr-btn:hover { background: var(--btn-bg-hover); text-decoration: none; }
+.rr-btn:active { transform: translateY(1px); }
+.rr-btn:focus-visible { outline: 3px solid var(--btn-ring); outline-offset: 2px; }
+
+.rr-btn__icon { width: 18px; height: 18px; display: inline-block; }
+
+.rr-btn-primary { --btn-bg: var(--primary-blue, #006da0); --btn-bg-hover: #005a83; }
+.rr-btn-secondary {
+  --btn-bg: #eef2ff;
+  --btn-fg: #1e3a8a;
+  --btn-bg-hover: #e0e7ff;
+  border-color: #c7d2fe;
+}
+
+@media (max-width: 640px) {
+  .actions-row { flex-wrap: wrap; justify-content: center; }
+  .rr-btn { width: 100%; min-width: unset; }
+}
