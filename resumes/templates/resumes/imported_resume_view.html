@@ -9,93 +9,123 @@
   <h2>📄 Imported Resume Overview</h2>
 
   <!-- AI Summary Section -->
-  {% if resume.ai_summary %}
-    <div class="ai-summary-card">
-      <h3>AI-Powered Summary</h3>
-      <div class="ai-summary-content">
-        {{ resume.ai_summary|linebreaks }}
-      </div>
+  <div class="ai-summary-card">
+    <h3>AI-Powered Summary</h3>
+    <div class="ai-summary-content">
+      {{ ai_summary_snippet }}
     </div>
-  {% endif %}
+  </div>
 
-  <!-- Detected structured fields -->
-  <div class="detected-sections">
-    {% if resume.contact_info %}
-      <h3>Contact Info</h3>
-      <ul>
-        {% if resume.contact_info.full_name %}<li>Name: {{ resume.contact_info.full_name }}</li>{% endif %}
-        {% if resume.contact_info.email %}<li>Email: {{ resume.contact_info.email }}</li>{% endif %}
-        {% if resume.contact_info.phone %}<li>Phone: {{ resume.contact_info.phone }}</li>{% endif %}
-        {% if resume.contact_info.city or resume.contact_info.state %}
-          <li>Location: {{ resume.contact_info.city }}{% if resume.contact_info.state %}, {{ resume.contact_info.state }}{% endif %}</li>
+  <!-- Structured sections -->
+  <div class="resume-grid">
+    <div class="col-left">
+      {% if resume.contact_info %}
+        <section class="resume-section">
+          <h3>Contact Info</h3>
+          <ul class="clean-list">
+            {% if resume.contact_info.full_name %}<li><strong>Name:</strong> {{ resume.contact_info.full_name }}</li>{% endif %}
+            {% if resume.contact_info.email %}<li><strong>Email:</strong> {{ resume.contact_info.email }}</li>{% endif %}
+            {% if resume.contact_info.phone %}<li><strong>Phone:</strong> {{ resume.contact_info.phone }}</li>{% endif %}
+            {% if resume.contact_info.city or resume.contact_info.state %}
+              <li><strong>Location:</strong> {{ resume.contact_info.city }}{% if resume.contact_info.state %}, {{ resume.contact_info.state }}{% endif %}</li>
+            {% endif %}
+          </ul>
+        </section>
+      {% endif %}
+
+      {% with skills=resume.skills.all %}
+        {% if skills %}
+          <section class="resume-section">
+            <h3>Skills</h3>
+            <ul class="skills-list">
+              {% for s in skills %}
+                <li class="skill-pill">{{ s.name|title }}</li>
+              {% endfor %}
+            </ul>
+          </section>
         {% endif %}
-      </ul>
-    {% endif %}
+      {% endwith %}
 
-    {% with skills=resume.skills.all %}
-      {% if skills %}
-        <h3>Skills</h3>
-        <p>
-          {% for s in skills %}
-            <span class="skill-pill">{{ s.name }}</span>
-          {% endfor %}
-        </p>
+      {% if resume.certifications %}
+        <section class="resume-section">
+          <h3>Certifications</h3>
+          <ul class="clean-list">
+            {% for line in resume.certifications.splitlines %}
+              {% if line.strip %}<li>{{ line }}</li>{% endif %}
+            {% endfor %}
+          </ul>
+        </section>
       {% endif %}
-    {% endwith %}
+    </div>
 
-    {% with exps=resume.experience_entries.all %}
-      {% if exps %}
-        <h3>Experience</h3>
-        <ul>
-          {% for e in exps %}
-            <li>
-              <strong>{{ e.job_title }}</strong>{% if e.company %} at {{ e.company }}{% endif %}
-              {% if e.dates %}<br><small>{{ e.dates }}</small>{% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <div class="col-right">
+      {% with edus=resume.education_entries.all %}
+        {% if edus %}
+          <section class="resume-section">
+            <h3>Education</h3>
+            <ul class="clean-list">
+              {% for ed in edus %}
+                <li>
+                  <strong>{{ ed.school_name }}</strong>
+                  {% if ed.degree %} — {{ ed.degree }}{% endif %}
+                  {% if ed.graduation_year %} ({{ ed.graduation_year }}){% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+      {% endwith %}
 
-    {% with edus=resume.education_entries.all %}
-      {% if edus %}
-        <h3>Education</h3>
-        <ul>
-          {% for ed in edus %}
-            <li>
-              <strong>{{ ed.school_name }}</strong>
-              {% if ed.degree %} — {{ ed.degree }}{% endif %}
-              {% if ed.graduation_year %} ({{ ed.graduation_year }}){% endif %}
-            </li>
-          {% endfor %}
-        </ul>
+      {% with exps=resume.experience_entries.all %}
+        {% if exps %}
+          <section class="resume-section">
+            <h3>Experience</h3>
+            <ul class="clean-list">
+              {% for e in exps %}
+                <li>
+                  <strong>{{ e.job_title }}</strong>{% if e.company %} at {{ e.company }}{% endif %}
+                  {% if e.dates %}<div class="muted">{{ e.dates }}</div>{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      {% if resume.file %}
+        <section class="resume-section file-preview">
+          <h3>Original File</h3>
+          <object data="{{ resume.file.url }}" type="application/pdf" width="100%" height="420">
+            <p>PDF preview unavailable. Use the download button below.</p>
+          </object>
+        </section>
       {% endif %}
-    {% endwith %}
+    </div>
   </div>
 
   <!-- Raw Resume Text -->
-  {% if resume.raw_text %}
-    <details class="raw-section">
-      <summary><strong> Raw Extracted Resume Text</strong> (click to expand)</summary>
+  <details class="raw-section">
+    <summary>View Raw Data (Developers Only)</summary>
+    {% if extracted_json_pretty %}
+      <h4>Extracted JSON</h4>
+      <pre class="raw-text-block">{{ extracted_json_pretty }}</pre>
+    {% endif %}
+    {% if resume.raw_text %}
+      <h4>Raw Extracted Resume Text</h4>
       <pre class="raw-text-block">{{ resume.raw_text }}</pre>
-    </details>
-  {% endif %}
+    {% endif %}
+  </details>
 
-  <!-- Original file preview/download -->
-  {% if resume.file %}
-    <div class="file-preview">
-      <h3>Original File</h3>
-      <p><a href="{{ resume.file.url }}" target="_blank" rel="noopener">Download uploaded file</a></p>
-      <object data="{{ resume.file.url }}" type="application/pdf" width="100%" height="600">
-        <p>PDF preview unavailable. Use the download link above.</p>
-      </object>
-    </div>
-  {% endif %}
-
-  <!-- Save Button -->
-  <form method="post" action="{% url 'resumes:imported_resume' resume.id %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary mt-4">💾 Save Resume to Profile</button>
-  </form>
+  <!-- Actions -->
+  <div class="actions-row">
+    <form method="post" action="{% url 'resumes:imported_resume' resume.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">💾 Save Resume to Profile</button>
+    </form>
+    <a class="btn btn-secondary" href="{% url 'resumes:download_resume' resume.id %}">🧾 Download as PDF</a>
+    {% if resume.file %}
+      <a class="btn btn-secondary" href="{{ resume.file.url }}" target="_blank" rel="noopener">⬇️ Download File</a>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

@@ -90,8 +90,69 @@ def resume_import(request, resume_id):
         # Send users back to the dashboard's user view
         return redirect("dashboard:user")
 
+    # Prepare developer-friendly extracted JSON (ai_summary currently stores JSON)
+    extracted = {}
+    try:
+        if resume.ai_summary:
+            extracted = json.loads(resume.ai_summary)
+    except Exception:
+        extracted = {}
+
+    # Build a concise 2–3 sentence summary for display
+    def build_summary_snippet() -> str:
+        parts = []
+        # Name
+        try:
+            name = getattr(getattr(resume, 'contact_info', None), 'full_name', '') or (resume.full_name or '')
+        except Exception:
+            name = ''
+        # Role and companies from imported experience
+        exp = list(resume.experience_entries.all()[:3])
+        role = (exp[0].job_title if exp and getattr(exp[0], 'job_title', '') else '')
+        companies = [e.company for e in exp if getattr(e, 'company', '')]
+        companies = [c for c in companies if c]
+        companies = list(dict.fromkeys(companies))  # dedupe, preserve order
+        if name and role and companies:
+            parts.append(f"{name} is a {role.lower()} with experience at {', '.join(companies[:2])}.")
+        elif name and (role or companies):
+            tail = role.lower() if role else f"professional with experience at {', '.join(companies[:2])}"
+            parts.append(f"{name} is an {tail}.")
+        elif role or companies:
+            tail = role.lower() if role else f"professional with experience at {', '.join(companies[:2])}"
+            parts.append(f"Experienced {tail}.")
+        else:
+            parts.append("Experienced candidate with relevant work history.")
+
+        # Skills sentence from normalized Skill M2M
+        try:
+            skill_names = [s.name for s in resume.skills.all()[:8]]
+        except Exception:
+            skill_names = []
+        if skill_names:
+            # Title-case lightly for presentation
+            show = [s.title() for s in skill_names[:5]]
+            parts.append(f"Skilled in {', '.join(show)}.")
+
+        # Education snippet
+        edu = list(resume.education_entries.all()[:1])
+        if edu:
+            deg = (edu[0].degree or '').strip()
+            school = (edu[0].school_name or '').strip()
+            year = (edu[0].graduation_year or '').strip()
+            if deg and school:
+                if year:
+                    parts.append(f"Education includes {deg} from {school} ({year}).")
+                else:
+                    parts.append(f"Education includes {deg} from {school}.")
+
+        return " " .join(parts[:3])
+
+    ai_summary_snippet = build_summary_snippet()
+
     return render(request, "resumes/imported_resume_view.html", {
         "resume": resume,
+        "extracted_json_pretty": json.dumps(extracted, indent=2, ensure_ascii=False),
+        "ai_summary_snippet": ai_summary_snippet,
     })
 
 
