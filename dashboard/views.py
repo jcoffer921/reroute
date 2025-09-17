@@ -340,21 +340,37 @@ def employer_job_matches(request, job_id: int):
 def employer_matcher(request):
     """Overall matcher view: grouped matches for all of this employer's jobs."""
     from job_list.matching import match_seekers_for_employer
-    items = match_seekers_for_employer(request.user, limit_per_job=200)
-    # Group by job
-    grouped: dict[int, list] = {}
-    order: list = []
+    # We only need previews here, so fetch top 3 per job for efficiency
+    items = match_seekers_for_employer(request.user, limit_per_job=3)
+
+    # Build simple blocks the template can iterate without dict lookups
+    job_blocks = []
+    seen_job_ids = set()
     for it in items:
         job = it.get('job')
-        if not job:
+        if not job or job.id in seen_job_ids:
             continue
-        if job.id not in grouped:
-            grouped[job.id] = []
-            order.append(job)
-        grouped[job.id].append(it)
+        # Collect candidates for this job from the "items" list (already limited per job)
+        candidates = [x for x in items if x.get('job') and x['job'].id == job.id]
+        job_blocks.append({
+            'job': job,
+            'candidates': candidates,
+        })
+        seen_job_ids.add(job.id)
+
+    # Ensure we show jobs with no matches as well
+    from job_list.models import Job as _Job
+    employer_jobs = list(_Job.objects.filter(employer=request.user).order_by('-created_at'))
+    matched_job_ids = {b['job'].id for b in job_blocks}
+    for j in employer_jobs:
+        if j.id not in matched_job_ids:
+            job_blocks.append({'job': j, 'candidates': []})
+
+    # Preserve a sensible order: newest jobs first
+    job_blocks.sort(key=lambda b: getattr(b['job'], 'created_at', None) or 0, reverse=True)
+
     return render(request, 'dashboard/employer_matcher.html', {
-        'grouped': grouped,
-        'jobs': order,
+        'job_blocks': job_blocks,
     })
 
 

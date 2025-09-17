@@ -37,6 +37,16 @@ from .utils.resume_parser import (
 )
 from .utils.summaries import random_generic_summary
 
+# Lightweight employer check to avoid importing view helpers across apps
+def _is_employer_user(user) -> bool:
+    try:
+        if not getattr(user, 'is_authenticated', False):
+            return False
+        # Prefer group check; mirror logic used elsewhere (Employer/Employers)
+        return user.groups.filter(name__in=["Employer", "Employers"]).exists()
+    except Exception:
+        return False
+
 # ------------------ Helpers ------------------
 
 def _normalize_skill_name(name: str) -> str:
@@ -627,6 +637,73 @@ def download_resume(request, resume_id):
 
     response = HttpResponse(pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{resume.user.username}_resume.pdf"'
+    return response
+
+
+# ------------------ Employer Read-only Resume Access ------------------
+@login_required
+def employer_preview_resume(request, username: str):
+    """
+    Allow verified employers to preview a candidate's latest resume by username.
+    Renders the selected resume style as a standalone page (read-only).
+    """
+    if not _is_employer_user(request.user):
+        messages.error(request, "Only employers can view candidate resumes.")
+        return redirect('dashboard:my_dashboard')
+
+    target_user = get_object_or_404(User, username=username)
+    resume = Resume.objects.filter(user=target_user).order_by('-created_at').first()
+    if not resume:
+        messages.info(request, "This candidate has not uploaded a resume yet.")
+        return redirect('profiles:public_profile', username=target_user.username) if 'profiles' in request.resolver_match.namespaces else redirect('public_profile', username=target_user.username)
+
+    # Pick a style template and render read-only
+    style = resume.template if resume.template in ['simple', 'professional', 'modern', 'reroute'] else 'simple'
+    template_name = f"resumes/{style}.html"
+    try:
+        template = get_template(template_name)
+    except Exception:
+        template = get_template("resumes/simple.html")
+    html = template.render({'resume': resume})
+    return HttpResponse(html)
+
+
+@login_required
+def employer_download_resume(request, username: str):
+    """
+    Allow employers to download a candidate's resume as PDF.
+    Uses the candidate's selected style and does not allow edits.
+    """
+    if not _is_employer_user(request.user):
+        messages.error(request, "Only employers can download candidate resumes.")
+        return redirect('dashboard:my_dashboard')
+
+    # Lazy import; server may not have PDF libs in all environments
+    try:
+        from weasyprint import HTML  # type: ignore
+    except Exception:
+        return HttpResponse("PDF generation is not available on this server.", status=501)
+
+    target_user = get_object_or_404(User, username=username)
+    resume = Resume.objects.filter(user=target_user).order_by('-created_at').first()
+    if not resume:
+        messages.info(request, "This candidate has not uploaded a resume yet.")
+        return redirect('profiles:public_profile', username=target_user.username) if 'profiles' in request.resolver_match.namespaces else redirect('public_profile', username=target_user.username)
+
+    style = resume.template if resume.template in ['simple', 'professional', 'modern', 'reroute'] else 'simple'
+    template_name = f"resumes/{style}.html"
+    try:
+        template = get_template(template_name)
+    except Exception:
+        template = get_template("resumes/simple.html")
+    html_string = template.render({'resume': resume})
+
+    pdf_file = BytesIO()
+    HTML(string=html_string).write_pdf(target=pdf_file)
+    pdf_file.seek(0)
+
+    response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{username}_resume.pdf"'
     return response
 
 

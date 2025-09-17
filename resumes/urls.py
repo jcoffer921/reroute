@@ -32,6 +32,10 @@ urlpatterns = [
     path('<int:resume_id>/download/', views.download_resume, name='download_resume'),
     path('preview-style/<int:resume_id>/', views.preview_style, name='preview_style'),
 
+    # Employer-accessible read-only views by candidate username
+    path('employer/view/<str:username>/', views.employer_preview_resume, name='employer_view_resume'),
+    path('employer/download/<str:username>/', views.employer_download_resume, name='employer_download_resume'),
+
     # Misc
     path('upload-profile-picture/', views.upload_profile_picture, name='upload_profile_picture'),
 ]

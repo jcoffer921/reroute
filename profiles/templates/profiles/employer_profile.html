@@ -172,7 +172,7 @@
     <!-- Contact Details (from your personal profile) -->
     <h3>Contact Details</h3>
     <p class="muted">These fields update your account’s contact info used across ReRoute.</p>
-    <form method="post" action="{% url 'profiles:update_personal_info' %}" class="edit-form">
+    <form method="post" action="{% url 'update_personal_info' %}" class="edit-form">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.path }}">
       <p>
@@ -217,8 +217,18 @@
       const panel = document.getElementById('editPanel');
       const closeBtn = document.getElementById('closeEditPanel');
       const cancelInside = document.getElementById('cancelInside');
-      function open(){ if(panel){ panel.classList.remove('hidden'); panel.setAttribute('aria-hidden','false'); } }
-      function close(){ if(panel){ panel.classList.add('hidden'); panel.setAttribute('aria-hidden','true'); } }
+      function open(){
+        if(!panel) return;
+        panel.classList.remove('hidden');
+        panel.classList.add('active');
+        panel.setAttribute('aria-hidden','false');
+      }
+      function close(){
+        if(!panel) return;
+        panel.classList.remove('active');
+        panel.classList.add('hidden');
+        panel.setAttribute('aria-hidden','true');
+      }
       if (openBtn) openBtn.addEventListener('click', open);
       if (closeBtn) closeBtn.addEventListener('click', close);
       if (cancelInside) cancelInside.addEventListener('click', close);

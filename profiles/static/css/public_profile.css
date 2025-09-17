@@ -5,6 +5,68 @@
    - Duplicate rules removed; keyframes consolidated
    ========================================================================== */
 
+/* --- Public Profile Card (clean, modern) --- */
+.public-profile-card {
+  max-width: 880px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  padding: 1.5rem 1.5rem 1.25rem;
+}
+
+.public-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eaf2ff;
+  color: #2b6cb0;
+  font-weight: 700;
+}
+.avatar--sm { width: 96px; height: 96px; font-size: 28px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.avatar--initials { text-transform: uppercase; }
+
+.identity { display: flex; flex-direction: column; gap: .25rem; }
+.name-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.display-name { margin: 0; font-size: 1.5rem; color: #0f172a; font-weight: 700; }
+.meta-row { color: #6b7280; font-size: .95rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.meta-row .dot { color: #cbd5e1; }
+.handle { color: #64748b; }
+.location, .status { color: #334155; }
+
+.public-profile-body { padding: 1rem 0; }
+.section { margin-top: .5rem; }
+.section-title { margin: 0 0 .5rem 0; font-size: 1rem; font-weight: 700; color: #111827; }
+.bio { color: #374151; line-height: 1.6; }
+
+.tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tag { background: #eef2ff; color: #1e3a8a; padding: .35rem .7rem; border-radius: 9999px; font-size: .9rem; }
+
+.public-profile-actions {
+  display: flex; gap: .75rem; justify-content: flex-end; border-top: 1px solid #eef2f7; padding-top: 1rem; margin-top: .5rem;
+}
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: .6rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; }
+.btn-primary { background: #3b82f6; color: #fff; }
+.btn-primary:hover { background: #2563eb; }
+.btn-secondary { background: #eef2f7; color: #0f172a; }
+.btn-secondary:hover { background: #e2e8f0; }
+.hint { color: #64748b; font-size: .95rem; }
+
+@media (max-width: 640px) {
+  .public-profile-card { padding: 1rem; }
+  .avatar--sm { width: 72px; height: 72px; font-size: 22px; }
+}
+
 .profile-hero {
     background: linear-gradient(135deg, #0F172A, #628cee);
     /* background-color: #0F172A; /* rich navy blue */
