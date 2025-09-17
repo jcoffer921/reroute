@@ -270,12 +270,14 @@ a:hover {
 
 /* Carousel charts sizing */
 .charts-carousel__slide canvas { height: 220px !important; }
+.charts-carousel__slide .plotly-chart { height: 220px !important; }
 
 /* Responsive tweaks */
 @media (max-width: 600px) {
   .admin-dashboard { padding: 16px; }
   .charts-grid { gap: 12px; }
   .charts-grid canvas { height: 180px; padding: 12px; }
+  .charts-grid .plotly-chart { height: 180px; padding: 12px; }
 }
 
 @media (min-width: 700px) {
@@ -284,6 +286,7 @@ a:hover {
 
 @media (min-width: 1200px) {
   .charts-grid canvas { height: 260px; }
+  .charts-grid .plotly-chart { height: 260px; }
 }
 
 /* Table wrapper for mobile scroll */
@@ -309,7 +312,7 @@ a:hover {
 .charts-carousel__slide {
   flex: 0 0 100%;
 }
-.charts-carousel canvas {
+.charts-carousel canvas, .charts-carousel .plotly-chart {
   margin: 0; /* avoid extra height inside slides */
   width: 100%;
   height: 240px;
@@ -355,10 +358,10 @@ a:hover {
 }
 
 @media (max-width: 600px) {
-  .charts-carousel canvas { height: 200px; }
+  .charts-carousel canvas, .charts-carousel .plotly-chart { height: 200px; }
 }
 @media (min-width: 1200px) {
-  .charts-carousel canvas { height: 260px; }
+  .charts-carousel canvas, .charts-carousel .plotly-chart { height: 260px; }
 }
 
 /* Modal styles */

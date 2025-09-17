@@ -50,19 +50,19 @@
     <!-- Pie Chart: Page Views by Path -->
     <section>
       <h2>Page Views by Path (share)</h2>
-      <canvas id="pageViewsPie" class="chart-sm"></canvas>
+      <div id="pageViewsPie" class="chart-sm"></div>
     </section>
 
     <!-- Line Chart: Page Views by Day -->
     <section>
       <h2>Page Views by Day</h2>
-      <canvas id="pageViewsLine" class="chart-sm"></canvas>
+      <div id="pageViewsLine" class="chart-sm"></div>
     </section>
 
     <!-- Stacked Bar: Authenticated vs Anonymous by Day -->
     <section class="grid-span-2">
       <h2>Authenticated vs Anonymous Views</h2>
-      <canvas id="viewsStacked" class="chart-sm"></canvas>
+      <div id="viewsStacked" class="chart-sm"></div>
     </section>
   </div>
 
@@ -113,63 +113,32 @@
   </section>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <script>
   const pieLabels = {{ pie_labels|default:'[]'|safe }};
   const pieCounts = {{ pie_counts|default:'[]'|safe }};
-  const colors = [
-    '#2563eb','#22c1dc','#16a34a','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#94a3b8'
-  ];
-  const ctx = document.getElementById('pageViewsPie').getContext('2d');
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: pieLabels,
-      datasets: [{
-        data: pieCounts,
-        backgroundColor: colors,
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'right' },
-        tooltip: { callbacks: {
-          label: function(context) {
-            const total = pieCounts.reduce((a,b)=>a+b,0) || 1;
-            const val = context.parsed || 0;
-            const pct = Math.round((val/total)*100);
-            return `${context.label}: ${val} (${pct}%)`;
-          }
-        }}
-      }
-    }
-  });
+  const colors = ['#2563eb','#22c1dc','#16a34a','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#94a3b8'];
+  const baseLayout = { margin: { l: 30, r: 20, t: 20, b: 30 }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' };
+  const baseConfig = { displayModeBar: 'hover', responsive: true, scrollZoom: true };
 
-  // Line chart (views by day)
+  // Pie: page views by path
+  Plotly.newPlot('pageViewsPie', [{
+    type: 'pie', labels: pieLabels, values: pieCounts, textinfo: 'label+percent', hoverinfo: 'label+value+percent', marker: { colors: colors }
+  }], { ...baseLayout, showlegend: true, legend: { orientation: 'v', x: 1, y: 0.5 } }, baseConfig);
+
+  // Line: views by day
   const lineLabels = {{ views_by_day_labels|default:'[]'|safe }};
   const lineCounts = {{ views_by_day_counts|default:'[]'|safe }};
-  new Chart(document.getElementById('pageViewsLine').getContext('2d'), {
-    type: 'line',
-    data: { labels: lineLabels, datasets: [{ label: 'Page Views', data: lineCounts, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.2)', tension: 0.2, fill: true }] },
-    options: { scales: { y: { beginAtZero: true } } }
-  });
+  Plotly.newPlot('pageViewsLine', [{
+    type: 'scatter', mode: 'lines', name: 'Page Views', x: lineLabels, y: lineCounts, line: { color: '#2563eb' }, fill: 'tozeroy', fillcolor: 'rgba(37,99,235,0.2)'
+  }], { ...baseLayout, hovermode: 'x unified' }, baseConfig);
 
-  // Stacked bar (authed vs anon)
+  // Stacked: authed vs anon per day
   const authed = {{ views_by_day_authed|default:'[]'|safe }};
   const anon = {{ views_by_day_anon|default:'[]'|safe }};
-  new Chart(document.getElementById('viewsStacked').getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels: lineLabels,
-      datasets: [
-        { label: 'Authenticated', data: authed, backgroundColor: '#16a34a' },
-        { label: 'Anonymous', data: anon, backgroundColor: '#94a3b8' }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
-    }
-  });
+  Plotly.newPlot('viewsStacked', [
+    { type: 'bar', name: 'Authenticated', x: lineLabels, y: authed, marker: { color: '#16a34a' } },
+    { type: 'bar', name: 'Anonymous', x: lineLabels, y: anon, marker: { color: '#94a3b8' } }
+  ], { ...baseLayout, barmode: 'stack' }, baseConfig);
 </script>
 {% endblock %}

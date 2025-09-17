@@ -45,16 +45,16 @@
     <div class="charts-carousel__viewport">
       <div class="charts-carousel__track">
         <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Users chart">
-          <canvas id="usersChart"></canvas>
+          <div id="usersChart" class="plotly-chart"></div>
         </div>
         <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Jobs chart">
-          <canvas id="jobsChart"></canvas>
+          <div id="jobsChart" class="plotly-chart"></div>
         </div>
         <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Applications chart">
-          <canvas id="applicationsChart"></canvas>
+          <div id="applicationsChart" class="plotly-chart"></div>
         </div>
         <div class="charts-carousel__slide" role="group" aria-roledescription="slide" aria-label="Employers chart">
-          <canvas id="employersChart"></canvas>
+          <div id="employersChart" class="plotly-chart"></div>
         </div>
       </div>
     </div>
@@ -182,7 +182,7 @@
   </div>
   <button type="button" class="rr-modal__backdrop" aria-label="Close"></button>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <script>
   window.dashboardData = {
     dates: {{ dates|safe }},
@@ -196,7 +196,7 @@
     const data = window.dashboardData || {};
     const slides = document.querySelectorAll('.charts-carousel__slide');
     slides.forEach(slide => {
-      const id = (slide.querySelector('canvas') || {}).id;
+      const id = (slide.querySelector('.plotly-chart') || {}).id;
       if (id === 'applicationsChart' && (!data.applicationsByDay || !data.applicationsByDay.length)) slide.remove();
       if (id === 'employersChart' && (!data.employersByDay || !data.employersByDay.length)) slide.remove();
     });
