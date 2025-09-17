@@ -43,7 +43,8 @@ urlpatterns = [
     path('dashboard/', main_views.dashboard_view, name='dashboard'),   # /dashboard/ resolves by name
 
     # --- APP INCLUDES (handle deeper paths under same prefixes) ---
-    path('profile/',   include('profiles.urls')),                           # /profile/update/..., /profile/view/<username>/
+    # Include profiles with namespace so templates can use `profiles:...`
+    path('profile/',   include(('profiles.urls', 'profiles'), namespace='profiles')),  # /profile/update/... /profile/view/<username>/
     path('dashboard/', include(('dashboard.urls', 'dashboard'), namespace='dashboard')),
 
     # (the rest you already have)
