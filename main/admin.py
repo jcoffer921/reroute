@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
 
-from resumes.models import Resume, Application
+from resumes.models import Application
 from profiles.models import UserProfile, EmployerProfile
 
 
@@ -13,10 +13,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("job__title", "applicant__username")
 
-@admin.register(Resume)
-class ResumeAdmin(admin.ModelAdmin):
-    list_display = ("user", "file")
-    search_fields = ("user__username",)
+# Resume admin is managed in the 'resumes' app admin.
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
