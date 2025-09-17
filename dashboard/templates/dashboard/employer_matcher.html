@@ -27,7 +27,7 @@
             <div class="candidate-strip">
               {% for it in candidates %}
                 {% with p=it.profile u=it.user %}
-                <a class="candidate-card" href="{% url 'public_profile' u.username %}" title="View {{ u.username }}'s profile">
+                <a class="candidate-card" href="{% url 'profiles:public_profile' u.username %}" title="View {{ u.username }}'s profile">
                   <div class="avatar-outer">
                     {% if p.profile_picture %}
                       <img class="avatar-sm" src="{{ p.profile_picture.url }}" alt="{{ u.username }} profile picture">
