@@ -29,13 +29,90 @@
         </div>
         <p class="hero-subheadline">Connecting justice-impacted job seekers with supportive employers — with resume tools, training, and job matching to make second chances work.</p>
         <div class="hero-ctas">
-            <a href="{% url 'signup' %}" class="cta-button">Get Started (Job Seekers)</a>
-            <a href="{% url 'employer_signup' %}" class="cta-button btn-ghost">Post a Job (Employers)</a>
+            <a href="{% url 'signup' %}" class="cta-button cta-seekers">Get Started (Job Seekers)</a>
+            <a href="{% url 'employer_signup' %}" class="cta-button cta-employers">Post a Job (Employers)</a>
         </div>
     </div>
 </section>
 
-<!-- How It Works -->
+<section id="mission" class="mission">
+    <div class="mission-content">
+        <h2>Our Mission</h2>
+        <p class="mission-lead">We help justice-impacted people rebuild confidence, grow skills, and connect with employers who believe in second chances.</p>
+        <div class="mission-grid">
+          <article class="mission-pill">
+            <div class="pill-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l8 4v5c0 5-3.5 9-8 9s-8-4-8-9V7l8-4z" stroke="#006da0" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="#00beb8" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Trust</h3>
+            <p>Respect, dignity, and privacy at every step.</p>
+          </article>
+          <article class="mission-pill">
+            <div class="pill-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 18h16M6 16V6h6v10" stroke="#006da0" stroke-width="1.5"/><path d="M14 9h4v7" stroke="#00beb8" stroke-width="1.5"/></svg>
+            </div>
+            <h3>Skills</h3>
+            <p>Resume tools and training to grow faster.</p>
+          </article>
+          <article class="mission-pill">
+            <div class="pill-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7l9 5 9-5" stroke="#006da0" stroke-width="1.5"/><path d="M3 12l9 5 9-5" stroke="#00beb8" stroke-width="1.5"/></svg>
+            </div>
+            <h3>Opportunities</h3>
+            <p>Match with employers open to second-chance hiring.</p>
+          </article>
+          <article class="mission-pill">
+            <div class="pill-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21a9 9 0 1 1 0-18" stroke="#006da0" stroke-width="1.5"/><path d="M7 12h10M12 7v10" stroke="#00beb8" stroke-width="1.5"/></svg>
+            </div>
+            <h3>Community</h3>
+            <p>Support that strengthens people and workplaces.</p>
+          </article>
+        </div>
+    </div>
+</section>
+
+<section id="vision" class="vision-split">
+  <div class="vision-inner" style="--vision-overlay: rgba(0,109,160,0.92); --vision-bg: var(--neutral-gray); --vision-min-h: 80vh;">
+    <div class="vision-left">
+      <h2>Our Vision</h2>
+      <p>At ReRoute, our vision is to break down the stigma surrounding men and women navigating the reentry process. We are building a community that embraces second chances, a space where individuals once shut out by society are supported, not judged.</p>
+      <p>ReRoute exists to rebuild trust, restore dignity, and reshape how we view justice-involved individuals. We believe it takes a village not only to raise a child, but to uplift our mothers, fathers, siblings, and neighbors who deserve another shot at life.</p>
+      <p>As we grow, we aspire to expand our support through access to technology, education, trade certifications, therapy and personal development, paving new pathways to purpose and opportunity.</p>
+      <div class="vision-actions">
+        <a href="{% url 'about_us' %}" class="vision-btn" aria-label="Learn more about ReRoute">Learn More</a>
+      </div>
+    </div>
+    <div class="vision-right" style="--vision-image: url('{% static 'images/jaycoffer.jpg' %}'); --vision-image-pos-y: 78%; --vision-image-pos-x: 52%;"></div>
+  </div>
+  
+ </section>
+
+<!-- What Employers Are Saying -->
+<section id="trust" class="testimonial-section">
+  <div class="testimonial-inner">
+    <h2>What Employers Are Saying</h2>
+    <div class="quote-grid">
+      <blockquote class="quote-card quote-featured">
+        <div class="quote-mark" aria-hidden="true">“</div>
+        <p class="quote-text">I work in staffing for light industrial work and people with records tend to do better and last longer. In my experience, they call off less and are usually looking to stay with the company longer term because they know how hard the job market can be. Some of our best performing hires come from this group.</p>
+        <footer class="quote-attrib">— Staffing Professional, TikTok</footer>
+      </blockquote>
+      <blockquote class="quote-card quote-placeholder">
+        <div class="quote-mark" aria-hidden="true">“</div>
+        <p class="quote-text">More employer stories coming soon — highlighting performance, reliability, and long-term fit.</p>
+        <footer class="quote-attrib">— Employer Partner</footer>
+      </blockquote>
+      <blockquote class="quote-card quote-placeholder">
+        <div class="quote-mark" aria-hidden="true">“</div>
+        <p class="quote-text">We’re also gathering success stories from job seekers to share here.</p>
+        <footer class="quote-attrib">— ReRoute Community</footer>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works + Benefits (Unified) -->
 <section id="how-it-works" class="hiw-section">
   <div class="hiw-inner">
     <h2>How It Works</h2>
@@ -71,79 +148,37 @@
         <p>Get hired, grow skills, and build long-term success.</p>
       </article>
     </div>
-  </div>
-  
-</section>
 
-<!-- Audience Split: Job Seekers vs Employers -->
-<section id="audiences" class="audiences-split">
-  <div class="audiences-inner">
-    <article class="audience-card">
-      <h3>For Job Seekers</h3>
-      <ul>
-        <li>AI-assisted resume builder</li>
-        <li>Interview prep & email guidance</li>
-        <li>Job matching with supportive employers</li>
-        <li>Training and upskilling pathways</li>
-      </ul>
-      <div class="audience-actions">
-        <a href="{% url 'resumes:resume_welcome' %}" class="btn-pill">Build Your Resume</a>
-        <a href="{% url 'opportunities' %}" class="btn-link">Browse Jobs</a>
-      </div>
-    </article>
-    <article class="audience-card">
-      <h3>For Employers</h3>
-      <ul>
-        <li>Streamlined job posting</li>
-        <li>Access to motivated talent</li>
-        <li>Metrics and insights</li>
-        <li>Second-chance hiring support</li>
-      </ul>
-      <div class="audience-actions">
-        <a href="{% url 'employer_signup' %}" class="btn-pill">Create Employer Account</a>
-        <a href="{% url 'create_job' %}" class="btn-link">Post a Job</a>
-      </div>
-    </article>
-  </div>
-</section>
-
-<section id="mission" class="mission">
-    <div class="mission-content">
-        <h2>Our Mission</h2>
-        <p>At ReRoute, our mission is to support formerly incarcerated individuals through job readiness, training, and resume building. We aim to shift societal views while giving our clients a meaningful pathway forward.</p>
-    </div>
-</section>
-
-<section id="vision" class="vision-split">
-  <div class="vision-inner" style="--vision-overlay: rgba(0,109,160,0.92); --vision-bg: var(--neutral-gray); --vision-min-h: 80vh;">
-    <div class="vision-left">
-      <h2>Our Vision</h2>
-      <p>At ReRoute, our vision is to break down the stigma surrounding men and women navigating the reentry process. We are building a community that embraces second chances, a space where individuals once shut out by society are supported, not judged.</p>
-      <p>ReRoute exists to rebuild trust, restore dignity, and reshape how we view justice-involved individuals. We believe it takes a village not only to raise a child, but to uplift our mothers, fathers, siblings, and neighbors who deserve another shot at life.</p>
-      <p>As we grow, we aspire to expand our support through access to technology, education, trade certifications, therapy and personal development, paving new pathways to purpose and opportunity.</p>
-      <div class="vision-actions">
-        <a href="{% url 'about_us' %}" class="vision-btn" aria-label="Learn more about ReRoute">Learn More</a>
-      </div>
-    </div>
-    <div class="vision-right" style="--vision-image: url('{% static 'images/jaycoffer.jpg' %}'); --vision-image-pos-y: 78%; --vision-image-pos-x: 52%;"></div>
-  </div>
-  
- </section>
-
-<!-- Trust Signals / Testimonial -->
-<section id="trust" class="testimonial-section">
-  <div class="testimonial-inner">
-    <h2>What Employers Say</h2>
-    <div class="quote-grid">
-      <blockquote class="quote-card">
-        <div class="quote-mark" aria-hidden="true">“</div>
-        <p class="quote-text">I work in staffing for light industrial work and people with records tend to do better and last longer. In my experience, they call off less and are usually looking to stay with the company longer term because they know how hard the job market can be. Some of our best performing hires come from this group.</p>
-        <footer class="quote-attrib">— Staffing Professional, TikTok</footer>
-      </blockquote>
+    <div class="audiences-inner" style="margin-top:1.25rem;">
+      <article class="audience-card">
+        <h3>For Job Seekers</h3>
+        <ul>
+          <li>AI-assisted resume builder</li>
+          <li>Interview prep & email guidance</li>
+          <li>Job matching with supportive employers</li>
+          <li>Training and upskilling pathways</li>
+        </ul>
+        <div class="audience-actions">
+          <a href="{% url 'resumes:resume_welcome' %}" class="btn-pill">Build Your Resume</a>
+          <a href="{% url 'opportunities' %}" class="btn-link">Browse Jobs</a>
+        </div>
+      </article>
+      <article class="audience-card">
+        <h3>For Employers</h3>
+        <ul>
+          <li>Streamlined job posting</li>
+          <li>Access to motivated talent</li>
+          <li>Metrics and insights</li>
+          <li>Second-chance hiring support</li>
+        </ul>
+        <div class="audience-actions">
+          <a href="{% url 'employer_signup' %}" class="btn-pill">Create Employer Account</a>
+          <a href="{% url 'create_job' %}" class="btn-link">Post a Job</a>
+        </div>
+      </article>
     </div>
   </div>
 </section>
-
 <!-- =========================
      Blog Section — Featured + Recent or Teaser Empty State
      ========================= -->
@@ -261,31 +296,6 @@
 </section>
 
 
-<!-- Resources Preview -->
-<section id="resources-preview" class="resources-preview">
-  <div class="resources-inner">
-    <h2>Resources</h2>
-    <p class="resources-sub">Guides, tools, and reentry help to support every step.</p>
-    <div class="resources-grid">
-      <a class="resource-card" href="{% url 'job_tools_index' %}">
-        <div class="resource-icon" aria-hidden="true">📘</div>
-        <h3>Job Tools</h3>
-        <p>Interview prep, email guidance, and tech courses.</p>
-      </a>
-      <a class="resource-card" href="{% url 'reentry_help_index' %}">
-        <div class="resource-icon" aria-hidden="true">🤝</div>
-        <h3>Reentry Help</h3>
-        <p>Legal aid, housing, counseling, and community support.</p>
-      </a>
-      <a class="resource-card" href="{% url 'resource_list' %}">
-        <div class="resource-icon" aria-hidden="true">🧭</div>
-        <h3>All Resources</h3>
-        <p>Explore the full library of guides and help.</p>
-      </a>
-    </div>
-  </div>
-</section>
-
 <section id="features" class="services-section">
   <div class="services-inner">
     <div class="services-header">
@@ -342,6 +352,20 @@
           <a href="{% url 'opportunities' %}" class="btn-pill">Explore Jobs</a>
         </div>
       </article>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA Row -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <div class="final-cta-left">
+      <h2>Ready to take the next step?</h2>
+      <p>Build momentum today — we’re here to help.</p>
+    </div>
+    <div class="final-cta-actions">
+      <a href="{% url 'resumes:resume_welcome' %}" class="btn-pill">Build Your Resume</a>
+      <a href="{% url 'create_job' %}" class="btn-pill btn-outline">Post a Job</a>
     </div>
   </div>
 </section>
