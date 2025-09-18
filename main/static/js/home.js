@@ -109,3 +109,24 @@
   // wrapper.addEventListener('mouseenter', () => clearInterval(timer));
   // wrapper.addEventListener('mouseleave', () => timer = setInterval(next, 6000));
 })();
+
+// Lightweight reveal-on-scroll for testimonial pull-quote
+(function () {
+  const items = document.querySelectorAll('.testimonial-section .reveal-up');
+  if (!items.length || !('IntersectionObserver' in window)) return;
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  items.forEach((el, i) => {
+    // Stagger effect via transition delay
+    el.style.transitionDelay = `${i * 120}ms`;
+    obs.observe(el);
+  });
+})();

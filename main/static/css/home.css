@@ -350,29 +350,38 @@
 .btn-link:hover { text-decoration: underline; }
 @media (max-width: 900px){ .audiences-inner { grid-template-columns: 1fr; } }
 
-/* ===== Testimonial (Pull-Quote) ===== */
-.testimonial-section { position: relative; background: #ffffff; padding: 3rem 1.25rem; overflow: hidden; }
+/* ===== Testimonial (Pull-Quote on Dark Gradient) ===== */
+.testimonial-section {
+  position: relative;
+  background: linear-gradient(135deg, #0b1e33 0%, #000000 100%);
+  padding: 3rem 1.25rem;
+  overflow: hidden;
+}
 .testimonial-section::before,
 .testimonial-section::after {
   content: "\201C"; /* opening curly quote */
   position: absolute;
   font-family: Georgia, serif;
   font-weight: 900;
-  color: rgba(15, 23, 42, 0.06);
-  font-size: 260px;
+  color: rgba(255, 255, 255, 0.08);
+  font-size: 280px;
   line-height: 1;
   pointer-events: none;
 }
-.testimonial-section::before { top: -40px; left: -10px; }
-.testimonial-section::after  { content: "\201D"; bottom: -30px; right: 10px; transform: rotate(0.5deg); }
+.testimonial-section::before { top: -60px; left: -10px; }
+.testimonial-section::after  { content: "\201D"; bottom: -40px; right: 10px; transform: rotate(0.5deg); }
 
 .testimonial-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-.testimonial-inner h2 { margin: 0 0 1rem; font-size: clamp(1.9rem, 3.2vw, 2.3rem); font-weight: 900; color: #0F172A; position: relative; z-index: 1; }
+.testimonial-inner h2 { margin: 0 0 1rem; font-size: clamp(1.9rem, 3.2vw, 2.3rem); font-weight: 900; color: #ffffff; position: relative; z-index: 1; }
 
-.pullquote-card { position: relative; z-index: 1; background: #ffffff; color: #0F172A; border-radius: 16px; padding: 1.5rem; text-align: left; box-shadow: 0 10px 26px rgba(10,34,80,0.10); border: 1px solid #e6ecfb; }
-.pullquote-top { font-weight: 900; font-size: clamp(1.3rem, 2.8vw, 1.8rem); line-height: 1.2; margin: .25rem 0 .5rem; }
-.pullquote-full { margin: 0 0 .75rem; color: #334155; }
-.pullquote-attrib { color: #0F172A; font-weight: 700; }
+.pullquote { position: relative; z-index: 1; color: #e8eef7; text-align: center; }
+.pullquote-top { font-weight: 900; font-size: clamp(1.8rem, 4.2vw, 2.4rem); line-height: 1.15; margin: .35rem auto .65rem; max-width: 980px; }
+.pullquote-full { margin: 0 auto .75rem; color: rgba(255,255,255,0.85); max-width: 900px; }
+.pullquote-attrib { color: rgba(255,255,255,0.92); font-weight: 700; }
+
+/* Reveal on scroll */
+.reveal-up { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+.reveal-up.in-view { opacity: 1; transform: translateY(0); }
 
 /* ===== Mission Pillars ===== */
 .mission-lead { text-align: center; color: #475569; max-width: 900px; margin: 0 auto 1rem; }
