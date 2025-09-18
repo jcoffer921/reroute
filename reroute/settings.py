@@ -45,6 +45,9 @@ TEMPLATES = [
     },
 ]
 
+# Company metadata (for templates)
+COMPANY_LEGAL_NAME = os.getenv('COMPANY_LEGAL_NAME', 'ReRoute Jobs, LLC')
+
 # ---------- DEBUG / LOGGING ----------
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"  # was hardcoded True
 #DEBUG = False

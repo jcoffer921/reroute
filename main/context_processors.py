@@ -7,6 +7,7 @@
 # - Falls back cleanly without crashing if any piece is missing
 # ------------------------------------------------------------
 from django.urls import reverse
+from django.conf import settings
 
 def _is_employer_user(user, request=None):
     """
@@ -89,4 +90,5 @@ def role_flags(request):
         "IS_EMPLOYER": is_employer,
         "DASHBOARD_URL": dashboard_url,
         "PROFILE_URL": profile_url,
+        "COMPANY_LEGAL_NAME": getattr(settings, 'COMPANY_LEGAL_NAME', 'ReRoute Jobs, LLC'),
     }

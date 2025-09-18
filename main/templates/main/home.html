@@ -27,8 +27,84 @@
             <p><span class="highlight">Reclaim</span> their place in society in order to</p>
             <p><span class="highlight">ReRoute</span> their future.</p>
         </div>
-        <a href="{% url 'signup' %}" class="cta-button">Get Started</a>
+        <p class="hero-subheadline">Connecting justice-impacted job seekers with supportive employers — with resume tools, training, and job matching to make second chances work.</p>
+        <div class="hero-ctas">
+            <a href="{% url 'signup' %}" class="cta-button">Get Started (Job Seekers)</a>
+            <a href="{% url 'employer_signup' %}" class="cta-button btn-ghost">Post a Job (Employers)</a>
+        </div>
     </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="hiw-section">
+  <div class="hiw-inner">
+    <h2>How It Works</h2>
+    <p class="hiw-sub">Simple steps for seekers and employers to connect and succeed.</p>
+    <div class="hiw-steps">
+      <article class="hiw-step">
+        <div class="hiw-icon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="#006da0" stroke-width="1.5"/>
+            <path d="M8 12h8M12 8v8" stroke="#00beb8" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Sign Up</h3>
+        <p>Create a free account as a job seeker or employer.</p>
+      </article>
+      <article class="hiw-step">
+        <div class="hiw-icon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 7l9 5 9-5-9-4-9 4z" fill="#6495ED" opacity=".2"/>
+            <path d="M3 7l9 5 9-5M5 10l7 4 7-4" stroke="#0F172A" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <h3>Connect</h3>
+        <p>Use resume tools, training, and matching to find the right fit.</p>
+      </article>
+      <article class="hiw-step">
+        <div class="hiw-icon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 13l4 4L19 7" stroke="#00beb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Succeed</h3>
+        <p>Get hired, grow skills, and build long-term success.</p>
+      </article>
+    </div>
+  </div>
+  
+</section>
+
+<!-- Audience Split: Job Seekers vs Employers -->
+<section id="audiences" class="audiences-split">
+  <div class="audiences-inner">
+    <article class="audience-card">
+      <h3>For Job Seekers</h3>
+      <ul>
+        <li>AI-assisted resume builder</li>
+        <li>Interview prep & email guidance</li>
+        <li>Job matching with supportive employers</li>
+        <li>Training and upskilling pathways</li>
+      </ul>
+      <div class="audience-actions">
+        <a href="{% url 'resumes:resume_welcome' %}" class="btn-pill">Build Your Resume</a>
+        <a href="{% url 'opportunities' %}" class="btn-link">Browse Jobs</a>
+      </div>
+    </article>
+    <article class="audience-card">
+      <h3>For Employers</h3>
+      <ul>
+        <li>Streamlined job posting</li>
+        <li>Access to motivated talent</li>
+        <li>Metrics and insights</li>
+        <li>Second-chance hiring support</li>
+      </ul>
+      <div class="audience-actions">
+        <a href="{% url 'employer_signup' %}" class="btn-pill">Create Employer Account</a>
+        <a href="{% url 'create_job' %}" class="btn-link">Post a Job</a>
+      </div>
+    </article>
+  </div>
 </section>
 
 <section id="mission" class="mission">
@@ -52,6 +128,20 @@
     <div class="vision-right" style="--vision-image: url('{% static 'images/jaycoffer.jpg' %}'); --vision-image-pos-y: 78%; --vision-image-pos-x: 52%;"></div>
   </div>
   
+ </section>
+
+<!-- Trust Signals / Testimonial -->
+<section id="trust" class="testimonial-section">
+  <div class="testimonial-inner">
+    <h2>What Employers Say</h2>
+    <div class="quote-grid">
+      <blockquote class="quote-card">
+        <div class="quote-mark" aria-hidden="true">“</div>
+        <p class="quote-text">I work in staffing for light industrial work and people with records tend to do better and last longer. In my experience, they call off less and are usually looking to stay with the company longer term because they know how hard the job market can be. Some of our best performing hires come from this group.</p>
+        <footer class="quote-attrib">— Staffing Professional, TikTok</footer>
+      </blockquote>
+    </div>
+  </div>
 </section>
 
 <!-- =========================
@@ -170,6 +260,31 @@
   {% endif %}
 </section>
 
+
+<!-- Resources Preview -->
+<section id="resources-preview" class="resources-preview">
+  <div class="resources-inner">
+    <h2>Resources</h2>
+    <p class="resources-sub">Guides, tools, and reentry help to support every step.</p>
+    <div class="resources-grid">
+      <a class="resource-card" href="{% url 'job_tools_index' %}">
+        <div class="resource-icon" aria-hidden="true">📘</div>
+        <h3>Job Tools</h3>
+        <p>Interview prep, email guidance, and tech courses.</p>
+      </a>
+      <a class="resource-card" href="{% url 'reentry_help_index' %}">
+        <div class="resource-icon" aria-hidden="true">🤝</div>
+        <h3>Reentry Help</h3>
+        <p>Legal aid, housing, counseling, and community support.</p>
+      </a>
+      <a class="resource-card" href="{% url 'resource_list' %}">
+        <div class="resource-icon" aria-hidden="true">🧭</div>
+        <h3>All Resources</h3>
+        <p>Explore the full library of guides and help.</p>
+      </a>
+    </div>
+  </div>
+</section>
 
 <section id="features" class="services-section">
   <div class="services-inner">
