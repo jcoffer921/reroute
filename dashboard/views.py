@@ -412,7 +412,7 @@ def employer_matcher(request):
 # =========================
 # Notifications
 # =========================
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_GET
 from django.http import JsonResponse
 from django.utils.timezone import now as tz_now
 from django.db.models.functions import TruncDate
