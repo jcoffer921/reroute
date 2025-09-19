@@ -121,3 +121,77 @@ document.addEventListener('DOMContentLoaded', () => {
     tab.addEventListener('click', () => activate(tab.getAttribute('data-target')));
   });
 });
+
+// ============== User Interviews Modal ==============
+document.addEventListener('DOMContentLoaded', () => {
+  const openBtn = document.getElementById('openUserInterviews');
+  const backdrop = document.getElementById('userInterviewsBackdrop');
+  const modal = document.getElementById('userInterviewsModal');
+  const content = document.getElementById('userInterviewsContent');
+
+  if (!openBtn || !backdrop || !modal || !content) return;
+
+  function open() {
+    fetch(`/dashboard/user/interviews/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' }} )
+      .then(r => r.text())
+      .then(html => {
+        content.innerHTML = html;
+        backdrop.classList.remove('hidden');
+        modal.classList.remove('hidden');
+        bindModalEvents();
+      })
+      .catch(() => {
+        content.innerHTML = '<div style="padding:12px;">Failed to load interviews.</div>';
+        backdrop.classList.remove('hidden');
+        modal.classList.remove('hidden');
+      });
+  }
+
+  function close() {
+    backdrop.classList.add('hidden');
+    modal.classList.add('hidden');
+  }
+
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast toast-success';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.classList.add('show'),10);
+    setTimeout(()=>{ t.classList.remove('show'); t.addEventListener('transitionend', ()=>t.remove(), { once: true }); },2000);
+  }
+
+  function bindModalEvents() {
+    // close buttons
+    content.querySelectorAll('[data-close-user-interviews]').forEach(btn => btn.addEventListener('click', close));
+    backdrop.addEventListener('click', close);
+
+    // accept action
+    content.querySelectorAll('.accept-form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch(form.action, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: new FormData(form) });
+        if (res.ok) {
+          const li = form.closest('.interview-item');
+          if (li) li.querySelectorAll('button, input, summary').forEach(el=> el.disabled = true);
+          showToast('Interview accepted');
+        }
+      });
+    });
+
+    // request reschedule
+    content.querySelectorAll('.resched-form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch(form.action, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: new FormData(form) });
+        if (res.ok) {
+          const li = form.closest('.interview-item');
+          if (li) li.querySelectorAll('button, input, summary').forEach(el=> el.disabled = true);
+          showToast('Reschedule request sent');
+        }
+      });
+    });
+  }
+
+  openBtn.addEventListener('click', open);
+});

@@ -307,9 +307,12 @@
 
   <!-- Scheduled Interviews (same width as tips) -->
   <div class="tips-box rotating" style="margin-top: 1rem;">
-    <div class="tips-header">
-      <h2>Scheduled Interviews</h2>
-      <p>Upcoming interviews you have lined up</p>
+    <div class="tips-header" style="justify-content: space-between; align-items: center;">
+      <div>
+        <h2>Scheduled Interviews</h2>
+        <p>Upcoming interviews you have lined up</p>
+      </div>
+      <button type="button" id="openUserInterviews" class="btn btn-primary btn-sm">View Interviews</button>
     </div>
     {% if upcoming_interviews %}
       <div class="notifications-list">
@@ -330,6 +333,14 @@
     {% else %}
       <div class="empty-notifications">No interviews scheduled.</div>
     {% endif %}
+  </div>
+
+  <!-- User Interviews Modal -->
+  <div id="userInterviewsBackdrop" class="modal-backdrop hidden"></div>
+  <div id="userInterviewsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="userInterviewsTitle">
+    <div class="modal-content" id="userInterviewsContent">
+      <!-- Fetched dynamically -->
+    </div>
   </div>
 
   <!-- Tips -->

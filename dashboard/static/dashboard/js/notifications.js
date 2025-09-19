@@ -107,8 +107,11 @@
         const res = await fetch(window.location.href, {
           method: 'POST',
           headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           },
+          credentials: 'same-origin',
           body: new URLSearchParams(formData).toString(),
         });
         const data = await res.json().catch(() => ({}));

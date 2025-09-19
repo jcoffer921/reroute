@@ -335,6 +335,29 @@
   color: #008ba3;
 }
 
+/* ===== User Interviews Modal ===== */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 800; }
+.modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 810; }
+.modal-content { background: #fff; width: min(640px, 92vw); max-height: 88vh; overflow: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 16px; }
+.modal-header { display:flex; align-items:center; justify-content: space-between; margin-bottom: 8px; }
+.modal-title { margin:0; font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+.modal-close { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.hidden { display: none; }
+.interviews-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.interview-item { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; display: grid; gap: 8px; }
+.interview-main { display:flex; align-items:center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.interview-job .meta { color: #6b7280; margin-left: 6px; }
+.interview-actions { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.interview-actions details.resched summary { list-style: none; }
+.interview-actions details.resched summary::-webkit-details-marker { display: none; }
+.interview-actions input[type="datetime-local"],
+.interview-actions input[type="text"] { border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 8px; }
+
+/* Toast reuse */
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; background: #111827; color: #fff; padding: 10px 14px; border-radius: 10px; box-shadow: 0 8px 22px rgba(0,0,0,0.18); opacity: 0; transition: opacity .2s ease, transform .2s ease; z-index: 2000; }
+.toast-success { background: #059669; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
 /* Success card */
 .onboarding-success { background: var(--neutral-gray); border: 1px solid #e0e0e0; border-radius: 16px; padding: 2rem 1rem; margin: 2rem auto; max-width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.04); text-align: center; }
 .success-inner { max-width: 700px; margin: 0 auto; }

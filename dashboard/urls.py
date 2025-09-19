@@ -26,6 +26,10 @@ urlpatterns = [
     path('saved-jobs/', views.saved_jobs_view, name='saved_jobs'),
     path('matches/', views.matched_jobs_view, name='matched_jobs'),
     path('notifications/', views.notifications_view, name='notifications'),
+    # ===== User interviews modal + actions =====
+    path('user/interviews/', views.user_interviews_modal, name='user_interviews_modal'),
+    path('user/interviews/accept/', views.user_accept_interview, name='user_accept_interview'),
+    path('user/interviews/request-reschedule/', views.user_request_reschedule, name='user_request_reschedule'),
 
     # ===== Employer analytics =====
     path('employer/analytics/', views.employer_analytics, name='employer_analytics'),

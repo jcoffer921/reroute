@@ -253,6 +253,8 @@ html { scroll-behavior: smooth; }
   height: 36px;
   border-radius: 999px;
   cursor: pointer;
+  z-index: 2; /* ensure it's above the video */
+  pointer-events: auto;
 }
 
 @media (max-width: 640px){

@@ -165,14 +165,19 @@ def user_dashboard(request):
     except Exception:
         profile_views = 0
 
-    # Scheduled interviews for this user (upcoming)
+    # Scheduled interviews for this user (tolerant: exclude only canceled)
     try:
         from .models import Interview
-        upcoming_interviews = Interview.objects.select_related('job', 'employer').filter(
-            candidate=request.user,
-            status__in=['planned', 'rescheduled'],
-            scheduled_at__gte=timezone.now(),
-        ).order_by('scheduled_at')[:8]
+        upcoming_qs = (
+            Interview.objects
+            .select_related('job', 'employer')
+            .filter(candidate=request.user)
+            .exclude(status=Interview.STATUS_CANCELED)
+            .order_by('scheduled_at', 'id')
+        )
+        # If you prefer future-only, uncomment this line
+        # upcoming_qs = upcoming_qs.filter(scheduled_at__gte=timezone.now())
+        upcoming_interviews = list(upcoming_qs[:8])
     except Exception:
         upcoming_interviews = []
 
@@ -461,6 +466,119 @@ def notifications_view(request):
     )
     notes = Notification.objects.filter(Q(user=request.user) | bcast).order_by('-created_at', '-id')
     return render(request, 'dashboard/notifications.html', { 'notifications': notes })
+
+
+# =========================
+# User Interviews: Modal + Actions
+# =========================
+@login_required
+@require_GET
+def user_interviews_modal(request):
+    """Return the HTML for the user's interviews modal (non-canceled)."""
+    from .models import Interview
+    interviews = (
+        Interview.objects
+        .select_related('job', 'employer')
+        .filter(candidate=request.user)
+        .exclude(status=Interview.STATUS_CANCELED)
+        .order_by('scheduled_at', 'id')
+    )
+    return render(request, 'dashboard/partials/user_interviews_modal.html', {
+        'interviews': interviews,
+    })
+
+
+@login_required
+@require_POST
+def user_accept_interview(request):
+    """Candidate accepts interview: send a notification to the employer."""
+    from .models import Interview, Notification
+    iid = request.POST.get('interview_id')
+    iv = Interview.objects.select_related('job', 'employer', 'candidate').filter(id=iid, candidate=request.user).first()
+    if not iv:
+        return JsonResponse({'ok': False, 'error': 'Interview not found'}, status=404)
+    # Notify employer
+    try:
+        Notification.objects.create(
+            user=iv.employer,
+            title='Interview Accepted',
+            message=f"{request.user.get_full_name() or request.user.username} accepted the interview for '{iv.job.title}' on {iv.scheduled_at:%b %d, %Y %I:%M %p}.",
+            job=iv.job,
+            url='',
+        )
+    except Exception:
+        pass
+    # Email employer
+    try:
+        from django.core.mail import send_mail
+        when_str = iv.scheduled_at.strftime('%b %d, %Y %I:%M %p')
+        send_mail(
+            subject=f"Interview Accepted: {iv.job.title}",
+            message=(
+                f"{request.user.get_full_name() or request.user.username} accepted the interview for '{iv.job.title}'.\n"
+                f"When: {when_str}.\n\n"
+                f"You can coordinate further from your Employer Dashboard."
+            ),
+            from_email=None,
+            recipient_list=[iv.employer.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+    return JsonResponse({'ok': True})
+
+
+@login_required
+@require_POST
+def user_request_reschedule(request):
+    """Candidate requests reschedule: notify employer with optional suggestion."""
+    from .models import Interview, Notification
+    iid = request.POST.get('interview_id')
+    suggested = (request.POST.get('datetime') or '').strip()
+    reason = (request.POST.get('message') or '').strip()
+    iv = Interview.objects.select_related('job', 'employer', 'candidate').filter(id=iid, candidate=request.user).first()
+    if not iv:
+        return JsonResponse({'ok': False, 'error': 'Interview not found'}, status=404)
+    parts = [
+        f"{request.user.get_full_name() or request.user.username} requested a reschedule for '{iv.job.title}'.",
+        f"Current: {iv.scheduled_at:%b %d, %Y %I:%M %p}."
+    ]
+    if suggested:
+        parts.append(f"Suggested: {suggested}.")
+    if reason:
+        parts.append(f"Note: {reason}")
+    try:
+        Notification.objects.create(
+            user=iv.employer,
+            title='Interview Reschedule Request',
+            message=' '.join(parts),
+            job=iv.job,
+            url='',
+        )
+    except Exception:
+        pass
+    # Email employer
+    try:
+        from django.core.mail import send_mail
+        when_str = iv.scheduled_at.strftime('%b %d, %Y %I:%M %p')
+        body_lines = [
+            f"{request.user.get_full_name() or request.user.username} requested a reschedule for '{iv.job.title}'.",
+            f"Current: {when_str}."
+        ]
+        if suggested:
+            body_lines.append(f"Suggested: {suggested}.")
+        if reason:
+            body_lines.append(f"Note: {reason}")
+        send_mail(
+            subject=f"Reschedule Requested: {iv.job.title}",
+            message='\n'.join(body_lines),
+            from_email=None,
+            recipient_list=[iv.employer.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+    return JsonResponse({'ok': True})
 
 
 @login_required
