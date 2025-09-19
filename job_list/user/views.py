@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.mail import send_mail
 from core.utils.analytics import track_event
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 from job_list.models import Job, Application, SavedJob
 from job_list.utils.geo import is_within_radius  # expects (origin_zip, target_zip, radius_mi)
@@ -85,7 +85,7 @@ def opportunities_view(request):
             SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
         )
 
-    return render(request, 'job_list/user/opportunities.html', {
+    context = {
         'jobs': jobs,
         'saved_job_ids': saved_job_ids,
         # expose current filters for template state
@@ -94,7 +94,14 @@ def opportunities_view(request):
         'radius': radius,
         'selected_job_types': normalized_types,
         'selected_preset_zip': preset_zip,
-    })
+    }
+
+    # AJAX: return only the jobs list HTML for in-page updates
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render(request, 'job_list/user/_jobs_list.html', context=context).content
+        return HttpResponse(html, content_type='text/html')
+
+    return render(request, 'job_list/user/opportunities.html', context)
 
 @require_POST
 @login_required

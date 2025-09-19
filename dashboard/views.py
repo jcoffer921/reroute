@@ -286,18 +286,22 @@ def employer_dashboard(request):
     # Upcoming interviews for this employer
     try:
         from .models import Interview
-        # Show all non-canceled interviews (nearest first). If you prefer upcoming-only,
-        # add scheduled_at__gte=timezone.now() back once confirmed data is timezone-safe.
-        upcoming_qs = (
+        from django.db.models import Q
+        # Be tolerant: include records tied either via Interview.employer OR Job.employer
+        # and exclude only canceled interviews.
+        interview_qs = (
             Interview.objects
             .filter(
-                employer=employer_user,
-                status__in=[Interview.STATUS_PLANNED, Interview.STATUS_RESCHEDULED, Interview.STATUS_COMPLETED],
+                Q(employer=employer_user) | Q(job__employer=employer_user),
             )
+            .exclude(status=Interview.STATUS_CANCELED)
             .select_related('job', 'candidate')
-            .order_by('scheduled_at')[:20]
+            .order_by('scheduled_at', 'id')
+            .distinct()  # guard against duplicates if both conditions match
         )
-        interviews = list(upcoming_qs)
+        # If you want only upcoming, uncomment the line below
+        # interview_qs = interview_qs.filter(scheduled_at__gte=timezone.now())
+        interviews = list(interview_qs[:50])
     except Exception:
         interviews = []
 

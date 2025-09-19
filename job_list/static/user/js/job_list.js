@@ -4,11 +4,74 @@ function toggleFilters() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Auto-submit when filters change (checkboxes, radios, selects)
   const form = document.getElementById('jobFilterForm');
-  const inputs = form ? form.querySelectorAll('input[type="checkbox"], input[type="radio"], select') : [];
-  inputs.forEach(el => {
-    el.addEventListener('change', () => form.submit());
+  const results = document.getElementById('jobResults');
+  const sidebar = document.getElementById('filtersSidebar');
+
+  function collectFilters() {
+    const params = new URLSearchParams();
+    // Search bar fields
+    if (form) {
+      const q = form.querySelector('input[name="q"]');
+      const zip = form.querySelector('input[name="zip"]');
+      if (q && q.value.trim()) params.set('q', q.value.trim());
+      if (zip && zip.value.trim()) params.set('zip', zip.value.trim());
+    }
+    // Sidebar filters
+    if (sidebar) {
+      // Job types (checkboxes, repeated)
+      sidebar.querySelectorAll('input[name="type"]:checked').forEach(cb => {
+        params.append('type', cb.value);
+      });
+      // Preset zip (radios)
+      const rz = sidebar.querySelector('input[name="preset_zip"]:checked');
+      if (rz && rz.value !== '') params.set('preset_zip', rz.value);
+      // Radius select
+      const radius = sidebar.querySelector('select[name="radius"]');
+      if (radius && radius.value) params.set('radius', radius.value);
+    }
+    return params;
+  }
+
+  async function ajaxUpdate() {
+    if (!results) return;
+    const params = collectFilters();
+    const url = `${window.location.pathname}?${params.toString()}`;
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const html = await res.text();
+      if (res.ok) {
+        results.innerHTML = html;
+        // No need to rebind save-job events due to delegation below
+      }
+    } catch (e) {
+      console.error('Filter update failed', e);
+    }
+  }
+
+  // Intercept form submit for search to use AJAX
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      ajaxUpdate();
+    });
+  }
+
+  // Listen to all relevant filter changes (sidebar + search bar)
+  const liveSelectors = [
+    '#filtersSidebar input[type="checkbox"]',
+    '#filtersSidebar input[type="radio"]',
+    '#filtersSidebar select[name="radius"]',
+    '#jobFilterForm input[name="q"]',
+    '#jobFilterForm input[name="zip"]'
+  ];
+  document.querySelectorAll(liveSelectors.join(',')).forEach(el => {
+    el.addEventListener('change', ajaxUpdate);
+    if (el.tagName === 'INPUT' && el.name === 'q') {
+      // Enter key on search should trigger AJAX, already handled by submit; add small debounce on typing
+      let t;
+      el.addEventListener('input', () => { clearTimeout(t); t = setTimeout(ajaxUpdate, 400); });
+    }
   });
 });
 
