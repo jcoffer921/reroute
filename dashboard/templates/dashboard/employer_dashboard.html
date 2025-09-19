@@ -188,8 +188,31 @@
         <ul class="list-group">
           {% for interview in interviews %}
             <li>
-              <div><strong>{{ interview.job.title }}</strong></div>
-              <div class="time">{{ interview.scheduled_at|date:"M d, Y g:ia" }} · {{ interview.candidate.get_full_name|default:interview.candidate.username }}</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:.5rem; flex-wrap:wrap;">
+                <div>
+                  <div><strong>{{ interview.job.title }}</strong></div>
+                  <div class="time">{{ interview.scheduled_at|date:"M d, Y g:ia" }} · {{ interview.candidate.get_full_name|default:interview.candidate.username }}</div>
+                </div>
+                <div class="actions-dropdown">
+                  <button type="button"
+                          class="btn btn-outline btn-sm dropdown-toggle"
+                          data-menu-id="dd-{{ interview.id }}">
+                    Actions ▾
+                  </button>
+                  <div class="dropdown-menu" id="dd-{{ interview.id }}">
+                    <button type="button" class="dropdown-item openReschedule"
+                            data-interview="{{ interview.id }}"
+                            data-datetime="{{ interview.scheduled_at|date:'Y-m-d\\TH:i' }}">
+                      Reschedule
+                    </button>
+                    <form method="post" action="{% url 'dashboard:cancel_interview' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="interview_id" value="{{ interview.id }}">
+                      <button type="submit" class="dropdown-item" onclick="return confirm('Cancel this interview?');">Cancel</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
             </li>
           {% endfor %}
         </ul>
@@ -237,6 +260,26 @@
   </div>
 </div>
 
+<!-- ====== Reschedule Interview Modal ====== -->
+<div id="rescheduleInterviewBackdrop" class="modal-backdrop hidden"></div>
+<div id="rescheduleInterviewModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="rescheduleInterviewTitle">
+  <div class="modal-content">
+    <button class="modal-close" id="rescheduleInterviewClose" aria-label="Close">✕</button>
+    <h3 id="rescheduleInterviewTitle" style="margin-top:0;">Reschedule Interview</h3>
+    <form method="post" action="{% url 'dashboard:reschedule_interview' %}" class="edit-form" style="padding:0;">
+      {% csrf_token %}
+      <input type="hidden" id="rescheduleInterviewId" name="interview_id" value="">
+      <p>
+        <label for="rescheduleDt">New Date &amp; Time</label>
+        <input type="datetime-local" id="rescheduleDt" name="datetime" required />
+      </p>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" id="rescheduleInterviewClose2">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 <!-- ====== Modal for applicants ====== -->
 <div id="modalBackdrop" class="modal-backdrop hidden"></div>
 <div id="modalRoot" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -262,6 +305,62 @@
     if (closeBtn) closeBtn.addEventListener('click', close);
     const closeBtn2 = document.getElementById('scheduleInterviewClose2');
     if (closeBtn2) closeBtn2.addEventListener('click', close);
+  })();
+
+  // Reschedule modal wiring
+  (function(){
+    // Dropdown toggles
+    document.addEventListener('click', (e) => {
+      const toggle = e.target.closest('.dropdown-toggle');
+      // Close all menus if clicking outside
+      if (!toggle && !e.target.closest('.actions-dropdown')) {
+        document.querySelectorAll('.actions-dropdown .dropdown-menu').forEach(m => m.classList.remove('show'));
+        return;
+      }
+      if (toggle) {
+        const id = toggle.getAttribute('data-menu-id');
+        const menu = document.getElementById(id);
+        if (menu) {
+          const isOpen = menu.classList.contains('show');
+          document.querySelectorAll('.actions-dropdown .dropdown-menu').forEach(m => m.classList.remove('show'));
+          if (!isOpen) menu.classList.add('show');
+        }
+      }
+    });
+
+    const openBtns = document.querySelectorAll('.openReschedule');
+    const modal = document.getElementById('rescheduleInterviewModal');
+    const backdrop = document.getElementById('rescheduleInterviewBackdrop');
+    const closeBtn = document.getElementById('rescheduleInterviewClose');
+    const closeBtn2 = document.getElementById('rescheduleInterviewClose2');
+    const idInput = document.getElementById('rescheduleInterviewId');
+    const dtInput = document.getElementById('rescheduleDt');
+
+    function open(interviewId, dt) {
+      if (!modal) return;
+      idInput.value = interviewId || '';
+      if (dt) dtInput.value = dt;
+      modal.classList.remove('hidden');
+      backdrop.classList.remove('hidden');
+      // Close any open dropdowns
+      document.querySelectorAll('.actions-dropdown .dropdown-menu').forEach(m => m.classList.remove('show'));
+    }
+    function close(){
+      if (!modal) return;
+      modal.classList.add('hidden');
+      backdrop.classList.add('hidden');
+    }
+    openBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-interview');
+        const dt = btn.getAttribute('data-datetime');
+        open(id, dt);
+      });
+    });
+    if (backdrop) backdrop.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (closeBtn2) closeBtn2.addEventListener('click', close);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
   })();
 </script>
 {% endblock %}

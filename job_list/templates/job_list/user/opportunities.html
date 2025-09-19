@@ -7,57 +7,79 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'user/css/job_list.css' %}">
 
-<section class="opportunities-hero">
-  <div class="opportunities-hero-content">
-    <h1>Explore Job Opportunities</h1>
-  </div>
-</section>
-
-<div class="opportunities-wrapper">
-  <div class="container">
-    <!-- Search & Filters Form -->
-    <form method="get" action="{% url 'opportunities' %}" id="jobFilterForm" class="search-filter-form">
-
-      <!-- Search Bar -->
-      <div class="search-bar">
-        <input type="text" name="q" placeholder="Job title, keywords..." value="{{ q }}">
-        <input type="text" name="zip" placeholder="Location (ZIP)" value="{{ user_zip }}">
-        <button type="submit">Search</button>
-        <button type="button" class="mobile-filter-toggle" onclick="toggleFilters()">Filter</button>
+<form method="get" action="{% url 'opportunities' %}" id="jobFilterForm" class="search-filter-form">
+  <section class="opportunities-hero">
+    <div class="opportunities-hero-content">
+      <h1>Explore Job Opportunities</h1>
+      <p class="hero-sub">Discover full-time, part-time, and second-chance hiring opportunities near you.</p>
+      <p class="hero-coming-soon">Jobs Coming Soon.</p>
+      <div class="search-bar search-bar--inline">
+        <input type="text" name="q" placeholder="Job title, keywords" value="{{ q }}" aria-label="Job title or keywords">
+        <input type="text" name="zip" placeholder="Location (ZIP)" value="{{ user_zip }}" aria-label="Location by ZIP">
+        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="button" class="mobile-filter-toggle" onclick="toggleFilters()">Filters</button>
       </div>
+    </div>
+  </section>
 
+  <div class="opportunities-wrapper">
+    <div class="container">
       <!-- Filters + Job List -->
-      <div class="job-layout">
+      <div class="layout-grid">
         <!-- Filters Sidebar -->
         <aside class="filters-sidebar" id="filtersSidebar">
-          <h3>Job Type</h3>
-          <label><input type="checkbox" name="type" value="full_time" {% if 'full_time' in selected_job_types %}checked{% endif %}> Full-Time</label><br>
-          <label><input type="checkbox" name="type" value="part_time" {% if 'part_time' in selected_job_types %}checked{% endif %}> Part-Time</label><br>
-          <label><input type="checkbox" name="type" value="internship" {% if 'internship' in selected_job_types %}checked{% endif %}> Internship</label><br>
-          <label><input type="checkbox" name="type" value="contract" {% if 'contract' in selected_job_types %}checked{% endif %}> Contract</label><br>
+          <div class="filters-card">
+            <h3 class="filters-title">Job Type</h3>
+            <div class="pill-group">
+              <label class="pill">
+                <input type="checkbox" name="type" value="full_time" {% if 'full_time' in selected_job_types %}checked{% endif %}>
+                <span>Full-Time</span>
+              </label>
+              <label class="pill">
+                <input type="checkbox" name="type" value="part_time" {% if 'part_time' in selected_job_types %}checked{% endif %}>
+                <span>Part-Time</span>
+              </label>
+              <label class="pill">
+                <input type="checkbox" name="type" value="internship" {% if 'internship' in selected_job_types %}checked{% endif %}>
+                <span>Internship</span>
+              </label>
+              <label class="pill">
+                <input type="checkbox" name="type" value="contract" {% if 'contract' in selected_job_types %}checked{% endif %}>
+                <span>Contract</span>
+              </label>
+            </div>
 
-          <h3>Location</h3>
-          <label><input type="radio" name="preset_zip" value="" {% if not selected_preset_zip %}checked{% endif %}> Any</label><br>
-          <label><input type="radio" name="preset_zip" value="19104" {% if selected_preset_zip == '19104' %}checked{% endif %}> Philadelphia</label><br>
-          <label><input type="radio" name="preset_zip" value="00000" {% if selected_preset_zip == '00000' %}checked{% endif %}> Remote</label><br>
+            <h3 class="filters-title">Location</h3>
+            <div class="radio-group">
+              <label class="radio-pill">
+                <input type="radio" name="preset_zip" value="" {% if not selected_preset_zip %}checked{% endif %}>
+                <span>Any</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="preset_zip" value="19104" {% if selected_preset_zip == '19104' %}checked{% endif %}>
+                <span>Philadelphia</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="preset_zip" value="00000" {% if selected_preset_zip == '00000' %}checked{% endif %}>
+                <span>Remote</span>
+              </label>
+            </div>
 
-          <h3 style="margin-top: 1rem;">Radius</h3>
-          <select name="radius">
-            <option value="10" {% if radius == 10 %}selected{% endif %}>10 miles</option>
-            <option value="25" {% if radius == 25 %}selected{% endif %}>25 miles</option>
-            <option value="50" {% if radius == 50 %}selected{% endif %}>50 miles</option>
-          </select>
+            <h3 class="filters-title">Radius</h3>
+            <select name="radius" class="radius-select">
+              <option value="10" {% if radius == 10 %}selected{% endif %}>10 miles</option>
+              <option value="25" {% if radius == 25 %}selected{% endif %}>25 miles</option>
+              <option value="50" {% if radius == 50 %}selected{% endif %}>50 miles</option>
+            </select>
+          </div>
         </aside>
-      </div>
-    </form>
 
-    <!-- Job Listings -->
-    <div class="job-layout">
-      <div class="job-list">
-        {% if jobs %}
-          {% for job in jobs %}
-            <div class="job-card">
-                <div class="job-header">
+        <!-- Job Listings -->
+        <div class="job-list">
+          {% if jobs %}
+            {% for job in jobs %}
+              <div class="job-card">
+                  <div class="job-header">
                   {% with emp=job.employer %}
                     {% with logo=emp|employer_logo_url %}
                       <a href="{{ emp|employer_public_url }}">
@@ -83,67 +105,63 @@
                 </div>
 
                 <div class="job-meta">
-                  <!-- Experience Level -->
-                  <div class="meta-section">
-                    <p class="meta-label">Experience</p>
-                    <p class="meta-value">
-                      {% if job.experience_level %}
-                        {{ job.get_experience_level_display }}
-                      {% else %}
-                        Not specified
-                      {% endif %}
-                    </p>
+                  <div class="tags-row">
+                    {% if job.experience_level %}
+                      <span class="tag">{{ job.get_experience_level_display }}</span>
+                    {% endif %}
+                    <span class="tag">{{ job.get_job_type_display }}</span>
+                    {% if job.location %}
+                      <span class="tag">{{ job.location }}</span>
+                    {% endif %}
                   </div>
-
-                  <!-- Job Type -->
-                  <div class="meta-section">
-                    <p class="meta-label">Job Type</p>
-                    <p class="meta-value">{{ job.get_job_type_display }}</p>
-                  </div>
-
-                  <!-- Pay -->
-                  <div class="meta-section">
-                    <p class="meta-label">Pay</p>
-                    <p class="meta-value">
+                  <div class="pay-row">
+                    <span class="pay-label">Pay</span>
+                    <span class="pay-value">
                       {% if job.salary_type == 'hour' %}
-                        ${{ job.hourly_min }} - ${{ job.hourly_max }} per hour
+                        ${{ job.hourly_min }} - ${{ job.hourly_max }} / hr
                       {% else %}
-                        ${{ job.salary_min }}k - ${{ job.salary_max }}k per year
+                        ${{ job.salary_min }}k - ${{ job.salary_max }}k / yr
                       {% endif %}
-                    </p>
+                    </span>
                   </div>
                 </div>
 
 
                 <div class="job-footer">
                   <p class="posted-time">Posted {{ job.created_at|timesince }} ago</p>
-
-                  <button type="button"
-                          class="save-job-btn {% if job.id in saved_job_ids %}saved{% endif %}"
-                          data-job-id="{{ job.id }}">
-                    <span class="save-job">
-                      <span class="save-job-icon-wrapper">
-                        <svg class="bookmark-icon {% if job.id in saved_job_ids %}filled{% endif %}" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-4-7 4V5z" />
-                        </svg>
+                  <div class="actions-row">
+                    <form method="post" action="{% url 'apply_to_job' job.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-apply">Apply Now</button>
+                    </form>
+                    <button type="button"
+                            class="btn-save save-job-btn {% if job.id in saved_job_ids %}saved{% endif %}"
+                            data-job-id="{{ job.id }}">
+                      <span class="save-job">
+                        <span class="save-job-icon-wrapper">
+                          <svg class="bookmark-icon {% if job.id in saved_job_ids %}filled{% endif %}" xmlns="http://www.w3.org/2000/svg"
+                              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-4-7 4V5z" />
+                          </svg>
+                        </span>
+                        <span class="save-label">
+                          {% if job.id in saved_job_ids %}Saved{% else %}Save Job{% endif %}
+                        </span>
                       </span>
-                      <span class="save-label">
-                        {% if job.id in saved_job_ids %}Saved{% else %}Save Job{% endif %}
-                      </span>
-                    </span>
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
           {% endfor %}
         {% else %}
           <p class="no-jobs">No job postings available at this time.</p>
         {% endif %}
+        </div>
       </div>
     </div>
   </div>
-</div>
+</form>
 
 <script>
   const toggleSaveUrl = "{% url 'toggle_saved_job' %}";

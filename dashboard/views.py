@@ -283,7 +283,17 @@ def employer_dashboard(request):
         )
     except Exception:
         notifications = []
-    interviews = []
+    # Upcoming interviews for this employer
+    try:
+        from .models import Interview
+        upcoming_qs = Interview.objects.filter(
+            employer=employer_user,
+            status__in=[Interview.STATUS_PLANNED, Interview.STATUS_RESCHEDULED],
+            scheduled_at__gte=timezone.now(),
+        ).select_related('job', 'candidate').order_by('scheduled_at')[:10]
+        interviews = list(upcoming_qs)
+    except Exception:
+        interviews = []
 
     # Basic analytics (live numbers)
     total_jobs = Job.objects.filter(employer=employer_user).count()
@@ -299,6 +309,15 @@ def employer_dashboard(request):
         "jobs_filled": jobs_filled,
     }
 
+    # Employer verification flag (controls alert banner)
+    employer_verified = False
+    try:
+        from profiles.models import EmployerProfile as _EP
+        ep = _EP.objects.filter(user=employer_user).first()
+        employer_verified = bool(getattr(ep, 'verified', False)) if ep else False
+    except Exception:
+        employer_verified = False
+
     return render(request, 'dashboard/employer_dashboard.html', {
         'jobs': jobs,
         'matched_seekers': matched_seekers,
@@ -311,6 +330,7 @@ def employer_dashboard(request):
         'total_applications': total_applications,
         'jobs_filled': jobs_filled,
         'sort_by': sort_by,
+        'employer_verified': employer_verified,
     })
 
 
@@ -567,7 +587,7 @@ def schedule_interview(request):
         messages.error(request, 'Candidate has another interview around that time.')
         return redirect('dashboard:employer')
 
-    Interview.objects.create(
+    interview = Interview.objects.create(
         job=job,
         employer=request.user,
         candidate=candidate,
@@ -575,6 +595,49 @@ def schedule_interview(request):
         notes=notes,
         status=Interview.STATUS_PLANNED,
     )
+    # Create user-scoped notifications (no broadcast)
+    try:
+        from .models import Notification as _N
+        from django.urls import reverse
+        # Candidate notification
+        _N.objects.create(
+            user=candidate,
+            title="Interview Scheduled",
+            message=f"Your interview for '{job.title}' has been scheduled on {scheduled_dt.strftime('%b %d, %Y %I:%M %p')}",
+            url=reverse('dashboard:user'),
+            job=job,
+        )
+        # Employer confirmation
+        _N.objects.create(
+            user=request.user,
+            title="Interview Scheduled",
+            message=f"Interview scheduled with {candidate.get_full_name() or candidate.username} for '{job.title}' on {scheduled_dt.strftime('%b %d, %Y %I:%M %p')}",
+            url=reverse('dashboard:employer'),
+            job=job,
+        )
+    except Exception:
+        pass
+    # Email both parties
+    try:
+        from django.core.mail import send_mail
+        when_str = scheduled_dt.strftime('%b %d, %Y %I:%M %p')
+        send_mail(
+            subject=f"Interview Scheduled: {job.title}",
+            message=f"Your interview has been scheduled on {when_str}.",
+            from_email=None,
+            recipient_list=[candidate.email],
+            fail_silently=True,
+        )
+        send_mail(
+            subject=f"Interview Scheduled (Employer): {job.title}",
+            message=f"You scheduled an interview with {candidate.get_full_name() or candidate.username} on {when_str}.",
+            from_email=None,
+            recipient_list=[request.user.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
     messages.success(request, 'Interview scheduled successfully.')
     return redirect('dashboard:employer')
 
@@ -597,27 +660,7 @@ def employer_candidates(request):
     return JsonResponse({'ok': True, 'results': payload})
 
 
-# =========================
-# Employer: Schedule Interview (placeholder)
-# =========================
-@login_required
-@require_POST
-def schedule_interview(request):
-    """
-    Placeholder endpoint to accept interview scheduling submissions.
-    Stores nothing for now — flashes a message and redirects back to employer dashboard.
-    Expected fields: job_id, candidate_username, datetime, notes
-    """
-    job_id = request.POST.get('job_id')
-    candidate_username = (request.POST.get('candidate_username') or '').strip()
-    dt = request.POST.get('datetime')
-    # Basic validation
-    if not job_id or not candidate_username or not dt:
-        messages.error(request, 'Please fill Job, Candidate, and Date/Time.')
-        return redirect('dashboard:employer')
-
-    messages.success(request, 'Interview scheduled (placeholder).')
-    return redirect('dashboard:employer')
+# (Removed duplicate placeholder schedule_interview; functional version above remains)
 
 
 # =========================
@@ -636,7 +679,119 @@ def employer_job_toggle(request, job_id: int):
         return redirect('dashboard:employer')
     job.is_active = not job.is_active
     job.save(update_fields=['is_active'])
+    # User-scoped notification (no broadcasts)
+    try:
+        from .models import Notification as _N
+        _N.objects.create(
+            user=request.user,
+            title="Job Status Updated",
+            message=(f"Activated: {job.title}" if job.is_active else f"Deactivated: {job.title}"),
+            job=job,
+        )
+    except Exception:
+        pass
     messages.success(request, f"{'Activated' if job.is_active else 'Deactivated'}: {job.title}")
+    return redirect('dashboard:employer')
+
+
+# =========================
+# Employer: Reschedule / Cancel endpoints
+# =========================
+@login_required
+@require_POST
+def reschedule_interview(request):
+    from .models import Interview
+    interview_id = request.POST.get('interview_id')
+    dt_raw = request.POST.get('datetime')
+    if not interview_id or not dt_raw:
+        messages.error(request, 'Missing interview or new date/time.')
+        return redirect('dashboard:employer')
+
+    interview = Interview.objects.select_related('job', 'candidate').filter(id=interview_id, employer=request.user).first()
+    if not interview:
+        messages.error(request, 'Interview not found or not yours.')
+        return redirect('dashboard:employer')
+
+    from datetime import datetime
+    try:
+        naive = datetime.fromisoformat(dt_raw)
+        scheduled_dt = timezone.make_aware(naive)
+    except Exception:
+        messages.error(request, 'Invalid date/time.')
+        return redirect('dashboard:employer')
+
+    if scheduled_dt < timezone.now():
+        messages.error(request, 'Choose a future date/time.')
+        return redirect('dashboard:employer')
+
+    interview.status = Interview.STATUS_RESCHEDULED
+    interview.scheduled_at = scheduled_dt
+    interview.save(update_fields=['status', 'scheduled_at', 'updated_at'])
+
+    # Email both parties
+    try:
+        from django.core.mail import send_mail
+        when_str = scheduled_dt.strftime('%b %d, %Y %I:%M %p')
+        send_mail(
+            subject=f"Interview Rescheduled: {interview.job.title}",
+            message=f"Your interview was rescheduled to {when_str}.",
+            from_email=None,
+            recipient_list=[interview.candidate.email],
+            fail_silently=True,
+        )
+        send_mail(
+            subject=f"Interview Rescheduled (Employer): {interview.job.title}",
+            message=f"Rescheduled with {interview.candidate.get_full_name() or interview.candidate.username} to {when_str}.",
+            from_email=None,
+            recipient_list=[request.user.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+    messages.success(request, 'Interview rescheduled.')
+    return redirect('dashboard:employer')
+
+
+@login_required
+@require_POST
+def cancel_interview(request):
+    from .models import Interview
+    interview_id = request.POST.get('interview_id')
+    if not interview_id:
+        messages.error(request, 'Missing interview.')
+        return redirect('dashboard:employer')
+
+    interview = Interview.objects.select_related('job', 'candidate').filter(id=interview_id, employer=request.user).first()
+    if not interview:
+        messages.error(request, 'Interview not found or not yours.')
+        return redirect('dashboard:employer')
+
+    interview.status = Interview.STATUS_CANCELED
+    interview.save(update_fields=['status', 'updated_at'])
+
+    # Email both parties
+    try:
+        from django.core.mail import send_mail
+        when_str = interview.scheduled_at.strftime('%b %d, %Y %I:%M %p')
+        send_mail(
+            subject=f"Interview Canceled: {interview.job.title}",
+            message=f"Your interview on {when_str} was canceled.",
+            from_email=None,
+            recipient_list=[interview.candidate.email],
+            fail_silently=True,
+        )
+        send_mail(
+            subject=f"Interview Canceled (Employer): {interview.job.title}",
+            message=f"Canceled interview with {interview.candidate.get_full_name() or interview.candidate.username} that was on {when_str}.",
+            from_email=None,
+            recipient_list=[request.user.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+    messages.success(request, 'Interview canceled.')
     return redirect('dashboard:employer')
 
 

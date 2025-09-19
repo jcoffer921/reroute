@@ -295,3 +295,15 @@
 .applicant-meta { display: inline-flex; gap: .5rem; align-items: center; }
 .applicant-meta .badge { background: #eef2ff; color: #3730a3; padding: 2px 8px; border-radius: 999px; font-size: .8rem; }
 .applicant-meta .date { color: #6b7280; font-size: .85rem; }
+
+/* ===== Simple Dropdown (actions) ===== */
+.actions-dropdown { position: relative; }
+.actions-dropdown .dropdown-menu {
+  position: absolute; right: 0; top: calc(100% + 6px);
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.1);
+  padding: 6px; min-width: 160px; z-index: 70; display: none;
+}
+.actions-dropdown .dropdown-menu.show { display: block; }
+.dropdown-item { display: block; width: 100%; text-align: left; background: transparent; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #111827; }
+.dropdown-item:hover { background: #f3f4f6; }

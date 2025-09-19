@@ -29,14 +29,27 @@
 
 /* Remove stray About Us styles and duplicate blocks */
 
-.settings-container {
-  text-align: left;
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 2rem 1.25rem;
-  background-color: transparent; /* remove gray slab */
-  border-radius: 12px;
-}
+/* ===== Grid Layout ===== */
+.settings-grid { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 320px 1fr; gap: 1.25rem; align-items: start; }
+@media (max-width: 900px){ .settings-grid { grid-template-columns: 1fr; } }
+
+/* Left: Category Cards */
+.settings-nav { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
+.nav-card { display: grid; grid-template-columns: 40px 1fr; grid-template-rows: auto auto; column-gap: .75rem; row-gap: 2px; align-items: center; padding: 1rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); cursor: pointer; text-align: left; }
+.nav-card .nav-icon { grid-row: 1 / span 2; width: 40px; height: 40px; display: grid; place-items: center; background: #f0f6ff; border-radius: 10px; }
+.nav-card .nav-title { font-weight: 800; color: #0f172a; }
+.nav-card .nav-sub { color: #6b7280; font-size: .9rem; }
+.nav-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10,34,80,0.12); }
+.nav-card.active { outline: 2px solid #006da0; outline-offset: 2px; }
+
+/* Right: Panels */
+.settings-panels { display: grid; gap: 1rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Support card under nav */
+.support-card { margin-top: 1rem; padding: 1rem; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); display: grid; gap: .5rem; }
+.support-text { margin: 0; color: #475569; }
 
 .settings-container form {
   margin-bottom: 2rem;
@@ -207,6 +220,9 @@ button.danger {
 
 /* Pill option for buttons */
 .btn-pill { border-radius: 999px; padding-left: 1rem; padding-right: 1rem; }
+
+/* Hover polish for cards */
+.settings-card:hover { box-shadow: 0 14px 32px rgba(10,34,80,0.12); }
 
 /* ==========================
    Settings Card (Subscription)
