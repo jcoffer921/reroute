@@ -7,22 +7,26 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'user/css/job_list.css' %}">
 
-<form method="get" action="{% url 'opportunities' %}" id="jobFilterForm" class="search-filter-form">
-  <section class="opportunities-hero">
-    <div class="opportunities-hero-content">
-      <h1>Explore Job Opportunities</h1>
-      <p class="hero-sub">Discover full-time, part-time, and second-chance hiring opportunities near you.</p>
-      <p class="hero-coming-soon">Jobs Coming Soon.</p>
-      <div class="search-bar search-bar--inline">
-        <input type="text" name="q" placeholder="Job title, keywords" value="{{ q }}" aria-label="Job title or keywords">
-        <input type="text" name="zip" placeholder="Location (ZIP)" value="{{ user_zip }}" aria-label="Location by ZIP">
-        <button type="submit" class="btn btn-primary">Search</button>
-        <button type="button" class="mobile-filter-toggle" onclick="toggleFilters()">Filters</button>
-      </div>
-    </div>
-  </section>
+<!-- Full-width hero (outside the form) -->
+<section class="opportunities-hero">
+  <div class="opportunities-hero-content">
+    <h1>Explore Job Opportunities</h1>
+    <p class="hero-sub">Discover full-time, part-time, and second-chance hiring opportunities near you.</p>
+    <p class="hero-coming-soon">Jobs Coming Soon.</p>
+  </div>
+</section>
 
+<!-- Search + Filters + Results -->
+<form method="get" action="{% url 'opportunities' %}" id="jobFilterForm" class="search-filter-form">
+  <!-- Search just under the hero -->
   <div class="opportunities-wrapper">
+    <div class="search-bar search-bar--inline">
+      <input type="text" name="q" placeholder="Job title, keywords" value="{{ q }}" aria-label="Job title or keywords">
+      <input type="text" name="zip" placeholder="Location (ZIP)" value="{{ user_zip }}" aria-label="Location by ZIP">
+      <button type="submit" class="btn btn-primary">Search</button>
+      <button type="button" class="mobile-filter-toggle" onclick="toggleFilters()">Filters</button>
+    </div>
+    <div class="container">
     <div class="container">
       <!-- Filters + Job List -->
       <div class="layout-grid">

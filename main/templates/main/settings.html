@@ -61,11 +61,6 @@
     </button>
   </nav>
 
-  <!-- Optional: quick support link under categories -->
-  <div class="support-card">
-    <p class="support-text">Can't find what you're looking for?</p>
-    <a href="{% url 'contact' %}" class="btn btn-secondary btn-pill btn-sm">Ask Support</a>
-  </div>
 
   <!-- Right: Panels -->
   <div class="settings-panels">
@@ -213,6 +208,13 @@
       </div>
     </section>
   </div>
+</div>
+
+<!-- Support CTA under everything -->
+<div class="support-card">
+  <p class="support-text">Can't find what you're looking for?</p>
+  <a href="{% url 'contact' %}" class="btn btn-secondary btn-pill btn-sm">Ask Support</a>
+  
 </div>
 
 <script>

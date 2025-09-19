@@ -43,12 +43,12 @@
 .nav-card.active { outline: 2px solid #006da0; outline-offset: 2px; }
 
 /* Right: Panels */
-.settings-panels { display: grid; gap: 1rem; }
+.settings-panels { display: grid; gap: 1rem; grid-column: 2; grid-row: 1; }
 .panel { display: none; }
 .panel.active { display: block; }
 
 /* Support card under nav */
-.support-card { margin-top: 1rem; padding: 1rem; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); display: grid; gap: .5rem; }
+.support-card { margin: 1.5rem auto; padding: 1rem; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); display: grid; gap: .5rem; max-width: 1200px; text-align: center; }
 .support-text { margin: 0; color: #475569; }
 
 .settings-container form {

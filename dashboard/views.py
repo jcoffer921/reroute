@@ -286,11 +286,17 @@ def employer_dashboard(request):
     # Upcoming interviews for this employer
     try:
         from .models import Interview
-        upcoming_qs = Interview.objects.filter(
-            employer=employer_user,
-            status__in=[Interview.STATUS_PLANNED, Interview.STATUS_RESCHEDULED],
-            scheduled_at__gte=timezone.now(),
-        ).select_related('job', 'candidate').order_by('scheduled_at')[:10]
+        # Show all non-canceled interviews (nearest first). If you prefer upcoming-only,
+        # add scheduled_at__gte=timezone.now() back once confirmed data is timezone-safe.
+        upcoming_qs = (
+            Interview.objects
+            .filter(
+                employer=employer_user,
+                status__in=[Interview.STATUS_PLANNED, Interview.STATUS_RESCHEDULED, Interview.STATUS_COMPLETED],
+            )
+            .select_related('job', 'candidate')
+            .order_by('scheduled_at')[:20]
+        )
         interviews = list(upcoming_qs)
     except Exception:
         interviews = []

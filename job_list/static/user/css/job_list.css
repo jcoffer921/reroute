@@ -1,11 +1,11 @@
 .opportunities-hero {
-    background: linear-gradient(135deg, #2386e2, #345dbd);
-    /* background-color: #0F172A; /* rich navy blue */
-    color: #F3F4F6; /* rich navy blue for contrast */
-    margin: 0 auto;
-    padding: 10rem 2rem 4rem;
-    position: relative;
-    overflow: hidden;
+  background: linear-gradient(135deg, #2386e2, #345dbd);
+  color: #F3F4F6;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 4.5rem 1rem 2rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .opportunities-hero-content {
