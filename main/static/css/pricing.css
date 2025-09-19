@@ -113,4 +113,7 @@
   border-radius: 0;
   max-width: 1200px;   /* allow full-width pricing grid */
   padding: 0 1rem;     /* light gutter only */
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }

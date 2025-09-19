@@ -33,8 +33,13 @@
 .settings-grid { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 320px 1fr; gap: 1.25rem; align-items: start; }
 @media (max-width: 900px){ .settings-grid { grid-template-columns: 1fr; } }
 
+/* Two-column form rows that collapse on mobile */
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px){ .form-row-2 { grid-template-columns: 1fr; } }
+
 /* Left: Category Cards */
 .settings-nav { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: start; }
+.nav-group-label { margin: .5rem 0 .25rem; font-size: .9rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; color: #64748b; }
 .nav-card { display: grid; grid-template-columns: 40px 1fr; grid-template-rows: auto auto; column-gap: .75rem; row-gap: 2px; align-items: center; padding: 1rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); cursor: pointer; text-align: left; }
 .nav-card .nav-icon { grid-row: 1 / span 2; width: 40px; height: 40px; display: grid; place-items: center; background: #f0f6ff; border-radius: 10px; }
 .nav-card .nav-title { font-weight: 800; color: #0f172a; }
@@ -50,6 +55,26 @@
 /* Support card under nav */
 .support-card { margin: 1.5rem auto; padding: 1rem; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); display: grid; gap: .5rem; max-width: 1200px; text-align: center; }
 .support-text { margin: 0; color: #475569; }
+
+/* Toggle switches for Notifications */
+.notify-form { display: grid; gap: .75rem; }
+.notify-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .75rem; padding: .5rem 0; border-bottom: 1px solid #eef2ff; }
+.notify-row:last-child { border-bottom: 0; }
+.notify-text { display: grid; gap: 2px; }
+.notify-label { font-weight: 800; color: #0f172a; }
+.notify-help { margin: 0; font-size: .9rem; color: #6b7280; }
+.notify-actions { display: flex; justify-content: flex-end; margin-top: .5rem; }
+
+.toggle { position: relative; width: 46px; height: 26px; display: inline-block; }
+.toggle input { display: none; }
+.toggle .slider { position: absolute; inset: 0; background: #e5e7eb; border-radius: 999px; transition: background .2s ease; }
+.toggle .slider::before { content: ""; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s ease; }
+.toggle input:checked + .slider { background: #006da0; }
+.toggle input:checked + .slider::before { transform: translateX(20px); }
+
+/* Outline button variant */
+.btn-outline { background: #fff; color: #1f2937; border: 1px solid #e5e7eb; }
+.btn-outline:hover { background: #f9fafb; }
 
 .settings-container form {
   margin-bottom: 2rem;
@@ -100,6 +125,22 @@ input[type="password"]:focus {
   border-color: #6495ed; /* ReRoute blue */
   outline: none;
   box-shadow: 0 0 0 3px rgba(100, 149, 237, 0.2);
+}
+
+/* Smaller input variant used in settings */
+.input-small { padding: 0.5rem 0.7rem; font-size: 0.95rem; border-radius: 8px; }
+
+/* Tighten panel padding on small screens for better fit */
+@media (max-width: 640px){
+  .settings-section { padding: 1.25rem 0.75rem; }
+  .nav-card { grid-template-columns: 32px 1fr; padding: 0.75rem; }
+}
+
+/* Billing (key/value rows) and Notifications panel mobile spacing */
+@media (max-width: 640px){
+  .kv__row { grid-template-columns: 1fr !important; gap: 4px; }
+  .settings-card { padding: 16px; }
+  .notify-row { grid-template-columns: 1fr; align-items: start; }
 }
 
 /* Optional: better focus style */
@@ -278,6 +319,27 @@ button.danger {
 .kv__value {
   color: #111827;
   font-size: 1rem;
+}
+
+/* Lightweight toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 24px;
+  background: #111827;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+  opacity: 0;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 2000;
+}
+.toast-success { background: #059669; }
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
 }
 
 .plan-name {

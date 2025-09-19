@@ -419,7 +419,26 @@ def notifications_view(request):
         action = (request.POST.get('action') or '').strip()
         if action == 'mark_all_read':
             Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'ok': True, 'action': 'mark_all_read'})
             messages.success(request, 'All notifications marked as read.')
+            return redirect('dashboard:notifications')
+        elif action == 'mark_read':
+            # Mark a single notification as read (if owned by user)
+            try:
+                nid = int(request.POST.get('id') or 0)
+            except (TypeError, ValueError):
+                nid = 0
+            if nid:
+                updated = Notification.objects.filter(id=nid, user=request.user).update(is_read=True)
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    if updated:
+                        return JsonResponse({'ok': True, 'id': nid})
+                    return JsonResponse({'ok': False, 'id': nid, 'error': 'Not found or not owned'}, status=404)
+                if updated:
+                    messages.success(request, 'Notification marked as read.')
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'ok': False, 'error': 'Invalid id'}, status=400)
             return redirect('dashboard:notifications')
 
     # Include broadcasts in the notifications page

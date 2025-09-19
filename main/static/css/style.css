@@ -68,6 +68,20 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
 }
 .nav-links a:hover, .nav-links a:focus { outline: none; background: rgba(255,255,255,0.08); }
 
+/* Unread badge next to Notifications link */
+.nav-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #ef4444; /* red */
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 /* CTA or special link behavior, if any */
 .cta-button { transition: color .3s, background .3s; }
 .cta-button:hover { color: #6495ED; background: #fff; }

@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from profiles.models import UserProfile
 from django.contrib.auth.forms import PasswordChangeForm
+from profiles.constants import USER_STATUS_CHOICES
 
 
 class UserSignupForm(forms.ModelForm):
@@ -166,6 +167,83 @@ class UserProfileForm(forms.ModelForm):
             }),
         }
 
+
+# ================= Account Preferences =================
+class AccountPreferencesForm(forms.Form):
+    """
+    Settings: username (system id), display name, and employment status.
+    - Username must be unique (case-insensitive) aside from the current user
+    - Display name maps to UserProfile.preferred_name
+    - Status maps to UserProfile.status (choices from USER_STATUS_CHOICES)
+    """
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            "class": "input-small",
+            "placeholder": "Username",
+            "autocomplete": "username",
+        })
+    )
+    display_name = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            "class": "input-small",
+            "placeholder": "Display Name (public-facing)",
+        })
+    )
+    status = forms.ChoiceField(
+        choices=USER_STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={
+            "class": "input-small",
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_username(self):
+        username = (self.cleaned_data.get('username') or '').strip()
+        if not username:
+            raise ValidationError("Username is required.")
+        # Enforce uniqueness ignoring the current user
+        qs = User.objects.filter(username__iexact=username)
+        if self.user:
+            qs = qs.exclude(pk=self.user.pk)
+        if qs.exists():
+            raise ValidationError("That username is taken. Please choose another.")
+        return username
+
+
+class RecoveryOptionsForm(forms.Form):
+    """
+    Sign In & Security: Recovery options for account access.
+    Maps to UserProfile.personal_email and UserProfile.phone_number.
+    """
+    backup_email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={
+            "class": "input-small",
+            "placeholder": "Backup email (optional)",
+            "autocomplete": "email",
+        })
+    )
+    backup_phone = forms.CharField(
+        required=False,
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            "class": "input-small",
+            "placeholder": "Backup phone (optional)",
+            "autocomplete": "tel",
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
 
 # -------------------------- Onboarding Step Forms ---------------------------
 # These can remain plain, but we add attributes to keep styling consistent.

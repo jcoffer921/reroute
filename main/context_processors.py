@@ -92,3 +92,18 @@ def role_flags(request):
         "PROFILE_URL": profile_url,
         "COMPANY_LEGAL_NAME": getattr(settings, 'COMPANY_LEGAL_NAME', 'ReRoute Jobs, LLC'),
     }
+
+
+def unread_notifications(request):
+    """Expose unread in-app notification count for navbar badges.
+    Counts only user-scoped unread notifications (excludes broadcasts).
+    """
+    count = 0
+    user = getattr(request, 'user', None)
+    try:
+        if getattr(user, 'is_authenticated', False):
+            from dashboard.models import Notification
+            count = Notification.objects.filter(user=user, is_read=False).count()
+    except Exception:
+        count = 0
+    return {"UNREAD_NOTIFICATIONS": count}

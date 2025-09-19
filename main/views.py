@@ -885,6 +885,23 @@ def settings_view(request):
     Template: main/settings.html
     """
     password_form = PasswordForm(request.user)
+    # Ensure profile exists for preferences section
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    # Account preferences form (username, display name, status)
+    from .forms import AccountPreferencesForm, RecoveryOptionsForm
+    initial_prefs = {
+        'username': request.user.username,
+        'display_name': getattr(profile, 'preferred_name', '') or '',
+        'status': getattr(profile, 'status', '') or '',
+    }
+    account_prefs_form = AccountPreferencesForm(user=request.user, initial=initial_prefs)
+    # Recovery options form (backup contact)
+    recovery_initial = {
+        'backup_email': profile.personal_email or '',
+        'backup_phone': profile.phone_number or '',
+    }
+    recovery_form = RecoveryOptionsForm(user=request.user, initial=recovery_initial)
 
     if request.method == 'POST':
         # Change Password
@@ -903,6 +920,44 @@ def settings_view(request):
                 request.user.email = new_email
                 request.user.save()
                 messages.success(request, "Email updated successfully.")
+                return redirect('settings')
+
+        # Update account preferences (username, display name, status)
+        elif 'update_account_prefs' in request.POST:
+            account_prefs_form = AccountPreferencesForm(request.POST, user=request.user)
+            if account_prefs_form.is_valid():
+                new_username = account_prefs_form.cleaned_data['username']
+                display_name = account_prefs_form.cleaned_data.get('display_name', '')
+                status = account_prefs_form.cleaned_data.get('status', '')
+
+                # Apply to models
+                if new_username and new_username != request.user.username:
+                    request.user.username = new_username
+                    request.user.save(update_fields=["username"])
+
+                profile.preferred_name = display_name
+                profile.status = status
+                try:
+                    profile.save(update_fields=["preferred_name", "status"])
+                except Exception:
+                    profile.save()
+
+                messages.success(request, "Account preferences updated.")
+                return redirect('settings')
+
+        # Update recovery options (backup email/phone)
+        elif 'update_recovery' in request.POST:
+            recovery_form = RecoveryOptionsForm(request.POST, user=request.user)
+            if recovery_form.is_valid():
+                profile.personal_email = recovery_form.cleaned_data.get('backup_email', '')
+                profile.phone_number = recovery_form.cleaned_data.get('backup_phone', '')
+                try:
+                    profile.save(update_fields=["personal_email", "phone_number"])
+                except Exception:
+                    profile.save()
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'ok': True})
+                messages.success(request, "Recovery options saved.")
                 return redirect('settings')
 
         # Deactivate
@@ -953,6 +1008,8 @@ def settings_view(request):
 
     return render(request, 'main/settings.html', {
         'password_form': password_form,
+        'account_prefs_form': account_prefs_form,
+        'recovery_form': recovery_form,
         'subscription': sub,
         'is_employer': employer,
         'is_verified': is_verified,

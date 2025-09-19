@@ -80,18 +80,66 @@
   position: sticky;
   top: 80px;
 }
-.filters-card { background: #fff; padding: 1rem; border: 1px solid #e6ecfb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); display: grid; gap: .5rem; }
+.filters-card { background: #fff; padding: 1rem; border: 1px solid #e6ecfb; border-radius: 12px; box-shadow: 0 6px 16px rgba(10,34,80,0.06); display: grid; gap: .5rem; 
+  /* Softer accent for active pills (overrideable) */
+  --pill-active-bg: #0A77B4; /* softer than #006da0 */
+  --pill-active-border: #0A77B4;
+}
+.filters-card hr { border: 0; border-top: 1px solid #eef2ff; margin: .6rem 0 .8rem; }
 .filters-title { margin: .25rem 0 .25rem; font-size: 1rem; font-weight: 800; color: #0f172a; }
-.pill-group { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .5rem; }
-.pill { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .65rem; border: 1px solid #e5e7eb; border-radius: 999px; cursor: pointer; font-weight: 700; color: #111827; background: #fff; }
+
+/* Modern pill-style filters */
+.pill-group { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: .5rem; }
+.pill { display: inline-flex; align-items: center; cursor: pointer; background: transparent; border: 0; padding: 0; }
 .pill input { display: none; }
-.pill span { display: inline-block; }
-.pill input:checked ~ span { background: #006da0; color: #fff; border-radius: 999px; padding: .35rem .65rem; }
-.radio-group { display: flex; flex-wrap: wrap; gap: .4rem; }
-.radio-pill { display: inline-flex; padding: .35rem .65rem; border: 1px solid #e5e7eb; border-radius: 999px; cursor: pointer; font-weight: 700; color: #111827; background: #fff; }
+.pill span {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.pill:hover span { background: #f5f7fb; border-color: #e5e7eb; }
+.pill:focus-within span { box-shadow: 0 0 0 2px rgba(0,109,160,0.15); outline: none; }
+.pill input:checked ~ span {
+  background: var(--pill-active-bg, var(--primary-blue, #006da0));
+  color: #fff;
+  border-color: var(--pill-active-border, var(--primary-blue, #006da0));
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(0,109,160,0.25), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.radio-group { display: flex; flex-wrap: wrap; gap: 12px; }
+.radio-pill { display: inline-flex; align-items: center; cursor: pointer; background: transparent; border: 0; padding: 0; }
 .radio-pill input { display: none; }
-.radio-pill input:checked ~ span { background: #00beb8; color: #0f172a; padding: .35rem .65rem; border-radius: 999px; }
-.radius-select { width: 100%; padding: .5rem .65rem; border-radius: 8px; border: 1px solid #e6ecfb; }
+.radio-pill span {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.radio-pill:hover span { background: #f5f7fb; }
+.radio-pill:focus-within span { box-shadow: 0 0 0 2px rgba(0,109,160,0.15); outline: none; }
+.radio-pill input:checked ~ span {
+  background: var(--pill-active-bg, var(--primary-blue, #006da0));
+  color: #fff;
+  border-color: var(--pill-active-border, var(--primary-blue, #006da0));
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(0,109,160,0.25), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.radius-select { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #e6ecfb; font-size: 14px; }
 
 /* ===== Job List Section ===== */
 .job-list {
@@ -130,9 +178,7 @@
   margin-bottom: 1.5rem;
 }
 
-.job-card:hover {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
+.job-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,.12); transform: translateY(-3px); transition: box-shadow .18s ease, transform .18s ease; border-color: rgba(0,109,160,.35); }
 
 /* Header with logo and job title/info side-by-side */
 .job-header {
@@ -164,6 +210,8 @@
   line-height: 1.1;
   color: #222;
 }
+
+.job-posted { margin: 2px 0 6px; font-size: .85rem; color: #6b7280; }
 
 .job-title-link {
   color: inherit;
