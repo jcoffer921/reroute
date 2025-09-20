@@ -5,6 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/employer_public_profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/public_profile.css' %}">
 
 <div class="employer-public" data-user="{{ viewed_user.username }}">
   <!-- Hero / Header -->
@@ -32,10 +33,7 @@
       <div class="hero-text">
         <h1 class="hero-name">{% with full=viewed_user.get_full_name %}{% if full %}{{ full }}{% else %}@{{ viewed_user.username }}{% endif %}{% endwith %}</h1>
         {% if profile.verified %}
-          <span class="hero-verified hero-verified--sm" title="Verified">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Verified
-          </span>
+          <span class="hero-verified hero-verified--sm" title="Verified">Verified</span>
         {% endif %}
         <div class="hero-sub">User ID: {{ profile.user_uid|stringformat:"s" }}</div>
       </div>
@@ -47,10 +45,12 @@
     </div>
   </section>
 
-  <!-- Who You Are -->
+  <!-- Who You Are (clean, matches private profile) -->
   <div class="section-divider"></div>
-  <section class="section section--alt">
-    <h2 class="section-title">Who You Are</h2>
+  <section class="section">
+    <div class="info-header">
+      <h2 class="section-title" style="font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 800;">Who You Are</h2>
+    </div>
     <div class="about-text">
       {% if profile.bio %}
         {{ profile.bio|linebreaksbr }}
@@ -60,10 +60,12 @@
     </div>
   </section>
 
-  <!-- General Info -->
-  <section class="section section-info section--alt">
-    <h2 class="section-title">General Info</h2>
-    <div class="info-grid">
+  <!-- General Info (clean) -->
+  <section class="section section-info">
+    <div class="info-header">
+      <h2 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">General Info</h2>
+    </div>
+    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
       <div class="info-item"><div class="label">Phone</div><div class="value">{{ profile.phone_number|default:'—' }}</div></div>
       <div class="info-item"><div class="label">Email</div><div class="value">{{ profile.personal_email|default:'—' }}</div></div>
       <div class="info-item"><div class="label">DOB</div><div class="value">{{ profile.birthdate|date:'M j, Y'|default:'—' }}</div></div>
@@ -73,13 +75,16 @@
 
   <!-- Resume -->
   <section class="section">
-    <h2 class="section-title">Resume</h2>
-    {% if resume %}
-      <div class="actions">
-        <a class="btn-view-all" href="{% url 'resumes:employer_view_resume' viewed_user.username %}">View Resume</a>
-        <a class="btn-view-all" href="{% url 'resumes:employer_download_resume' viewed_user.username %}">Download</a>
-      </div>
-    {% else %}
+    <div class="info-header">
+      <h2 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Resume</h2>
+      {% if resume %}
+        <div style="display:flex; gap:.6rem; align-items:center;">
+          <a class="btn-view-all" href="{% url 'resumes:employer_view_resume' viewed_user.username %}">View Resume</a>
+          <a class="btn-view-all" href="{% url 'resumes:employer_download_resume' viewed_user.username %}">Download</a>
+        </div>
+      {% endif %}
+    </div>
+    {% if not resume %}
       <p class="muted">No resume available.</p>
     {% endif %}
   </section>

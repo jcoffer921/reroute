@@ -37,7 +37,7 @@
           {% with full=user.get_full_name %}{% if full %}{{ full }}{% else %}@{{ user.username }}{% endif %}{% endwith %}
         </h1>
         {% if profile.verified %}
-          <span class="hero-verified hero-verified--sm"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>
+          <span class="hero-verified hero-verified--sm">Verified</span>
         {% endif %}
         <div class="hero-sub">User ID: {{ profile.user_uid|stringformat:"s" }}</div>
       </div>
@@ -53,45 +53,36 @@
   </section>
 </div>
 
-<!-- Main content container for cards -->
-<div class="profile-container{% if user == request.user %} profile--owner{% endif %}">
-
-  <section class="section section--alt profile-bio">
-    <h2 class="section-title">Who You Are</h2>
-
-    <!-- Bio Display -->
-    <p id="bioPreview">
-      {% if profile.bio %}
-        {{ profile.bio|truncatechars:200 }}
-        {% if profile.bio|length > 200 %}
-          <span id="showMoreBtn" style="color: blue; cursor: pointer;" onclick="toggleBio()">Show more</span>
-        {% endif %}
-      {% else %}
-        <em>No bio yet.</em>
-      {% endif %}
-    </p>
-
-    <!-- Hidden full bio -->
-    <p id="fullBio" style="display: none;">{{ profile.bio }}</p>
-
-    <!-- Edit Bio Button (Only show if it's the user's profile) -->
+<!-- Who You Are (clean, simple, directly under hero) -->
+<section class="section profile-bio">
+  <div class="info-header">
+    <h2 class="section-title" style="font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 800;">Who You Are</h2>
     {% if user == request.user %}
-      <!-- ✅ Added class for CSS -->
-      <button class="edit-bio-btn" onclick="toggleBioEdit()">Edit Bio</button>
-
-      <!-- Hidden form for editing bio -->
-      <form id="editBioForm" method="POST" action="{% url 'update_bio' %}" style="display: none;">
-        {% csrf_token %}
-        <textarea name="bio" rows="4" cols="50">{{ profile.bio }}</textarea><br>
-        <button type="submit" class="save-btn">Save</button>
-        <button type="button" class="cancel-btn" onclick="toggleBioEdit()">Cancel</button>
-      </form>
+      <button class="edit-btn" type="button" onclick="toggleBioEdit()">Edit Bio</button>
     {% endif %}
-  </section>
+  </div>
 
-  
+  <!-- Bio Display (no card, no gradient) -->
+  <p id="bioPreview" class="bio">
+    {% if profile.bio %}
+      {{ profile.bio }}
+    {% else %}
+      <em>No bio yet.</em>
+    {% endif %}
+  </p>
 
-</div>
+  {% if user == request.user %}
+    <!-- Hidden form for editing bio -->
+    <form id="editBioForm" method="POST" action="{% url 'update_bio' %}" style="display: none;">
+      {% csrf_token %}
+      <textarea name="bio" rows="4" cols="50">{{ profile.bio }}</textarea><br>
+      <div class="form-actions" style="margin-top: .5rem;">
+        <button type="button" class="cancel-btn" onclick="toggleBioEdit()">Cancel</button>
+        <button type="submit" class="save-btn">Save</button>
+      </div>
+    </form>
+  {% endif %}
+</section>
 
 <div class="mini-nav-container">
 
@@ -115,144 +106,142 @@
     </div>
   </div>
 
-  <!-- Two-Column Info Display with Edit Button -->
-  <section class="section section--alt profile-display">
-     <!-- Personal Info Section -->
-      <div class="info-header">
-        <h3 class="section-title">Personal Info</h3>
-        <button class="edit-btn" data-panel-open="#slideEditor" type="button">Edit</button>
+  <!-- Personal Info -->
+  <section class="section">
+    <div class="info-header">
+      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Personal Info</h3>
+      <button class="edit-btn" data-panel-open="#slideEditor" type="button">Edit</button>
+    </div>
+    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+      <div class="info-item">
+        <strong>First Name:</strong>
+        <span>{{ profile.firstname }}</span>
       </div>
-      <div class="info-grid">
-        <div class="info-item">
-          <strong>First Name:</strong>
-          <span>{{ profile.firstname }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Last Name:</strong>
-          <span>{{ profile.lastname }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Email:</strong>
-          <span>{{ profile.personal_email }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Phone:</strong>
-          <span>{{ profile.phone_number }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Location:</strong>
-          <span>{{ profile.city }}, {{ profile.state }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Date of Birth:</strong>
-          <span>{{ profile.birthdate|date:"F j, Y" }}</span>
-        </div>
+      <div class="info-item">
+        <strong>Last Name:</strong>
+        <span>{{ profile.lastname }}</span>
       </div>
+      <div class="info-item">
+        <strong>Email:</strong>
+        <span>{{ profile.personal_email }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Phone:</strong>
+        <span>{{ profile.phone_number }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Location:</strong>
+        <span>{{ profile.city }}, {{ profile.state }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Date of Birth:</strong>
+        <span>{{ profile.birthdate|date:"F j, Y" }}</span>
+      </div>
+    </div>
+  </section>
 
-      <hr>
-
-      <!-- Employment Info Section -->
-      <div class="info-header">
-        <h3 class="section-title">Employment Info</h3>
-        <button class="edit-btn" data-panel-open="#employmentSlideEditor" type="button">Edit</button>
+  <!-- Employment Info -->
+  <section class="section">
+    <div class="info-header">
+      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Employment Info</h3>
+      <button class="edit-btn" data-panel-open="#employmentSlideEditor" type="button">Edit</button>
+    </div>
+    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+      <div class="info-item">
+        <strong>Work in US:</strong>
+        <span>{{ profile.get_work_in_us_display }}</span>
       </div>
-      <div class="info-grid">
-        <div class="info-item">
-          <strong>Work in US:</strong>
-          <span>{{ profile.get_work_in_us_display }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Sponsorship Needed:</strong>
-          <span>{{ profile.get_sponsorship_needed_display }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Disability:</strong>
-          <span>{{ profile.get_disability_display }}</span>
-        </div>
-        <div class="info-item">
-          <strong>LGBTQ+:</strong>
-          <span>{{ profile.get_lgbtq_display }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Gender:</strong>
-          <span>{{ profile.gender }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Veteran:</strong>
-          <span>{{ profile.get_veteran_status_display }}</span>
-        </div>
+      <div class="info-item">
+        <strong>Sponsorship Needed:</strong>
+        <span>{{ profile.get_sponsorship_needed_display }}</span>
       </div>
-
-      <hr>
-
-      <!-- Emergency Contact Section -->
-      <div class="info-header">
-        <h3 class="section-title">Emergency Contact</h3>
-        <button class="edit-btn" data-panel-open="#emergencySlidePanel" type="button">Edit</button>
+      <div class="info-item">
+        <strong>Disability:</strong>
+        <span>{{ profile.get_disability_display }}</span>
       </div>
-      <div class="info-grid">
-        <div class="info-item">
-          <strong>First Name:</strong>
-          <span>{{ profile.emergency_contact_firstname }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Last Name:</strong>
-          <span>{{ profile.emergency_contact_lastname }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Relationship:</strong>
-          <span>{{ profile.emergency_contact_relationship }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Phone:</strong>
-          <span>{{ profile.emergency_contact_phone }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Email:</strong>
-          <span>{{ profile.emergency_contact_email }}</span>
-        </div>
+      <div class="info-item">
+        <strong>LGBTQ+:</strong>
+        <span>{{ profile.get_lgbtq_display }}</span>
       </div>
-
-      <hr>
-
-      <!-- Demographics Section -->
-      <div class="info-header">
-        <h3 class="section-title">Demographics</h3>
-        <button class="edit-btn" data-panel-open="#demographicsSlidePanel" type="button">Edit</button>
+      <div class="info-item">
+        <strong>Gender:</strong>
+        <span>{{ profile.gender }}</span>
       </div>
-      <div class="info-grid">
-        <div class="info-item">
-          <strong>Gender:</strong>
-          <span>{{ profile.gender }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Ethnicity:</strong>
-          <span>{{ profile.ethnicity }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Disability:</strong>
-          <span>{{ profile.get_disability_display }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Disability Explanation:</strong>
-          <span>{{ profile.disability_explanation }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Veteran Status:</strong>
-          <span>{{ profile.get_veteran_status_display }}</span>
-        </div>
-        <div class="info-item">
-          <strong>Veteran Explanation:</strong>
-          <span>{{ profile.veteran_explanation }}</span>
-        </div>
+      <div class="info-item">
+        <strong>Veteran:</strong>
+        <span>{{ profile.get_veteran_status_display }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Emergency Contact -->
+  <section class="section">
+    <div class="info-header">
+      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Emergency Contact</h3>
+      <button class="edit-btn" data-panel-open="#emergencySlidePanel" type="button">Edit</button>
+    </div>
+    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+      <div class="info-item">
+        <strong>First Name:</strong>
+        <span>{{ profile.emergency_contact_firstname }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Last Name:</strong>
+        <span>{{ profile.emergency_contact_lastname }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Relationship:</strong>
+        <span>{{ profile.emergency_contact_relationship }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Phone:</strong>
+        <span>{{ profile.emergency_contact_phone }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Email:</strong>
+        <span>{{ profile.emergency_contact_email }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demographics -->
+  <section class="section">
+    <div class="info-header">
+      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Demographics</h3>
+      <button class="edit-btn" data-panel-open="#demographicsSlidePanel" type="button">Edit</button>
+    </div>
+    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+      <div class="info-item">
+        <strong>Gender:</strong>
+        <span>{{ profile.gender }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Ethnicity:</strong>
+        <span>{{ profile.ethnicity }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Disability:</strong>
+        <span>{{ profile.get_disability_display }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Disability Explanation:</strong>
+        <span>{{ profile.disability_explanation }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Veteran Status:</strong>
+        <span>{{ profile.get_veteran_status_display }}</span>
+      </div>
+      <div class="info-item">
+        <strong>Veteran Explanation:</strong>
+        <span>{{ profile.veteran_explanation }}</span>
       </div>
     </div>
   </section>
 
   {# --- Skills Section --- #}
-  <section class="section section--alt profile-display">
+  <section class="section">
     <div class="info-header">
-      <h3 class="section-title">Skills</h3>
+      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Skills</h3>
       {% if is_owner %}<button class="edit-btn" data-panel-open="#skillsSlidePanel" type="button">Edit</button>{% endif %}
     </div>
 

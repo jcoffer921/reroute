@@ -40,12 +40,9 @@
       <div class="hero-text">
         <h1 class="hero-name">{{ employer_profile.company_name|default:"Your Company" }}</h1>
         {% if employer_profile.verified or employer_profile.user.profile.verified %}
-          <span class="hero-verified">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Verified
-          </span>
+          <span class="hero-verified hero-verified--sm">Verified</span>
         {% else %}
-          <span class="hero-verified" style="color:#fcd34d;background:rgba(252,211,77,.14);border-color:rgba(252,211,77,.5)">Pending Verification</span>
+          <span class="hero-verified hero-verified--sm" style="color:#fcd34d;background:rgba(252,211,77,.14);border-color:rgba(252,211,77,.5)">Pending Verification</span>
         {% endif %}
       </div>
       <button id="openEditPanel" class="btn btn-primary" type="button" style="margin-left:12px;">Edit Profile</button>
@@ -54,8 +51,11 @@
 
   <!-- About Us -->
   <div class="section-divider"></div>
-  <section class="section section-about section--alt">
-    <h2 class="section-title">About Us</h2>
+  <section class="section section-about">
+    <div class="info-header">
+      <h2 class="section-title" style="font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 800;">About Us</h2>
+      <button class="edit-btn" type="button" onclick="document.getElementById('openEditPanel')?.click()">Edit</button>
+    </div>
     <div class="about-text">
       {{ employer_profile.description|default:"Tell candidates about your mission, culture, and values."|linebreaksbr }}
     </div>
@@ -94,9 +94,12 @@
   </section>
 
   <!-- Additional Info -->
-  <section class="section section-info section--alt">
-    <h2 class="section-title">Additional Info</h2>
-    <div class="info-grid">
+  <section class="section section-info">
+    <div class="info-header">
+      <h2 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Additional Info</h2>
+      <button class="edit-btn" type="button" onclick="document.getElementById('openEditPanel')?.click()">Edit</button>
+    </div>
+    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
       <div class="info-item">
         <div class="label">Address</div>
         <div class="value">

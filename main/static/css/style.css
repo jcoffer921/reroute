@@ -229,7 +229,7 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
 
 
 /* ========== HERO SECTION ========== */
-.hero {
+.home-hero {
     height: 100vh;
     display: flex;
     align-items: center;
@@ -242,7 +242,7 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
     overflow: hidden;
 }
 
-.hero::before {
+.home-hero::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -258,12 +258,12 @@ body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background:
     100% { transform: scale(1.1); }
 }
 
-.hero-content h1 {
+.home-hero .hero-content h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
 }
 
-.hero-content p {
+.home-hero .hero-content p {
     font-size: 1.25rem;
     margin-bottom: 2rem;
     max-width: 600px;
