@@ -37,7 +37,7 @@
           {% with full=user.get_full_name %}{% if full %}{{ full }}{% else %}@{{ user.username }}{% endif %}{% endwith %}
         </h1>
         {% if profile.verified %}
-          <span class="hero-verified"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>
+          <span class="hero-verified hero-verified--sm"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>
         {% endif %}
         <div class="hero-sub">User ID: {{ profile.user_uid|stringformat:"s" }}</div>
       </div>
@@ -55,60 +55,6 @@
 
 <!-- Main content container for cards -->
 <div class="profile-container{% if user == request.user %} profile--owner{% endif %}">
-  <div class="profile-header">
-
-    <!-- Center: Picture + Name + Badge + ID -->
-    <div class="profile-section profile-center">
-      <form method="POST" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
-        {% csrf_token %}
-        <label for="profilePicInput" class="profile-picture-wrapper">
-          {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" class="profile-picture" alt="Profile Picture">
-          {% else %}
-            {# Initials fallback instead of static default image #}
-            <span class="profile-picture profile-initials" aria-label="Profile picture placeholder" title="Add a profile photo">
-              {{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
-            </span>
-          {% endif %}
-          <input type="file" id="profilePicInput" name="profile_picture" accept="image/*" style="display: none;" onchange="handleProfilePicChange(this);">
-        </label>
-      </form>
-
-      <!-- Profile Picture Modal (unchanged) -->
-      <div id="profilePicModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000;">
-        <div style="background: white; margin: 10% auto; padding: 20px; width: 300px; text-align: center;">
-          <h3>Update Profile Picture</h3>
-          <img id="previewImage" src="" style="width: 100%; height: auto; margin-bottom: 10px;" />
-          <form id="profilePicForm" method="POST" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
-            {% csrf_token %}
-            <input type="file" id="modalPicInput" name="profile_picture" accept="image/*" style="display: none;" />
-            <button type="submit">Save</button>
-            <button type="button" onclick="removeProfilePicture()">Remove</button>
-            <button type="button" onclick="closeModal()">Cancel</button>
-          </form>
-        </div>
-      </div>
-
-
-      <h2 class="profile-name">
-        {% if profile.firstname %}
-          {{ profile.firstname }} (@{{ user.username }})
-        {% else %}
-          @{{ user.username }}
-        {% endif %}
-      </h2>
-
-      <p class="user-id">
-        User ID: <span class="uid">{{ profile.user_uid|stringformat:"s" }}</span>
-      </p>
-
-
-      {% if profile.verified %}
-        <span class="verified-badge">Verified</span>
-      {% endif %}
-    </div>
-
-  </div>
 
   <section class="section section--alt profile-bio">
     <h2 class="section-title">Who You Are</h2>
@@ -143,28 +89,31 @@
     {% endif %}
   </section>
 
-  <hr>
-
-  <div class="info-pair-grid">
-    <div class="info-label">Phone:</div>
-    <div class="info-value">{{ profile.phone_number|default:"" }}</div>
-
-    <div class="info-label">Email:</div>
-    <div class="info-value">{{ profile.personal_email|default:"" }}</div>
-
-    <div class="info-label">Location:</div>
-    <div class="info-value">{{ profile.city|default_if_none:""|default:"" }}{{ profile.city|yesno:", " }}{{ profile.state|default_if_none:""|default:"" }}</div>
-
-    <div class="info-label">Date of Birth:</div>
-    <div class="info-value">{{ profile.birthdate|date:"F j, Y"|default:"" }}</div>
-
-    <div class="info-label">Gender:</div>
-    <div class="info-value">{{ profile.gender }}</div>
-  </div>
+  
 
 </div>
 
 <div class="mini-nav-container">
+
+  <!-- Profile Picture Modal (moved outside; used by click-to-edit) -->
+  <div id="profilePicModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;">
+    <div style="background: #fff; margin: 6% auto; padding: 20px; width: min(420px, 92vw); text-align: center; border-radius: 12px;">
+      <h3>Update Profile Picture</h3>
+      <img id="previewImage" src="" style="width: 100%; height: auto; margin-bottom: 10px; display:none;" alt="Avatar preview" />
+      <form id="profilePicForm" method="POST" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
+        {% csrf_token %}
+        <input type="file" id="modalPicInput" name="profile_picture" accept="image/*" />
+        <div class="form-actions" style="margin-top:12px;">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary" data-close-avatar>Cancel</button>
+        </div>
+      </form>
+      <form method="post" action="{% url 'remove_profile_picture' %}" style="margin-top:8px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary">Remove Photo</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Two-Column Info Display with Edit Button -->
   <section class="section section--alt profile-display">

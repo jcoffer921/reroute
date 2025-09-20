@@ -29,6 +29,7 @@
 .hero-name { margin: 0; font-size: clamp(1.75rem, 4.4vw, 2.75rem); font-weight: 900; letter-spacing: -0.01em; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.35); }
 .hero-verified { display: inline-flex; align-items: center; gap: 8px; color: #065f46; background: #22c55e; color: #062e12; border: 1px solid rgba(6,95,70,0.25); padding: 6px 12px; border-radius: 999px; font-weight: 800; box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
 .hero-verified svg { width: 16px; height: 16px; stroke: currentColor; }
+.hero-verified--sm { padding: 4px 10px; font-size: 0.9rem; font-weight: 700; }
 .hero-sub { color: #e5e7eb; font-size: 0.95rem; }
 .hero-meta-right { margin-left: auto; color: #e5e7eb; text-align: right; display: flex; flex-direction: column; gap: 6px; }
 .hero-meta-right .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.85; }

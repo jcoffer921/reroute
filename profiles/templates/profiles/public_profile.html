@@ -32,7 +32,7 @@
       <div class="hero-text">
         <h1 class="hero-name">{% with full=viewed_user.get_full_name %}{% if full %}{{ full }}{% else %}@{{ viewed_user.username }}{% endif %}{% endwith %}</h1>
         {% if profile.verified %}
-          <span class="hero-verified" title="Verified">
+          <span class="hero-verified hero-verified--sm" title="Verified">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Verified
           </span>

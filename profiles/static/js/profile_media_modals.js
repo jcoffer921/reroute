@@ -63,5 +63,7 @@
     picModal.addEventListener('click', (e) => {
       if (e.target === picModal) { picModal.style.display = 'none'; }
     });
+    const closeAvatar = document.querySelector('[data-close-avatar]');
+    if (closeAvatar) closeAvatar.addEventListener('click', () => { picModal.style.display = 'none'; });
   }
 })();
