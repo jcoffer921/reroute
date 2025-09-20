@@ -42,6 +42,11 @@ def opportunities_view(request):
                 Q(requirements__icontains=t)
             )
 
+    # --- Filter by employer username (optional) ---
+    employer_username = (request.GET.get('employer') or '').strip()
+    if employer_username:
+        jobs_qs = jobs_qs.filter(employer__username=employer_username)
+
     # --- Job type filter (use the job_type field, not tags regex) ---
     job_types = request.GET.getlist('type')
     # Track normalized types for template checked-state
@@ -94,6 +99,7 @@ def opportunities_view(request):
         'radius': radius,
         'selected_job_types': normalized_types,
         'selected_preset_zip': preset_zip,
+        'selected_employer': employer_username,
     }
 
     # AJAX: return only the jobs list HTML for in-page updates

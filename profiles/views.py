@@ -433,16 +433,38 @@ def employer_profile_view(request):
 def employer_public_profile_view(request, username: str):
     """
     Public, read-only employer profile page by username.
-    Shows logo, company details, website, and description in a simple card.
+    Modern layout with hero, About, current openings (up to 3), and info grid.
     """
     user = get_object_or_404(User, username=username)
     employer_profile = get_object_or_404(EmployerProfile, user=user)
+
+    # Pull up to 3 active jobs for this employer
+    try:
+        from job_list.models import Job
+        jobs_qs = Job.objects.filter(is_active=True, employer=user).order_by('-created_at')
+        total_jobs = jobs_qs.count()
+        jobs = list(jobs_qs[:3])
+    except Exception:
+        jobs, total_jobs = [], 0
+
+    # Build a "View All Jobs" link that filters by employer on the opportunities page
+    from django.urls import reverse
+    view_all_url = None
+    try:
+        view_all_base = reverse('opportunities')
+        view_all_url = f"{view_all_base}?employer={user.username}"
+    except Exception:
+        pass
+
     return render(
         request,
         "profiles/employer_public_profile.html",
         {
             "employer_profile": employer_profile,
             "viewed_user": user,
+            "jobs": jobs,
+            "total_jobs": total_jobs,
+            "view_all_url": view_all_url,
         },
     )
 

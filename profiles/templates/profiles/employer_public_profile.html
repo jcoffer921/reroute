@@ -4,92 +4,121 @@
 {% block title %}Employer — {{ employer_profile.company_name|default:viewed_user.username }}{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/employer_profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/employer_public_profile.css' %}">
 
-<div class="employer-profile-page">
-  <section class="card employer-card">
-    <header class="profile-header">
-      <div class="avatar-wrapper">
-        {% if employer_profile.logo %}
-          <img src="{{ employer_profile.logo.url }}" alt="{{ employer_profile.company_name|default:'Company' }} logo" class="company-avatar">
-        {% else %}
-          {% if employer_profile.company_name %}
-            {% with first=employer_profile.company_name|slice:":1" %}
-              <div class="company-avatar avatar-initials">{{ first|upper }}</div>
-            {% endwith %}
+<div class="employer-public" data-company="{{ employer_profile.company_name|default:viewed_user.username }}">
+  <!-- Hero / Header -->
+  <section class="hero">
+    <div class="hero-bg" style="{% if employer_profile.logo %}background-image: url('{{ employer_profile.logo.url }}');{% else %}background-image: url('{% static 'images/dream_team.jpg' %}');{% endif %}"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+      <div class="employer-pill">
+        <div class="pill-left">
+          {% if employer_profile.logo %}
+            <img class="pill-logo" src="{{ employer_profile.logo.url }}" alt="{{ employer_profile.company_name|default:'Company' }} logo">
           {% else %}
-            <img src="{% static 'img/company-placeholder.svg' %}" alt="Company placeholder" class="company-avatar">
+            <div class="pill-logo pill-logo--initials">
+              {% with first=employer_profile.company_name|default:viewed_user.username|slice:":1" %}{{ first|upper }}{% endwith %}
+            </div>
           {% endif %}
-        {% endif %}
-      </div>
-      <div class="header-details">
-        <h1 class="company-name">{{ employer_profile.company_name|default:viewed_user.username }}</h1>
+          <div class="pill-text">
+            <h1 class="pill-name">{{ employer_profile.company_name|default:viewed_user.username }}</h1>
+          </div>
+        </div>
         {% if employer_profile.verified or employer_profile.user.profile.verified %}
-          <span class="badge badge-verified">Verified</span>
-        {% else %}
-          <span class="badge badge-pending">Pending Verification</span>
+          <span class="pill-verified" title="Verified">Verified</span>
         {% endif %}
       </div>
-    </header>
+    </div>
+  </section>
 
-    <div class="card-body">
-      <div class="details-grid">
-        <div class="detail">
-          <div class="label">Website</div>
-          <div class="value">
-            {% if employer_profile.website %}
-              <a href="{{ employer_profile.website }}" target="_blank" rel="noopener">{{ employer_profile.website }}</a>
-            {% else %}
-              <span class="muted">Add a website</span>
-            {% endif %}
-          </div>
+  <!-- About Us -->
+  <section class="section section-about">
+    <h2 class="section-title">About Us</h2>
+    <div class="about-text">
+      {% if employer_profile.description %}
+        {{ employer_profile.description|linebreaksbr }}
+      {% else %}
+        <em>No company description provided yet.</em>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Current Listings -->
+  <section class="section section-jobs">
+    <div class="section-head">
+      <h2 class="section-title">Current Job Openings</h2>
+      {% if total_jobs and total_jobs > 3 and view_all_url %}
+        <a class="btn-view-all" href="{{ view_all_url }}">View All Jobs</a>
+      {% endif %}
+    </div>
+    {% if jobs and jobs|length > 0 %}
+      <div class="jobs-grid">
+        {% for job in jobs %}
+          <a class="job-card" href="{% url 'job_detail' job.id %}" aria-label="View {{ job.title }} details">
+            <div class="job-card-inner">
+              <div class="job-title">{{ job.title }}</div>
+              <div class="job-meta">
+                <span class="chip">{{ job.get_job_type_display }}</span>
+                <span class="dot">•</span>
+                <span class="location">{{ job.location }}</span>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No active openings right now.</p>
+    {% endif %}
+  </section>
+
+  <!-- Additional Info -->
+  <section class="section section-info">
+    <h2 class="section-title">Additional Info</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="label">Address</div>
+        <div class="value">
+          {% if employer_profile.user.profile.street_address or employer_profile.user.profile.city or employer_profile.user.profile.state %}
+            {{ employer_profile.user.profile.street_address }}{% if employer_profile.user.profile.city %}, {{ employer_profile.user.profile.city }}{% endif %}{% if employer_profile.user.profile.state %}, {{ employer_profile.user.profile.state }}{% endif %}
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
         </div>
-
-        <div class="detail full">
-          <div class="label">Description</div>
-          <div class="value">{{ employer_profile.description|default:"No description provided." }}</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Location</div>
+        <div class="value">
+          {% if employer_profile.user.profile.city or employer_profile.user.profile.state %}
+            {{ employer_profile.user.profile.city }}{% if employer_profile.user.profile.city and employer_profile.user.profile.state %}, {% endif %}{{ employer_profile.user.profile.state }}
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
         </div>
-
-        <div class="detail">
-          <div class="label">Phone</div>
-          <div class="value">
-            {% if employer_profile.phone %}
-              {{ employer_profile.phone }}
-            {% elif employer_profile.user.profile.phone_number %}
-              {{ employer_profile.user.profile.phone_number }}
-            {% else %}
-              <span class="muted">—</span>
-            {% endif %}
-          </div>
+      </div>
+      <div class="info-item">
+        <div class="label">Contact Number</div>
+        <div class="value">
+          {% if employer_profile.user.profile.phone_number %}
+            {{ employer_profile.user.profile.phone_number }}
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
         </div>
-
-        <div class="detail">
-          <div class="label">State</div>
-          <div class="value">
-            {% if employer_profile.state %}
-              {{ employer_profile.state }}
-            {% elif employer_profile.user.profile.state %}
-              {{ employer_profile.user.profile.state }}
-            {% else %}
-              <span class="muted">—</span>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="detail full">
-          <div class="label">Address</div>
-          <div class="value">
-            {% if employer_profile.address %}
-              {{ employer_profile.address }}
-            {% elif employer_profile.user.profile.street_address or employer_profile.user.profile.city or employer_profile.user.profile.state %}
-              {{ employer_profile.user.profile.street_address }}{% if employer_profile.user.profile.city %}, {{ employer_profile.user.profile.city }}{% endif %}{% if employer_profile.user.profile.state %}, {{ employer_profile.user.profile.state }}{% endif %}
-            {% else %}
-              <span class="muted">—</span>
-            {% endif %}
-          </div>
+      </div>
+      <div class="info-item">
+        <div class="label">Website</div>
+        <div class="value">
+          {% if employer_profile.website %}
+            <a href="{{ employer_profile.website }}" target="_blank" rel="noopener">{{ employer_profile.website }}</a>
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
         </div>
       </div>
     </div>
   </section>
 </div>
+
+<script src="{% static 'js/employer_public_profile.js' %}"></script>
 {% endblock %}

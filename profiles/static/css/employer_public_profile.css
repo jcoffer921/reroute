@@ -1,0 +1,134 @@
+/* Public Employer Profile — modern, branded layout */
+
+:root {
+  --brand-500: #2563eb;
+  --brand-600: #1d4ed8;
+  --card-bg: #ffffff;
+  --text: #0f172a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow-md: 0 8px 24px rgba(2, 6, 23, 0.08);
+}
+
+.employer-public {
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  height: clamp(260px, 38vw, 420px);
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05) contrast(1.05) brightness(0.9);
+  transform: translateY(0);
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.65) 0%, rgba(15, 23, 42, 0.35) 45%, rgba(15, 23, 42, 0) 100%);
+}
+.hero-content {
+  position: absolute;
+  left: 0; right: 0; bottom: 16px;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+}
+.employer-pill {
+  background: rgba(255,255,255,0.96);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 960px;
+  width: 100%;
+}
+.pill-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pill-logo {
+  width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.pill-logo--initials {
+  display: grid; place-items: center; background: #e5e7eb; color: #111827; font-weight: 700;
+}
+.pill-text { min-width: 0; }
+.pill-name { font-size: 1.25rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill-verified {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #e6f7ec; color: #1e7e34; border: 1px solid #c7ead2;
+  padding: 6px 10px; border-radius: 999px; font-weight: 600;
+}
+
+/* Sections */
+.section { max-width: 1100px; margin: 28px auto; padding: 0 16px; }
+.section-title { font-size: 1.25rem; margin: 0 0 12px; }
+.about-text { max-width: 72ch; color: #111827; line-height: 1.6; }
+.muted { color: var(--muted); }
+
+/* Jobs grid */
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.btn-view-all {
+  color: #fff; background: var(--brand-500); text-decoration: none; font-weight: 600;
+  padding: 8px 12px; border-radius: 10px; border: 1px solid transparent;
+}
+.btn-view-all:hover { background: var(--brand-600); }
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.job-card {
+  display: block;
+  aspect-ratio: 1 / 1; /* square */
+  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+.job-card-inner { padding: 16px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.job-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+.job-meta { color: var(--muted); font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+.chip { background: #f3f4f6; color: #111827; padding: 4px 8px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; }
+.dot { color: #c2c7cf; }
+
+/* Additional Info */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 16px;
+}
+.info-item { display: flex; flex-direction: column; }
+.label { color: var(--muted); font-size: 0.9rem; margin-bottom: 4px; }
+.value { font-size: 1rem; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .jobs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .jobs-grid { grid-template-columns: 1fr; }
+  .employer-pill { padding: 10px 12px; }
+  .pill-name { font-size: 1.1rem; }
+}
+

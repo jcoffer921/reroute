@@ -94,6 +94,23 @@ class SavedJob(models.Model):
         return f"{self.user.username} saved {self.job.title}"
 
 
+class ArchivedJob(models.Model):
+    """Jobs a user archived from their Saved list.
+
+    Lightweight table to avoid altering SavedJob schema; archiving moves a row
+    from SavedJob -> ArchivedJob, and unarchiving reverses it.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    job = models.ForeignKey('Job', on_delete=models.CASCADE)
+    archived_at = models.DateTimeField(auto_now_add=True)
+    reason = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'job')
+
+    def __str__(self):
+        return f"{self.user.username} archived {self.job.title}"
+
 class Application(models.Model):
     # Foreign key to user applying
     applicant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')

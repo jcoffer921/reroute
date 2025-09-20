@@ -16,6 +16,7 @@ from django.db.models import Q
 # ===== Domain imports (align to your actual apps) =====
 # Jobs live in job_list; bring Job, SavedJob, Application from there for consistency.
 from job_list.models import Job, SavedJob, Application
+from job_list.models import ArchivedJob
 from job_list.matching import match_jobs_for_user
 
 # Profiles & resumes
@@ -126,6 +127,26 @@ def user_dashboard(request):
     skills_list = extract_resume_skills(resume)
     suggested_jobs = match_jobs_for_user(request.user)[:10] if skills_list else []
 
+    # Compute a lightweight match % for suggested jobs (if skills available)
+    suggested_cards = []
+    try:
+        if suggested_jobs and skills_list:
+            user_skills = {s.strip().lower() for s in skills_list}
+            for job in suggested_jobs:
+                try:
+                    job_skills = {s.name.strip().lower() for s in job.skills_required.all()}
+                except Exception:
+                    job_skills = set()
+                percent = None
+                if job_skills:
+                    overlap = len(user_skills & job_skills)
+                    percent = int(round(100 * overlap / max(1, len(job_skills))))
+                suggested_cards.append({"job": job, "match": percent})
+        else:
+            suggested_cards = [{"job": j, "match": None} for j in (suggested_jobs or [])]
+    except Exception:
+        suggested_cards = [{"job": j, "match": None} for j in (suggested_jobs or [])]
+
     # Friendly join date string
     joined_date = request.user.date_joined.strftime("%b %d, %Y") if request.user.date_joined else None
 
@@ -196,6 +217,7 @@ def user_dashboard(request):
         'current_step': current_step,
         'joined_date': joined_date,
         'suggested_jobs': suggested_jobs,
+        'suggested_cards': suggested_cards,
         'notifications': notifications,
         'stats': {
             'applications_sent': applications_sent,
@@ -211,9 +233,81 @@ def user_dashboard(request):
 # =========================
 @login_required
 def saved_jobs_view(request):
-    """Simple list of saved jobs for the current user."""
-    saved_jobs = SavedJob.objects.filter(user=request.user).select_related('job')
-    return render(request, 'dashboard/saved_jobs.html', {'saved_jobs': saved_jobs})
+    """My Jobs hub: Saved / Applied / Archived (tabs via ?tab=)."""
+    tab = (request.GET.get('tab') or 'saved').lower()
+    if tab not in {'saved', 'applied', 'archived'}:
+        tab = 'saved'
+
+    saved_jobs = (
+        SavedJob.objects
+        .filter(user=request.user)
+        .select_related('job', 'job__employer')
+        .order_by('-saved_at')
+    )
+    applied_jobs = (
+        Application.objects
+        .filter(applicant=request.user)
+        .select_related('job', 'job__employer')
+        .order_by('-submitted_at')
+    )
+    archived_jobs = (
+        ArchivedJob.objects
+        .filter(user=request.user)
+        .select_related('job', 'job__employer')
+        .order_by('-archived_at')
+    )
+
+    return render(request, 'dashboard/saved_jobs.html', {
+        'saved_jobs': saved_jobs,
+        'applied_jobs': applied_jobs,
+        'active_tab': tab,
+        'archived_jobs': archived_jobs,
+    })
+
+
+@login_required
+@require_POST
+def archive_saved_job(request):
+    """Move a SavedJob to ArchivedJob for the current user."""
+    job_id = request.POST.get('job_id')
+    if not job_id:
+        messages.error(request, 'Invalid job.')
+        return redirect(f"{reverse('dashboard:saved_jobs')}?tab=saved")
+
+    saved = SavedJob.objects.filter(user=request.user, job_id=job_id).select_related('job').first()
+    if not saved:
+        messages.error(request, 'Saved job not found.')
+        return redirect(f"{reverse('dashboard:saved_jobs')}?tab=saved")
+
+    # Create archived (ignore if already archived)
+    ArchivedJob.objects.get_or_create(user=request.user, job=saved.job)
+    saved.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'job_id': int(job_id)})
+    messages.success(request, 'Job archived.')
+    return redirect(f"{reverse('dashboard:saved_jobs')}?tab=archived")
+
+
+@login_required
+@require_POST
+def unarchive_job(request):
+    """Move an ArchivedJob back to SavedJob for the current user."""
+    job_id = request.POST.get('job_id')
+    if not job_id:
+        messages.error(request, 'Invalid job.')
+        return redirect(f"{reverse('dashboard:saved_jobs')}?tab=archived")
+
+    archive = ArchivedJob.objects.filter(user=request.user, job_id=job_id).select_related('job').first()
+    if not archive:
+        messages.error(request, 'Archived job not found.')
+        return redirect(f"{reverse('dashboard:saved_jobs')}?tab=archived")
+
+    SavedJob.objects.get_or_create(user=request.user, job=archive.job)
+    archive.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'job_id': int(job_id)})
+    messages.success(request, 'Job moved back to Saved.')
+    return redirect(f"{reverse('dashboard:saved_jobs')}?tab=saved")
 
 @login_required
 def matched_jobs_view(request):

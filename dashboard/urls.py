@@ -24,6 +24,8 @@ urlpatterns = [
 
     # ===== User features =====
     path('saved-jobs/', views.saved_jobs_view, name='saved_jobs'),
+    path('saved-jobs/archive/', views.archive_saved_job, name='archive_saved_job'),
+    path('saved-jobs/unarchive/', views.unarchive_job, name='unarchive_job'),
     path('matches/', views.matched_jobs_view, name='matched_jobs'),
     path('notifications/', views.notifications_view, name='notifications'),
     # ===== User interviews modal + actions =====
