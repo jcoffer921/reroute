@@ -9,24 +9,30 @@
 <div class="employer-public" data-company="{{ employer_profile.company_name|default:viewed_user.username }}">
   <!-- Hero / Header -->
   <section class="hero">
-    <div class="hero-bg" style="{% if employer_profile.logo %}background-image: url('{{ employer_profile.logo.url }}');{% else %}background-image: url('{% static 'images/dream_team.jpg' %}');{% endif %}"></div>
+    {# Background image if available (prefer background image field if present) #}
+    {% if employer_profile.background_image %}
+      <div class="hero-bg" style="background-image: url('{{ employer_profile.background_image.url }}');"></div>
+    {% elif employer_profile.logo %}
+      <div class="hero-bg" style="background-image: url('{{ employer_profile.logo.url }}');"></div>
+    {% else %}
+      <div class="hero-bg hero-bg--color"></div>
+      <div class="hero-watermark" style="background-image: url('{% static 'images/reroute-trans-logo.png' %}');"></div>
+    {% endif %}
     <div class="hero-gradient"></div>
+
+    <!-- Bottom-left brand block -->
     <div class="hero-content">
-      <div class="employer-pill">
-        <div class="pill-left">
-          {% if employer_profile.logo %}
-            <img class="pill-logo" src="{{ employer_profile.logo.url }}" alt="{{ employer_profile.company_name|default:'Company' }} logo">
-          {% else %}
-            <div class="pill-logo pill-logo--initials">
-              {% with first=employer_profile.company_name|default:viewed_user.username|slice:":1" %}{{ first|upper }}{% endwith %}
-            </div>
-          {% endif %}
-          <div class="pill-text">
-            <h1 class="pill-name">{{ employer_profile.company_name|default:viewed_user.username }}</h1>
-          </div>
+      {% if employer_profile.logo %}
+        <img class="hero-logo" src="{{ employer_profile.logo.url }}" alt="{{ employer_profile.company_name|default:'Company' }} logo">
+      {% else %}
+        <div class="hero-logo hero-logo--initials" aria-hidden="true">
+          {% with first=employer_profile.company_name|default:viewed_user.username|slice:":1" %}{{ first|upper }}{% endwith %}
         </div>
+      {% endif %}
+      <div class="hero-text">
+        <h1 class="hero-name">{{ employer_profile.company_name|default:viewed_user.username }}</h1>
         {% if employer_profile.verified or employer_profile.user.profile.verified %}
-          <span class="pill-verified" title="Verified">Verified</span>
+          <span class="hero-verified" title="Verified">Verified</span>
         {% endif %}
       </div>
     </div>
@@ -49,7 +55,7 @@
     <div class="section-head">
       <h2 class="section-title">Current Job Openings</h2>
       {% if total_jobs and total_jobs > 3 and view_all_url %}
-        <a class="btn-view-all" href="{{ view_all_url }}">View All Jobs</a>
+        <a class="btn-view-all" href="{{ view_all_url }}">View All Jobs by {{ employer_profile.company_name|default:viewed_user.username }}</a>
       {% endif %}
     </div>
     {% if jobs and jobs|length > 0 %}
@@ -63,12 +69,16 @@
                 <span class="dot">•</span>
                 <span class="location">{{ job.location }}</span>
               </div>
+              <div class="job-cta-row">
+                <span class="spacer"></span>
+                <span class="job-apply">Apply</span>
+              </div>
             </div>
           </a>
         {% endfor %}
       </div>
     {% else %}
-      <p class="muted">No active openings right now.</p>
+      <p class="muted">This employer does not have any current job openings.</p>
     {% endif %}
   </section>
 

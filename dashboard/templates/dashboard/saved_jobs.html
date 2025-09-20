@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load profile_extras %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'dashboard/css/saved_jobs.css' %}">
@@ -43,7 +44,7 @@
                 <div class="job-tags">
                   <span class="tag">{{ job.get_job_type_display }}</span>
                   {% if job.experience_level %}<span class="tag">{{ job.get_experience_level_display }}</span>{% endif %}
-                  {% if job.location|lower contains 'remote' %}<span class="tag">Remote</span>{% endif %}
+                  {% if 'remote' in job.location|lower %}<span class="tag">Remote</span>{% endif %}
                 </div>
               </div>
             </header>

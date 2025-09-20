@@ -420,12 +420,32 @@ def employer_profile_view(request):
         # First page load or GET after save: show current values
         form = EmployerProfileForm(instance=employer_profile)
 
+    # Supply current jobs and view-all link like the public page
+    try:
+        from job_list.models import Job
+        jobs_qs = Job.objects.filter(is_active=True, employer=request.user).order_by('-created_at')
+        total_jobs = jobs_qs.count()
+        jobs = list(jobs_qs[:3])
+    except Exception:
+        jobs, total_jobs = [], 0
+
+    from django.urls import reverse
+    view_all_url = None
+    try:
+        view_all_base = reverse('opportunities')
+        view_all_url = f"{view_all_base}?employer={request.user.username}"
+    except Exception:
+        pass
+
     return render(
         request,
         "profiles/employer_profile.html",
         {
-            "employer_profile": employer_profile,  # used for displaying values
-            "form": form,                          # used in the slide-out editor
+            "employer_profile": employer_profile,
+            "form": form,
+            "jobs": jobs,
+            "total_jobs": total_jobs,
+            "view_all_url": view_all_url,
         },
     )
 

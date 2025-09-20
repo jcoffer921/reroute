@@ -14,7 +14,7 @@ class EmployerProfileAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Company Info', {
-            'fields': ('user', 'company_name', 'website', 'logo', 'description')
+            'fields': ('user', 'company_name', 'website', 'logo', 'background_image', 'description')
         }),
         ('Verification', {
             'fields': ('verified', 'verified_at', 'verification_notes'),

@@ -224,6 +224,7 @@ class EmployerProfileForm(forms.ModelForm):
             'website',
             'description',
             'logo',
+            'background_image',
             # Optional: add 'phone', 'address', 'state', 'verified' here if present in your model
         ]
         widgets = {
@@ -236,6 +237,7 @@ class EmployerProfileForm(forms.ModelForm):
             'website': 'Website',
             'description': 'Description',
             'logo': 'Company Logo',
+            'background_image': 'Hero Background (optional)',
         }
 
     def clean_logo(self):
@@ -261,3 +263,17 @@ class EmployerProfileForm(forms.ModelForm):
             raise forms.ValidationError("Unsupported logo type. Use JPG, PNG, GIF, or WebP.")
 
         return logo
+
+    def clean_background_image(self):
+        bg = self.cleaned_data.get('background_image')
+        if not bg:
+            return bg
+        max_bytes = 5 * 1024 * 1024  # 5 MB for hero images
+        size = getattr(bg, 'size', 0) or 0
+        if size > max_bytes:
+            raise forms.ValidationError("Background image is too large (max 5MB).")
+        allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+        ctype = getattr(bg, 'content_type', None)
+        if ctype and ctype.lower() not in allowed:
+            raise forms.ValidationError("Unsupported image type. Use JPG, PNG, GIF, or WebP.")
+        return bg
