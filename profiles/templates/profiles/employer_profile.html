@@ -40,7 +40,10 @@
       <div class="hero-text">
         <h1 class="hero-name">{{ employer_profile.company_name|default:"Your Company" }}</h1>
         {% if employer_profile.verified or employer_profile.user.profile.verified %}
-          <span class="hero-verified">Verified</span>
+          <span class="hero-verified">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Verified
+          </span>
         {% else %}
           <span class="hero-verified" style="color:#fcd34d;background:rgba(252,211,77,.14);border-color:rgba(252,211,77,.5)">Pending Verification</span>
         {% endif %}
@@ -50,7 +53,8 @@
   </section>
 
   <!-- About Us -->
-  <section class="section section-about">
+  <div class="section-divider"></div>
+  <section class="section section-about section--alt">
     <h2 class="section-title">About Us</h2>
     <div class="about-text">
       {{ employer_profile.description|default:"Tell candidates about your mission, culture, and values."|linebreaksbr }}
@@ -61,12 +65,7 @@
   <section class="section section-jobs">
     <div class="section-head">
       <h2 class="section-title">Current Job Openings</h2>
-      <div>
-        <a class="btn-view-all" href="{% url 'create_job' %}" style="margin-right:8px;">Create Job</a>
-        {% if total_jobs and total_jobs > 3 and view_all_url %}
-          <a class="btn-view-all" href="{{ view_all_url }}">View All Jobs by {{ employer_profile.company_name|default:'You' }}</a>
-        {% endif %}
-      </div>
+      <a class="btn-view-all" href="{% url 'create_job' %}">Create Job</a>
     </div>
     {% if jobs and jobs|length > 0 %}
       <div class="jobs-grid">
@@ -79,18 +78,23 @@
                 <span class="dot">•</span>
                 <span class="location">{{ job.location }}</span>
               </div>
-              <div class="job-cta-row"><span class="spacer"></span><span class="job-apply">Manage</span></div>
+              <div class="job-cta-row"><span class="job-apply-btn">Manage</span></div>
             </div>
           </a>
         {% endfor %}
       </div>
+      {% if total_jobs and total_jobs > 3 and view_all_url %}
+        <div class="view-all-wrap">
+          <a class="btn-view-all" href="{{ view_all_url }}">View All Jobs by {{ employer_profile.company_name|default:'You' }}</a>
+        </div>
+      {% endif %}
     {% else %}
       <p class="muted">You don’t have any active job openings yet.</p>
     {% endif %}
   </section>
 
   <!-- Additional Info -->
-  <section class="section section-info">
+  <section class="section section-info section--alt">
     <h2 class="section-title">Additional Info</h2>
     <div class="info-grid">
       <div class="info-item">

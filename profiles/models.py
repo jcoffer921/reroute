@@ -43,6 +43,7 @@ class UserProfile(models.Model):
 
     # --- Step 2: Additional Info ---
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    background_image = models.ImageField(upload_to='users/backgrounds/', blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
     pronouns = models.CharField(max_length=50, blank=True)
     native_language = models.CharField(max_length=100, blank=True)

@@ -17,6 +17,7 @@ from django.db.models import Q
 # Jobs live in job_list; bring Job, SavedJob, Application from there for consistency.
 from job_list.models import Job, SavedJob, Application
 from job_list.models import ArchivedJob
+from django.db.utils import ProgrammingError
 from job_list.matching import match_jobs_for_user
 
 # Profiles & resumes
@@ -250,12 +251,16 @@ def saved_jobs_view(request):
         .select_related('job', 'job__employer')
         .order_by('-submitted_at')
     )
-    archived_jobs = (
-        ArchivedJob.objects
-        .filter(user=request.user)
-        .select_related('job', 'job__employer')
-        .order_by('-archived_at')
-    )
+    try:
+        archived_jobs = (
+            ArchivedJob.objects
+            .filter(user=request.user)
+            .select_related('job', 'job__employer')
+            .order_by('-archived_at')
+        )
+    except ProgrammingError:
+        # Table not migrated yet (e.g., deploy lag). Fallback to empty list.
+        archived_jobs = []
 
     return render(request, 'dashboard/saved_jobs.html', {
         'saved_jobs': saved_jobs,

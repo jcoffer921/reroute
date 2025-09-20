@@ -22,6 +22,9 @@ urlpatterns = [
     # Profile picture
     path("update-picture/", views.update_profile_picture, name="update_profile_picture"),
     path("remove-picture/", views.remove_profile_picture, name="remove_profile_picture"),
+    # Background image
+    path("update-background/", views.update_profile_background, name="update_profile_background"),
+    path("remove-background/", views.remove_profile_background, name="remove_profile_background"),
 
     # Employer profile (owner edit view)
     path("employer/profile/", views.employer_profile_view, name="employer_profile"),

@@ -4,87 +4,86 @@
 {% block title %}ReRoute | Public Profile{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/public_profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/employer_public_profile.css' %}">
 
-<div class="public-profile-card">
-  <div class="public-profile-header">
-    <div class="avatar-wrap">
+<div class="employer-public" data-user="{{ viewed_user.username }}">
+  <!-- Hero / Header -->
+  <section class="hero">
+    {% if profile.background_image %}
+      <div class="hero-bg" style="background-image: url('{{ profile.background_image.url }}');"></div>
+    {% elif profile.profile_picture %}
+      <div class="hero-bg" style="background-image: url('{{ profile.profile_picture.url }}');"></div>
+    {% else %}
+      <div class="hero-bg hero-bg--color"></div>
+      <div class="hero-watermark" style="background-image: url('{% static 'images/reroute-trans-logo.png' %}');"></div>
+    {% endif %}
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
       {% if profile.profile_picture %}
-        <img src="{{ profile.profile_picture.url }}" alt="{{ viewed_user.get_full_name|default:viewed_user.username }} profile photo" class="avatar avatar--sm">
+        <img class="hero-logo" style="border-radius:50%" src="{{ profile.profile_picture.url }}" alt="{{ viewed_user.username }} avatar">
       {% else %}
-        <span class="avatar avatar--sm avatar--initials" aria-hidden="true">
+        <div class="hero-logo hero-logo--initials" style="border-radius:50%" aria-hidden="true">
           {% with fn=viewed_user.first_name ln=viewed_user.last_name %}
-            {% if fn or ln %}{{ fn|slice:":1" }}{{ ln|slice:":1" }}{% else %}{{ viewed_user.username|slice:":2" }}{% endif %}
+            {% if fn or ln %}{{ fn|slice:':1' }}{{ ln|slice:':1' }}{% else %}{{ viewed_user.username|slice:':2' }}{% endif %}
           {% endwith %}
-        </span>
+        </div>
+      {% endif %}
+
+      <div class="hero-text">
+        <h1 class="hero-name">{% with full=viewed_user.get_full_name %}{% if full %}{{ full }}{% else %}@{{ viewed_user.username }}{% endif %}{% endwith %}</h1>
+        {% if profile.verified %}
+          <span class="hero-verified" title="Verified">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Verified
+          </span>
+        {% endif %}
+        <div class="hero-sub">User ID: {{ profile.user_uid|stringformat:"s" }}</div>
+      </div>
+
+      <div class="hero-meta-right">
+        <div><span class="label">Date Joined</span> {{ viewed_user.date_joined|date:"M j, Y" }}</div>
+        <div><span class="label">Status</span> {{ profile.account_status|capfirst }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who You Are -->
+  <div class="section-divider"></div>
+  <section class="section section--alt">
+    <h2 class="section-title">Who You Are</h2>
+    <div class="about-text">
+      {% if profile.bio %}
+        {{ profile.bio|linebreaksbr }}
+      {% else %}
+        <em class="muted">No bio yet.</em>
       {% endif %}
     </div>
+  </section>
 
-    <div class="identity">
-      <div class="name-row">
-        <h1 class="display-name">
-          {% with full=viewed_user.get_full_name %}
-            {% if full %}{{ full }}{% else %}{{ viewed_user.username }}{% endif %}
-          {% endwith %}
-        </h1>
-        {% if profile.verified %}
-          <span class="verified-badge" title="Verified">Verified</span>
-        {% endif %}
-      </div>
-      <div class="meta-row">
-        <span class="handle">@{{ viewed_user.username }}</span>
-        {% if profile.city or profile.state %}
-          <span class="dot">•</span>
-          <span class="location">{{ profile.city }}{% if profile.city and profile.state %}, {% endif %}{{ profile.state }}</span>
-        {% endif %}
-        {% if profile.status %}
-          <span class="dot">•</span>
-          <span class="status">{{ profile.status|capfirst }}</span>
-        {% endif %}
-      </div>
+  <!-- General Info -->
+  <section class="section section-info section--alt">
+    <h2 class="section-title">General Info</h2>
+    <div class="info-grid">
+      <div class="info-item"><div class="label">Phone</div><div class="value">{{ profile.phone_number|default:'—' }}</div></div>
+      <div class="info-item"><div class="label">Email</div><div class="value">{{ profile.personal_email|default:'—' }}</div></div>
+      <div class="info-item"><div class="label">DOB</div><div class="value">{{ profile.birthdate|date:'M j, Y'|default:'—' }}</div></div>
+      <div class="info-item"><div class="label">Gender</div><div class="value">{{ profile.gender|default:'—' }}</div></div>
     </div>
-  </div>
+  </section>
 
-  <div class="public-profile-body">
-    <div class="section">
-      <h2 class="section-title">About</h2>
-      <p class="bio">
-        {% if profile.bio %}
-          {{ profile.bio|linebreaksbr }}
-        {% else %}
-          <em>No bio provided.</em>
-        {% endif %}
-      </p>
-    </div>
-
-    <div class="section">
-      <h2 class="section-title">Skills</h2>
-      <div class="tags">
-        {% if resume and resume.skills.all %}
-          {% for s in resume.skills.all %}
-            <span class="tag">{{ s.name }}</span>
-          {% empty %}
-            <em>No skills listed.</em>
-          {% endfor %}
-        {% else %}
-          <em>No skills listed.</em>
-        {% endif %}
+  <!-- Resume -->
+  <section class="section">
+    <h2 class="section-title">Resume</h2>
+    {% if resume %}
+      <div class="actions">
+        <a class="btn-view-all" href="{% url 'resumes:employer_view_resume' viewed_user.username %}">View Resume</a>
+        <a class="btn-view-all" href="{% url 'resumes:employer_download_resume' viewed_user.username %}">Download</a>
       </div>
-    </div>
-  </div>
-
-  <div class="public-profile-actions">
-    {% if resume and is_owner %}
-      <a class="btn btn-primary" href="{% url 'resumes:resume_preview' resume.id %}">View Resume</a>
-      <a class="btn btn-secondary" href="{% url 'resumes:download_resume' resume.id %}">Download Resume</a>
-    {% elif resume %}
-      <!-- Viewer is an employer (this page is locked to employers). Provide read-only access links. -->
-      <a class="btn btn-primary" href="{% url 'resumes:employer_view_resume' viewed_user.username %}">View Resume</a>
-      <a class="btn btn-secondary" href="{% url 'resumes:employer_download_resume' viewed_user.username %}">Download Resume</a>
     {% else %}
-      <span class="hint">No resume available.</span>
+      <p class="muted">No resume available.</p>
     {% endif %}
-  </div>
+  </section>
 </div>
 
+<script src="{% static 'js/employer_public_profile.js' %}"></script>
 {% endblock %}

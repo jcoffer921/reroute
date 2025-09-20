@@ -5,18 +5,55 @@
 {% block title %}ReRoute | Profile{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/employer_public_profile.css' %}">
 <link rel="stylesheet" href="{% static 'css/public_profile.css' %}">
 
-<!-- ==== Hero Section ==== -->
-<section class="profile-hero">
-  <div class="profile-hero-content">
-    <h1>Who You Are</h1>
-    <p>Joined: {{ user.date_joined|date:"F j, Y" }}</p>
-    <p>Status: <span class="account-status">{{ profile.account_status|capfirst }}</span></p>
-  </div>
-</section>
+<!-- Hero (owner view) -->
+<div class="employer-public" data-user="{{ user.username }}">
+  <section class="hero">
+    {% if profile.background_image %}
+      <div class="hero-bg" style="background-image: url('{{ profile.background_image.url }}');"></div>
+    {% elif profile.profile_picture %}
+      <div class="hero-bg" style="background-image: url('{{ profile.profile_picture.url }}');"></div>
+    {% else %}
+      <div class="hero-bg hero-bg--color"></div>
+      <div class="hero-watermark" style="background-image: url('{% static 'images/reroute-trans-logo.png' %}');"></div>
+    {% endif %}
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+      <div class="hero-logo-wrap">
+        {% if profile.profile_picture %}
+          <img class="hero-logo" style="border-radius:50%" src="{{ profile.profile_picture.url }}" alt="{{ user.username }} avatar">
+        {% else %}
+          <div class="hero-logo hero-logo--initials" style="border-radius:50%" aria-hidden="true">{{ user|initials }}</div>
+        {% endif %}
+        <button type="button" class="logo-edit-hint" data-open-avatar>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9" stroke="#111827" stroke-width="1.5"/><path d="M16.5 3.5l4 4-9 9H7.5v-4l9-9z" stroke="#111827" stroke-width="1.5"/></svg>
+          Edit Photo
+        </button>
+      </div>
+      <div class="hero-text">
+        <h1 class="hero-name" data-profile-full-name>
+          {% with full=user.get_full_name %}{% if full %}{{ full }}{% else %}@{{ user.username }}{% endif %}{% endwith %}
+        </h1>
+        {% if profile.verified %}
+          <span class="hero-verified"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>
+        {% endif %}
+        <div class="hero-sub">User ID: {{ profile.user_uid|stringformat:"s" }}</div>
+      </div>
+      <div class="hero-meta-right">
+        <div><span class="label">Date Joined</span> {{ user.date_joined|date:"M j, Y" }}</div>
+        <div><span class="label">Status</span> {{ profile.account_status|capfirst }}</div>
+      </div>
+      <button type="button" class="hero-edit-hint" data-open-bg>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9" stroke="#111827" stroke-width="1.5"/><path d="M16.5 3.5l4 4-9 9H7.5v-4l9-9z" stroke="#111827" stroke-width="1.5"/></svg>
+        Change Background
+      </button>
+    </div>
+  </section>
+</div>
 
-<!-- Add .profile--owner so avatar “Update” appears only for owners -->
+<!-- Main content container for cards -->
 <div class="profile-container{% if user == request.user %} profile--owner{% endif %}">
   <div class="profile-header">
 
@@ -73,8 +110,8 @@
 
   </div>
 
-  <div class="profile-bio">
-    <h3><strong>About:</strong></h3>
+  <section class="section section--alt profile-bio">
+    <h2 class="section-title">Who You Are</h2>
 
     <!-- Bio Display -->
     <p id="bioPreview">
@@ -104,7 +141,7 @@
         <button type="button" class="cancel-btn" onclick="toggleBioEdit()">Cancel</button>
       </form>
     {% endif %}
-  </div>
+  </section>
 
   <hr>
 
@@ -130,7 +167,7 @@
 <div class="mini-nav-container">
 
   <!-- Two-Column Info Display with Edit Button -->
-  <div class="profile-display">
+  <section class="section section--alt profile-display">
      <!-- Personal Info Section -->
       <div class="info-header">
         <h3 class="section-title">Personal Info</h3>
@@ -261,10 +298,10 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   {# --- Skills Section --- #}
-  <div class="profile-display">
+  <section class="section section--alt profile-display">
     <div class="info-header">
       <h3 class="section-title">Skills</h3>
       {% if is_owner %}<button class="edit-btn" data-panel-open="#skillsSlidePanel" type="button">Edit</button>{% endif %}
@@ -279,10 +316,30 @@
     {% else %}
       <p>No skills added yet.{% if is_owner %} Click “Edit” to add your skills.{% endif %}</p>
     {% endif %}
-  </div>
+  </section>
 
 
   <!-- Slide-In Editor -->
+  <!-- Background Image Modal -->
+  <div id="bgModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000;">
+    <div style="background:#fff; margin:6% auto; padding:20px; width:min(560px,92vw); border-radius:12px;">
+      <h3>Update Background Image</h3>
+      <img id="bgPreview" src="" style="width:100%; height:auto; margin:10px 0; display:none;" alt="Background preview">
+      <form id="bgForm" method="post" enctype="multipart/form-data" action="{% url 'profiles:update_profile_background' %}">
+        {% csrf_token %}
+        <input type="file" id="bgFileInput" name="background_image" accept="image/*">
+        <div class="form-actions" style="margin-top:12px;">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary" data-close-bg>Cancel</button>
+        </div>
+      </form>
+      <form method="post" action="{% url 'profiles:remove_profile_background' %}" style="margin-top:8px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary">Remove Background</button>
+      </form>
+    </div>
+  </div>
+
   <div id="slideEditor" class="slide-panel">
     <form id="personalSlideForm" method="POST" action="{% url 'update_personal_info' %}" data-profile-form="personal">
       {% csrf_token %}
@@ -539,7 +596,9 @@
 </div>
 
 
+<script src="{% static 'js/employer_public_profile.js' %}"></script>
 <script src="{% static 'js/profile_panels.js' %}" defer></script>
+<script src="{% static 'js/profile_media_modals.js' %}" defer></script>
 <script type="application/json" id="skillData">
   {{ skills_json|safe }}
 </script>

@@ -389,6 +389,46 @@ def remove_profile_picture(request):
     return redirect("my_profile")
 
 
+# ----------------------------- Background image -------------------------
+@login_required
+def update_profile_background(request):
+    """Upload and set the user's profile hero background image."""
+    if request.method == "POST" and "background_image" in request.FILES:
+        image_file = request.FILES["background_image"]
+        try:
+            img = Image.open(image_file)
+            img.verify()
+            if img.format and img.format.lower() not in {"jpeg", "jpg", "png", "gif", "webp"}:
+                messages.error(request, "Unsupported image format. Use JPEG, PNG, GIF, or WebP.")
+                return redirect("my_profile")
+        except UnidentifiedImageError:
+            messages.error(request, "Invalid image file. Please upload a real image.")
+            return redirect("my_profile")
+
+        profile = get_object_or_404(UserProfile, user=request.user)
+        profile.background_image = image_file
+        profile.save(update_fields=["background_image"])
+        messages.success(request, "Background image updated.")
+    return redirect("my_profile")
+
+
+@login_required
+def remove_profile_background(request):
+    """Remove the user's background image."""
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if profile.background_image:
+        try:
+            profile.background_image.delete(save=False)
+        except Exception:
+            pass
+        profile.background_image = None
+        profile.save(update_fields=["background_image"])
+        messages.success(request, "Background image removed.")
+    else:
+        messages.info(request, "No background image to remove.")
+    return redirect("my_profile")
+
+
 # ----------------------------- Employer Profile -------------------------
 @login_required
 def employer_profile_view(request):
