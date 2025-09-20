@@ -56,7 +56,7 @@
 <!-- Who You Are (clean, simple, directly under hero) -->
 <section class="section profile-bio">
   <div class="info-header">
-    <h2 class="section-title" style="font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 800;">Who You Are</h2>
+    <h2 class="section-title">Who You Are</h2>
     {% if user == request.user %}
       <button class="edit-btn" type="button" onclick="toggleBioEdit()">Edit Bio</button>
     {% endif %}
@@ -86,6 +86,8 @@
 
 <div class="mini-nav-container">
 
+  <hr class="section-sep">
+
   <!-- Profile Picture Modal (moved outside; used by click-to-edit) -->
   <div id="profilePicModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;">
     <div style="background: #fff; margin: 6% auto; padding: 20px; width: min(420px, 92vw); text-align: center; border-radius: 12px;">
@@ -109,10 +111,10 @@
   <!-- Personal Info -->
   <section class="section">
     <div class="info-header">
-      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Personal Info</h3>
+      <h3 class="section-title">Personal Info</h3>
       <button class="edit-btn" data-panel-open="#slideEditor" type="button">Edit</button>
     </div>
-    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+    <div class="info-grid">
       <div class="info-item">
         <strong>First Name:</strong>
         <span>{{ profile.firstname }}</span>
@@ -140,13 +142,15 @@
     </div>
   </section>
 
+  <hr class="section-sep">
+
   <!-- Employment Info -->
   <section class="section">
     <div class="info-header">
-      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Employment Info</h3>
+      <h3 class="section-title">Employment Info</h3>
       <button class="edit-btn" data-panel-open="#employmentSlideEditor" type="button">Edit</button>
     </div>
-    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+    <div class="info-grid">
       <div class="info-item">
         <strong>Work in US:</strong>
         <span>{{ profile.get_work_in_us_display }}</span>
@@ -174,13 +178,15 @@
     </div>
   </section>
 
+  <hr class="section-sep">
+
   <!-- Emergency Contact -->
   <section class="section">
     <div class="info-header">
-      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Emergency Contact</h3>
+      <h3 class="section-title">Emergency Contact</h3>
       <button class="edit-btn" data-panel-open="#emergencySlidePanel" type="button">Edit</button>
     </div>
-    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+    <div class="info-grid">
       <div class="info-item">
         <strong>First Name:</strong>
         <span>{{ profile.emergency_contact_firstname }}</span>
@@ -204,13 +210,15 @@
     </div>
   </section>
 
+  <hr class="section-sep">
+
   <!-- Demographics -->
   <section class="section">
     <div class="info-header">
-      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Demographics</h3>
+      <h3 class="section-title">Demographics</h3>
       <button class="edit-btn" data-panel-open="#demographicsSlidePanel" type="button">Edit</button>
     </div>
-    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+    <div class="info-grid">
       <div class="info-item">
         <strong>Gender:</strong>
         <span>{{ profile.gender }}</span>
@@ -241,7 +249,7 @@
   {# --- Skills Section --- #}
   <section class="section">
     <div class="info-header">
-      <h3 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Skills</h3>
+      <h3 class="section-title">Skills</h3>
       {% if is_owner %}<button class="edit-btn" data-panel-open="#skillsSlidePanel" type="button">Edit</button>{% endif %}
     </div>
 

@@ -45,11 +45,13 @@
     </div>
   </section>
 
+  <hr class="section-sep">
+
   <!-- Who You Are (clean, matches private profile) -->
   <div class="section-divider"></div>
   <section class="section">
     <div class="info-header">
-      <h2 class="section-title" style="font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 800;">Who You Are</h2>
+      <h2 class="section-title">Who You Are</h2>
     </div>
     <div class="about-text">
       {% if profile.bio %}
@@ -63,9 +65,9 @@
   <!-- General Info (clean) -->
   <section class="section section-info">
     <div class="info-header">
-      <h2 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">General Info</h2>
+      <h2 class="section-title">General Info</h2>
     </div>
-    <div class="info-grid" style="background: transparent; border: 0; box-shadow: none; padding: 0;">
+    <div class="info-grid">
       <div class="info-item"><div class="label">Phone</div><div class="value">{{ profile.phone_number|default:'—' }}</div></div>
       <div class="info-item"><div class="label">Email</div><div class="value">{{ profile.personal_email|default:'—' }}</div></div>
       <div class="info-item"><div class="label">DOB</div><div class="value">{{ profile.birthdate|date:'M j, Y'|default:'—' }}</div></div>
@@ -73,10 +75,12 @@
     </div>
   </section>
 
+  <hr class="section-sep">
+
   <!-- Resume -->
   <section class="section">
     <div class="info-header">
-      <h2 class="section-title" style="font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 800;">Resume</h2>
+      <h2 class="section-title">Resume</h2>
       {% if resume %}
         <div style="display:flex; gap:.6rem; align-items:center;">
           <a class="btn-view-all" href="{% url 'resumes:employer_view_resume' viewed_user.username %}">View Resume</a>
