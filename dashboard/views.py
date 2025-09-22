@@ -1154,7 +1154,7 @@ def admin_dashboard(request):
             qs.filter(event_type="page_view")
               .values("path")
               .annotate(c=Count("id"))
-              .order_by("-c")[:5]
+              .order_by("-c")[:20]
         )
         analytics_summary["top_pages"] = [{"path": t["path"] or "/", "count": t["c"]} for t in top]
     except Exception:

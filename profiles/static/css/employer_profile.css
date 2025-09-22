@@ -11,6 +11,7 @@
   max-width: 720px;
   margin: 24px auto 64px;
   padding: 0 16px;
+  color: #000; /* Make all section text black */
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
@@ -56,8 +57,10 @@
 }
 
 .company-name {
-  font-size: 1.5rem;
   margin: 0;
+  color: #000;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem); /* Larger, responsive */
 }
 
 .badge {
@@ -81,7 +84,7 @@
   border-color: #f4d9a9;
 }
 
-.card-body { padding: 20px 24px; }
+.card-body { padding: 20px 24px; color: #000; }
 
 .details-grid {
   display: grid;
@@ -90,8 +93,8 @@
 }
 .detail { display: flex; flex-direction: column; }
 .detail.full { grid-column: 1 / -1; }
-.label { color: #5c6773; font-size: 0.85rem; margin-bottom: 6px; }
-.value { font-size: 1rem; }
+.label { color: #000; font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.value { font-size: 1rem; color: #000; }
 .value .muted { color: var(--muted); }
 
 .actions { margin-top: 18px; }
@@ -144,8 +147,9 @@
 }
 .edit-panel-header h2 {
   margin: 0;
-  font-size: 1.25rem;          /* Larger heading */
-  font-weight: 700;             /* Bold */
+  color: #000;
+  font-size: 1.5rem;            /* Larger heading */
+  font-weight: 800;             /* Bolder */
 }
 .panel-content,
 .edit-form { padding: 16px; }

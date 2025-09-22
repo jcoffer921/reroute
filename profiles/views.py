@@ -29,6 +29,12 @@ try:
 except Exception:
     Skill = None
 
+# Curated, relatable skills for justice-impacted seekers
+try:
+    from core.constants import RELATABLE_SKILLS
+except Exception:
+    RELATABLE_SKILLS = []
+
 # Optional constants (guarded)
 try:
     from .constants import US_STATES, ETHNICITY_CHOICES
@@ -138,12 +144,16 @@ def user_profile_view(request):
             raw = getattr(resume, "skills", "") or ""
             selected_skills = [s.strip() for s in raw.split(",") if s.strip()]
 
-    # ---- Suggested skills (fallback list; replace with DB-driven if you have one) ----
-    suggested_skills = [
-        "Customer Service", "Sales", "Scheduling",
-        "Microsoft Excel", "Python", "Teamwork",
-        "Communication", "Problem Solving"
-    ]
+    # ---- Suggested skills (relatable to reentry + entry-level pathways) ----
+    # Prefer centralized curated list if available; fall back to a small default
+    suggested_skills = (
+        RELATABLE_SKILLS or [
+            "Customer Service", "Teamwork", "Communication", "Problem Solving",
+            "Warehouse Operations", "Forklift Operation", "Janitorial Services",
+            "Landscaping", "Food Safety", "Line Cook", "Cash Handling",
+            "Microsoft Word", "Microsoft Excel", "Basic Computer Use",
+        ]
+    )
 
     # Deduplicate + don’t suggest ones already selected
     selected_set = {s.lower() for s in selected_skills}
@@ -211,6 +221,8 @@ def update_personal_info(request):
     profile.save()
 
     updated = {
+        "firstname": first,
+        "lastname": last,
         "full_name": f"{first} {last}",
         "initials": (first[:1] + last[:1]).upper(),
         "phone_number": phone,
@@ -263,13 +275,32 @@ def update_emergency_contact(request):
 def update_employment_info(request):
     profile = get_object_or_404(UserProfile, user=request.user)
 
-    fields = ["authorized_us", "sponsorship_needed", "disability", "veteran_status", "gender", "status"]
-    for f in fields:
-        if f in request.POST:
-            setattr(profile, f, request.POST.get(f))
+    # Map incoming form field names → model fields
+    field_map = {
+        "authorized_us": "work_in_us",
+        "sponsorship_needed": "sponsorship_needed",
+        "disability": "disability",
+        "lgbtq": "lgbtq",
+        "gender": "gender",
+        "veteran_status": "veteran_status",
+        "status": "status",
+    }
+
+    for post_key, model_field in field_map.items():
+        if post_key in request.POST and hasattr(profile, model_field):
+            setattr(profile, model_field, request.POST.get(post_key))
     profile.save()
 
-    updated = {f: getattr(profile, f, "") for f in fields}
+    # Return keys the frontend expects (see profile_panels.js mapping)
+    updated = {
+        "work_in_us": getattr(profile, "work_in_us", ""),
+        "sponsorship_needed": getattr(profile, "sponsorship_needed", ""),
+        "disability": getattr(profile, "disability", ""),
+        "lgbtq": getattr(profile, "lgbtq", ""),
+        "gender": getattr(profile, "gender", ""),
+        "veteran_status": getattr(profile, "veteran_status", ""),
+        "status": getattr(profile, "status", ""),
+    }
     return json_ok(updated) if is_ajax(request) else redirect("my_profile")
 
 
@@ -325,19 +356,32 @@ def update_skills(request):
 
     existing = {s.name.lower(): s for s in resume.skills.all()}
 
+    def _parse_list(raw: str) -> list[str]:
+        raw = (raw or "").strip()
+        if not raw:
+            return []
+        # Hidden inputs may contain JSON (preferred) or comma-separated strings (fallback)
+        try:
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return [str(x).strip() for x in data if str(x).strip()]
+        except Exception:
+            pass
+        # Fallback: CSV
+        return [s.strip() for s in raw.split(",") if s.strip()]
+
+    to_add = _parse_list(request.POST.get("add_skills", ""))
+    to_remove = _parse_list(request.POST.get("remove_skills", ""))
+
     # Add
-    for raw in (request.POST.get("add_skills") or "").split(","):
-        name = raw.strip()
-        if not name: continue
+    for name in to_add:
         key = name.lower()
         if key not in existing:
             obj, _ = Skill.objects.get_or_create(name=name)
             existing[key] = obj
 
     # Remove
-    for raw in (request.POST.get("remove_skills") or "").split(","):
-        name = raw.strip()
-        if not name: continue
+    for name in to_remove:
         existing.pop(name.lower(), None)
 
     resume.skills.set([s.id for s in existing.values()])

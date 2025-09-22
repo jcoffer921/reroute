@@ -45,9 +45,15 @@
 .location, .status { color: #334155; }
 
 .public-profile-body { padding: 1rem 0; }
-.section { margin-top: .5rem; }
-.section-title { margin: 0 0 .5rem 0; font-size: 1rem; font-weight: 700; color: #111827; }
-.bio { color: #374151; line-height: 1.6; }
+.section { margin-top: .5rem; color: #000; }
+.section-title {
+  margin: 0 0 .75rem 0;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  line-height: 1.2;
+  font-weight: 800;
+  color: #000;
+}
+.bio { color: #000; line-height: 1.6; }
 
 .tags { display: flex; flex-wrap: wrap; gap: .5rem; }
 .tag { background: #eef2ff; color: #1e3a8a; padding: .35rem .7rem; border-radius: 9999px; font-size: .9rem; }
@@ -161,15 +167,20 @@
   max-width: 800px; margin: 2rem auto; background: #fff; padding: 2rem;
   border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.05); margin-bottom: 2rem;
 }
-.info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.info-header h3 { margin: 0; color: rgb(118, 173, 255); }
+.info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; color: #000; }
+.info-header h3 {
+  margin: 0;
+  color: #000;
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 800;
+}
 
 .info-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem 2rem;
 }
-.info-item { font-size: .95rem; color: #374151; }
-.info-item strong { display: block; font-weight: 600; margin-bottom: .25rem; color: #69a3fa; }
+.info-item { font-size: 1rem; color: #000; }
+.info-item strong { display: block; font-weight: 700; margin-bottom: .25rem; color: #000; }
 .info-pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 2rem; max-width: 600px; margin-top: 1rem; }
 .info-label { font-weight: 600; color: #fff; }
 .info-value { text-align: right; color: #222; }
@@ -259,6 +270,18 @@ hr { border: none; height: 1px; background: linear-gradient(to right, #ccc, #eee
   .slide-panel { width: 100%; }
 }
 
+/* Mobile: prevent edit buttons from overlaying the hero on private profiles */
+@media (max-width: 640px) {
+  .hero-edit-hint, .logo-edit-hint {
+    position: static;
+    bottom: auto;
+    right: auto;
+    margin-top: 8px;
+    align-self: flex-start;
+    opacity: 1;
+  }
+}
+
 /* ===== User Profile + Public Profile — spacing and hierarchy ===== */
 /* Reduce gap between hero and first section */
 .employer-public[data-user] .hero + .section { margin-top: 16px; }
@@ -286,6 +309,13 @@ hr.section-sep { border: none; height: 1px; background: #e5e7eb; margin: 36px au
 .employer-public[data-user] .info-grid .info-item span { margin: 0; }
 
 @media (max-width: 640px) {
+  /* Mobile spacing rhythm + header/button fit */
+  .employer-public[data-user] .section { margin: 22px auto; }
+  .employer-public[data-user] .section .info-header { flex-wrap: wrap; gap: 8px; }
+  .employer-public[data-user] .section .info-header .edit-btn { margin-left: auto; padding: .35rem .6rem; font-size: .85rem; }
+  hr.section-sep { margin: 24px auto; }
+
+  /* Stack label/value */
   .employer-public[data-user] .info-grid .info-item { grid-template-columns: 1fr; }
   .employer-public[data-user] .info-grid .info-item strong { text-align: left; }
 }

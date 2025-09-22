@@ -188,6 +188,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']  # app-level assets during build
 STATIC_ROOT = BASE_DIR / 'staticfiles'             # where collectstatic writes
 
+# Media (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Use WhiteNoise + Manifest storage for cache-busting in production.
 # If you hit a "Missing staticfiles manifest" error after deploy,
 # temporarily switch to CompressedStaticFilesStorage, redeploy to verify,

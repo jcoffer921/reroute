@@ -39,6 +39,9 @@ class PageViewMiddleware:
                 return response
             if getattr(settings, "MEDIA_URL", None) and path.startswith(settings.MEDIA_URL):
                 return response
+            # Skip common non-page assets
+            if path in {"/favicon.ico", "/robots.txt", "/sitemap.xml"}:
+                return response
 
             # Record best-effort page view
             track_event(event_type="page_view", request=request)
@@ -47,4 +50,3 @@ class PageViewMiddleware:
             pass
 
         return response
-
