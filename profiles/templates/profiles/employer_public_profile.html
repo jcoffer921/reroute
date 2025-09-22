@@ -4,7 +4,7 @@
 {% block title %}Employer — {{ employer_profile.company_name|default:viewed_user.username }}{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/employer_public_profile.css' %}">
+<link rel="stylesheet" href="{% static 'profiles/css/employer_public_profile.css' %}">
 
 <div class="employer-public" data-company="{{ employer_profile.company_name|default:viewed_user.username }}">
   <!-- Hero / Header -->
@@ -135,5 +135,5 @@
   </section>
 </div>
 
-<script src="{% static 'js/employer_public_profile.js' %}"></script>
+<script src="{% static 'profiles/js/employer_public_profile.js' %}"></script>
 {% endblock %}

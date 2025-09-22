@@ -32,6 +32,8 @@
  * ============================================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Mark as loaded so template fallback doesn't wire duplicate handlers
+  try { window.__profilePanelsLoaded = true; } catch (e) {}
   /* ---------- Utilities ---------- */
 
   // Safe query helpers

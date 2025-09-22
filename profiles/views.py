@@ -352,7 +352,11 @@ def update_skills(request):
 
     resume = Resume.objects.filter(user=request.user).order_by("-created_at").first()
     if not resume:
-        return json_err({"form": "No resume found."}, status=404)
+        # Create a lightweight resume record so skills can be managed from profile
+        try:
+            resume = Resume.objects.create(user=request.user)
+        except Exception:
+            return json_err({"form": "No resume found and could not create one."}, status=500)
 
     existing = {s.name.lower(): s for s in resume.skills.all()}
 

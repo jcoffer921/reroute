@@ -12,8 +12,8 @@
 {% block title %}Employer Profile{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/employer_public_profile.css' %}">
-  <link rel="stylesheet" href="{% static 'css/employer_profile.css' %}"> {# for edit panel styles #}
+  <link rel="stylesheet" href="{% static 'profiles/css/employer_public_profile.css' %}">
+  <link rel="stylesheet" href="{% static 'profiles/css/employer_profile.css' %}"> {# for edit panel styles #}
 {% endblock %}
 
 {% block content %}
@@ -162,7 +162,7 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{% static 'js/employer_public_profile.js' %}"></script>
+  <script src="{% static 'profiles/js/employer_public_profile.js' %}"></script>
   <script>
     (function(){
       const openBtn = document.getElementById('openEditPanel');
