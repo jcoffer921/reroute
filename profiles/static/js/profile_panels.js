@@ -63,7 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function closePanel(selOrEl) {
     const panel = typeof selOrEl === 'string' ? qs(selOrEl) : selOrEl;
     if (!panel) return;
-    panel.classList.remove('open');
+    // Remove both classes to support legacy fallback that used .visible
+    panel.classList.remove('open', 'visible');
     document.body.classList.remove('no-scroll');
   }
 
@@ -449,9 +450,25 @@ document.addEventListener('DOMContentLoaded', () => {
       submitPanelForm(form, {
         onSuccess: (u) => {
           // Update on-page Skills list if backend returns skills array
-          const ul = qs('.skill-list');
-          if (ul && Array.isArray(u.skills)) {
-            ul.innerHTML = u.skills.map(s => `<li class="skill-item">${s}</li>`).join('');
+          if (Array.isArray(u.skills)) {
+            let ul = qs('.skill-list');
+            if (!ul) {
+              // Create the list in the Skills section if it doesn't exist yet
+              const section = (function findSkillsSection(){
+                return qsa('.section').find(sec => (sec.querySelector('.section-title')?.textContent || '').trim().toLowerCase() === 'skills');
+              })();
+              if (section) {
+                // Remove placeholder paragraph if present
+                const ph = section.querySelector('p');
+                if (ph) ph.remove();
+                ul = document.createElement('ul');
+                ul.className = 'skill-list';
+                section.appendChild(ul);
+              }
+            }
+            if (ul) {
+              ul.innerHTML = u.skills.map(s => `<li class="skill-item">${s}</li>`).join('');
+            }
           }
           // Reset session diff after successful save
           addedThisSession.clear();
