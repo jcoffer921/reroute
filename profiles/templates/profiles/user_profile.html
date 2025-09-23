@@ -12,9 +12,9 @@
 <div class="employer-public" data-user="{{ user.username }}">
   <section class="hero">
     {% if profile.background_image %}
-      <div class="hero-bg" style="background-image: url('{{ profile.background_image.url }}?v={{ profile.background_image.size }}');"></div>
+      <div class="hero-bg" style="background-image: url('{{ profile.background_image.url }}?v={{ profile.background_image|file_version }}');"></div>
     {% elif profile.profile_picture %}
-      <div class="hero-bg" style="background-image: url('{{ profile.profile_picture.url }}?v={{ profile.profile_picture.size }}');"></div>
+      <div class="hero-bg" style="background-image: url('{{ profile.profile_picture.url }}?v={{ profile.profile_picture|file_version }}');"></div>
     {% else %}
       <div class="hero-bg hero-bg--color"></div>
       <div class="hero-watermark" style="background-image: url('{% static 'images/reroute-trans-logo.png' %}');"></div>
@@ -23,7 +23,7 @@
     <div class="hero-content">
       <div class="hero-logo-wrap">
         {% if profile.profile_picture %}
-          <img class="hero-logo" style="border-radius:50%" src="{{ profile.profile_picture.url }}?v={{ profile.profile_picture.size }}" alt="{{ user.username }} avatar">
+          <img class="hero-logo" style="border-radius:50%" src="{{ profile.profile_picture.url }}?v={{ profile.profile_picture|file_version }}" alt="{{ user.username }} avatar">
         {% else %}
           <div class="hero-logo hero-logo--initials" style="border-radius:50%" aria-hidden="true">{{ user|initials }}</div>
         {% endif %}

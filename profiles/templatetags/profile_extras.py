@@ -1,5 +1,7 @@
 from django import template
 from django.urls import reverse
+from django.utils.timezone import now
+import hashlib
 
 register = template.Library()
 
@@ -86,5 +88,33 @@ def employer_public_url(user):
         if not uname:
             return ''
         return reverse('employer_public_profile', kwargs={'username': uname})
+    except Exception:
+        return ''
+
+
+@register.filter(name="file_version")
+def file_version(fieldfile):
+    """
+    Safe cache-busting token for FieldFile-like objects.
+    - Prefer .size if accessible
+    - Fallback to md5(name)[:8]
+    - Fallback to current epoch seconds
+    Never raises; returns a string/int suitable for use in query params.
+    """
+    try:
+        # FieldFile.size may hit storage; guard with try/except
+        sz = getattr(fieldfile, 'size', None)
+        if sz:
+            return sz
+    except Exception:
+        pass
+    try:
+        name = getattr(fieldfile, 'name', '') or ''
+        if name:
+            return hashlib.md5(name.encode('utf-8')).hexdigest()[:8]
+    except Exception:
+        pass
+    try:
+        return int(now().timestamp())
     except Exception:
         return ''
