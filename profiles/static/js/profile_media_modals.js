@@ -36,18 +36,26 @@
 
   // Preview background selection
   if (bgInput && bgPreview) {
+    let bgObjectURL = null;
     bgInput.addEventListener('change', () => {
       const file = bgInput.files && bgInput.files[0];
       if (!file) { bgPreview.style.display = 'none'; return; }
-      const url = URL.createObjectURL(file);
-      bgPreview.src = url;
+      if (bgObjectURL) URL.revokeObjectURL(bgObjectURL);
+      bgObjectURL = URL.createObjectURL(file);
+      // Show preview inside modal
+      bgPreview.src = bgObjectURL;
       bgPreview.style.display = 'block';
+      // Live-preview on hero background
+      if (heroBg) {
+        heroBg.style.backgroundImage = "url('" + bgObjectURL + "')";
+      }
     });
   }
 
   // Open existing profile picture modal on avatar click if present
   const picModal = document.getElementById('profilePicModal');
   const profilePicFormInput = document.getElementById('modalPicInput');
+  const avatarPreview = document.getElementById('previewImage');
   if (heroLogo && picModal) {
     heroLogo.style.cursor = 'pointer';
     heroLogo.addEventListener('click', () => {
@@ -65,5 +73,34 @@
     });
     const closeAvatar = document.querySelector('[data-close-avatar]');
     if (closeAvatar) closeAvatar.addEventListener('click', () => { picModal.style.display = 'none'; });
+  }
+
+  // Live preview profile picture selection (modal + hero)
+  if (profilePicFormInput) {
+    let picObjectURL = null;
+    profilePicFormInput.addEventListener('change', () => {
+      const file = profilePicFormInput.files && profilePicFormInput.files[0];
+      if (!file) { if (avatarPreview) avatarPreview.style.display = 'none'; return; }
+      if (picObjectURL) URL.revokeObjectURL(picObjectURL);
+      picObjectURL = URL.createObjectURL(file);
+      if (avatarPreview) {
+        avatarPreview.src = picObjectURL;
+        avatarPreview.style.display = 'block';
+      }
+      // Update hero avatar immediately
+      if (heroLogo) {
+        if (heroLogo.tagName === 'IMG') {
+          heroLogo.src = picObjectURL;
+        } else {
+          // Replace initials div with an <img>
+          const img = document.createElement('img');
+          img.className = heroLogo.className;
+          img.style.cssText = heroLogo.style.cssText;
+          img.alt = 'Profile avatar preview';
+          img.src = picObjectURL;
+          heroLogo.replaceWith(img);
+        }
+      }
+    });
   }
 })();

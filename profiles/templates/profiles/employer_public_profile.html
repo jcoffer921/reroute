@@ -11,9 +11,9 @@
   <section class="hero">
     {# Background image if available (prefer background image field if present) #}
     {% if employer_profile.background_image %}
-      <div class="hero-bg" style="background-image: url('{{ employer_profile.background_image.url }}');"></div>
+      <div class="hero-bg" style="background-image: url('{{ employer_profile.background_image.url }}?v={{ employer_profile.background_image.size }}');"></div>
     {% elif employer_profile.logo %}
-      <div class="hero-bg" style="background-image: url('{{ employer_profile.logo.url }}');"></div>
+      <div class="hero-bg" style="background-image: url('{{ employer_profile.logo.url }}?v={{ employer_profile.logo.size }}');"></div>
     {% else %}
       <div class="hero-bg hero-bg--color"></div>
       <div class="hero-watermark" style="background-image: url('{% static 'images/reroute-trans-logo.png' %}');"></div>
@@ -23,7 +23,7 @@
     <!-- Bottom-left brand block -->
     <div class="hero-content">
       {% if employer_profile.logo %}
-        <img class="hero-logo" src="{{ employer_profile.logo.url }}" alt="{{ employer_profile.company_name|default:'Company' }} logo">
+        <img class="hero-logo" src="{{ employer_profile.logo.url }}?v={{ employer_profile.logo.size }}" alt="{{ employer_profile.company_name|default:'Company' }} logo">
       {% else %}
         <div class="hero-logo hero-logo--initials" aria-hidden="true">
           {% with first=employer_profile.company_name|default:viewed_user.username|slice:":1" %}{{ first|upper }}{% endwith %}
