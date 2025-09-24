@@ -17,6 +17,9 @@
       <button type="button" class="rr-btn rr-btn-secondary" id="resetBtn">Reset</button>
     </div>
     <div class="right">
+      {% if resume.file %}
+      <a class="rr-btn rr-btn-secondary" href="{{ resume.file.url }}" target="_blank" rel="noopener">Download Original</a>
+      {% endif %}
       <button type="button" class="rr-btn rr-btn-secondary" id="saveDraftBtn">Save Changes</button>
       <form method="post" action="{% url 'resumes:imported_resume' resume.id %}" style="display:inline-block;">
         {% csrf_token %}
@@ -26,8 +29,8 @@
     </div>
   </div>
 
-  <!-- Side-by-side: editor left, original file right -->
-  <div class="resume-grid two-col">
+  <!-- Editor only (live preview removed for now) -->
+  <div class="resume-grid">
     <div class="col-left">
       <!-- Draggable section order -->
       <div id="editor" class="editable-resume" data-resume-id="{{ resume.id }}">
@@ -104,34 +107,20 @@
       </div>
     </div>
 
-    <div class="col-right">
-      {% if resume.file %}
-      <section class="resume-section file-preview sticky">
-        <h3>Original File</h3>
-        <object data="{{ resume.file.url }}" type="application/pdf" width="100%" height="640">
-          <p>PDF preview unavailable. Use the download button below.</p>
-        </object>
-        <div class="file-actions">
-          <a class="rr-btn rr-btn-secondary" href="{{ resume.file.url }}" target="_blank" rel="noopener">Download Original</a>
-          <a class="rr-btn rr-btn-secondary" href="{% url 'resumes:download_resume' resume.id %}">Download Parsed PDF</a>
-        </div>
-      </section>
-      {% endif %}
-
-      <!-- Developer raw section -->
-      <details class="raw-section">
-        <summary>View Raw Data (Developers Only)</summary>
-        {% if extracted_json_pretty %}
-          <h4>Extracted JSON</h4>
-          <pre class="raw-text-block">{{ extracted_json_pretty }}</pre>
-        {% endif %}
-        {% if resume.raw_text %}
-          <h4>Raw Extracted Resume Text</h4>
-          <pre class="raw-text-block">{{ resume.raw_text }}</pre>
-        {% endif %}
-      </details>
-    </div>
   </div>
+  
+  <!-- Developer raw section (moved below editor) -->
+  <details class="raw-section">
+    <summary>View Raw Data (Developers Only)</summary>
+    {% if extracted_json_pretty %}
+      <h4>Extracted JSON</h4>
+      <pre class="raw-text-block">{{ extracted_json_pretty }}</pre>
+    {% endif %}
+    {% if resume.raw_text %}
+      <h4>Raw Extracted Resume Text</h4>
+      <pre class="raw-text-block">{{ resume.raw_text }}</pre>
+    {% endif %}
+  </details>
 
   <!-- Bottom actions (duplicate for mobile) -->
   <div class="actions-row mobile-only">

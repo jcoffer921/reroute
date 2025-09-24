@@ -219,17 +219,43 @@ def _basic_parse_resume(text: str) -> Dict[str, Any]:
     """
     import re
 
-    def find_section(name: str) -> int:
-        pat = re.compile(rf"^\s*{re.escape(name)}\s*$", re.IGNORECASE | re.MULTILINE)
-        m = pat.search(text)
-        return m.start() if m else -1
+    # --- Section helpers ---------------------------------------------------
+    SECTION_SYNONYMS = {
+        "summary": ["summary", "professional summary", "objective", "profile", "about me"],
+        "experience": ["experience", "work experience", "employment", "work history", "professional experience"],
+        "education": ["education", "education & training", "academic background", "academics"],
+        "skills": ["skills", "technical skills", "key skills", "core competencies", "competencies"],
+        "projects": ["projects", "selected projects"],
+        "certifications": ["certifications", "licenses", "certificates"],
+    }
 
-    def slice_section(start_label: str, end_labels: List[str]) -> str:
-        start = find_section(start_label)
+    # Precompute regex for all headings
+    heading_patterns = {
+        key: [re.compile(rf"^\s*{re.escape(lbl)}\s*:??\s*$", re.I | re.M) for lbl in labels]
+        for key, labels in SECTION_SYNONYMS.items()
+    }
+
+    def first_index_for_any(patterns) -> int:
+        pos = -1
+        for pat in patterns:
+            m = pat.search(text)
+            if m:
+                pos = m.start() if pos == -1 else min(pos, m.start())
+        return pos
+
+    def slice_any(section_key: str) -> str:
+        start_patterns = heading_patterns.get(section_key, [])
+        start = first_index_for_any(start_patterns)
         if start == -1:
             return ""
-        end_positions = [p for p in (find_section(lbl) for lbl in end_labels) if p != -1 and p > start]
-        end = min(end_positions) if end_positions else len(text)
+        # Find the nearest subsequent heading of any known section
+        all_positions = []
+        for k, pats in heading_patterns.items():
+            for pat in pats:
+                m = pat.search(text)
+                if m and m.start() > start:
+                    all_positions.append(m.start())
+        end = min(all_positions) if all_positions else len(text)
         return text[start:end]
 
     # Contact info
@@ -249,29 +275,37 @@ def _basic_parse_resume(text: str) -> Dict[str, Any]:
     state = loc_match.group(2) if loc_match else ""
 
     # Skills section: split by comma/newlines after heading
-    skills_block = slice_section("Skills", ["Experience", "Work History", "Employment", "Education", "Projects", "Certifications"])
+    skills_block = slice_any("skills")
     skills: List[str] = []
     if skills_block:
-        body = re.sub(r"(?is)^\s*skills\s*:?\s*", "", skills_block).strip()
-        raw = re.split(r"[\n,]", body)
-        skills = [s.strip(" •-*–\t").strip() for s in raw if len(s.strip()) >= 2][:40]
+        body = re.sub(r"(?is)^\s*[A-Za-z ]+skills\s*:?\s*", "", skills_block).strip()
+        # Split on newlines, commas, bullets, pipes, middots, slashes
+        raw = re.split(r"[\n,\u2022\u00b7\|/]+", body)
+        skills = [s.strip(" •-*–\t").strip() for s in raw if len(s.strip()) >= 2]
+        # De-dup while preserving order
+        seen = set(); dedup = []
+        for s in skills:
+            key = s.lower()
+            if key in seen:
+                continue
+            seen.add(key); dedup.append(s)
+        skills = dedup[:40]
 
     # Experience: gather bullet-ish lines under experience section
-    exp_block = slice_section("Experience", ["Skills", "Education", "Projects", "Certifications"])
+    exp_block = slice_any("experience")
     experiences: List[Dict[str, str]] = []
-    if not exp_block:
-        exp_block = slice_section("Work History", ["Skills", "Education", "Projects", "Certifications"])
     if exp_block:
         lines = [ln.strip() for ln in exp_block.splitlines() if ln.strip()]
         # crude grouping by blank lines or date patterns
         current: List[str] = []
         def flush():
             if current:
-                joined = " ".join(current)
+                # Merge lines, collapse spaces
+                joined = re.sub(r"\s+", " ", " ".join(current)).strip()
                 # Try to split "Title at Company" or "Company – Title"
                 title = ""; company = ""; dates = ""
                 # Dates common patterns
-                dm = re.search(r"(\bJan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec\b\.?\s+\d{4}|\b\d{4}\b).*?(Present|\b\d{4}\b)", joined, re.IGNORECASE)
+                dm = re.search(r"(\bJan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec\b\.?\s+\d{4}|\b(19|20)\d{2}\b).*?(Present|\b(19|20)\d{2}\b)", joined, re.I)
                 if dm:
                     dates = dm.group(0)
                 am = re.search(r"(.+?)\s+at\s+(.+)", joined, re.IGNORECASE)
@@ -286,6 +320,13 @@ def _basic_parse_resume(text: str) -> Dict[str, Any]:
                             company, title = left, right
                         else:
                             title, company = left, right
+                # Clean dates for duplicates / spacing
+                if dates:
+                    # Normalize Present and dashes, deduplicate repeated tokens
+                    dates = re.sub(r'\bpresent\b', 'Present', dates, flags=re.I)
+                    dates = re.sub(r'\s*[\-\u2013\u2014]+\s*', ' - ', dates)
+                    dates = re.sub(r'\b((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.?\s+\d{4})\b(\s+\1\b)+', r'\1', dates, flags=re.I)
+                    dates = re.sub(r'\b((19|20)\d{2})\b(\s+\1\b)+', r'\1', dates)
                 experiences.append({
                     "job_title": title[:255],
                     "company": company[:255],
@@ -293,7 +334,8 @@ def _basic_parse_resume(text: str) -> Dict[str, Any]:
                 })
                 current.clear()
         for ln in lines:
-            if re.match(r"^(?:\s*\-|\s*\*|\s*•|\s*–)\s*", ln) or len(current) < 2:
+            # Start a new block on strong separators (blank lines already removed), or accumulate bullets/title/company lines
+            if re.match(r"^(?:\s*\-|\s*\*|\s*•|\s*–)\s*", ln) or len(current) < 3 or re.search(r"\b(at|\u2013|\u2014|\-|\d{4})\b", ln, re.I):
                 current.append(ln)
             else:
                 # separator
@@ -304,7 +346,7 @@ def _basic_parse_resume(text: str) -> Dict[str, Any]:
         experiences = [e for e in experiences if any(e.values())][:10]
 
     # Education: try to extract common patterns "School – Degree, 2022"
-    edu_block = slice_section("Education", ["Skills", "Experience", "Work History", "Projects", "Certifications"])
+    edu_block = slice_any("education")
     education: List[Dict[str, str]] = []
     if edu_block:
         for ln in [l.strip() for l in edu_block.splitlines() if l.strip()]:
@@ -320,7 +362,12 @@ def _basic_parse_resume(text: str) -> Dict[str, Any]:
                     "degree": degree[:255],
                     "graduation_year": year[:4],
                 })
-        education = education[:10]
+        # de-dup consecutive duplicates and cap
+        dedup = []
+        for ed in education:
+            if not dedup or ed != dedup[-1]:
+                dedup.append(ed)
+        education = dedup[:10]
 
     return _coerce_to_schema({
         "contact_info": {
