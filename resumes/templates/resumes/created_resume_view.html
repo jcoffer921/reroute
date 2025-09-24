@@ -100,17 +100,17 @@
             {# Imported path: entry.dates is a free-text string like "aug 2025 - present" #}
             {% if entry.dates %}
               <p>
-                <strong>{{ entry.job_title }}</strong> at {{ entry.company }}
-                ({{ entry.dates|normalize_dates }})  {# custom filter below #}
+                <strong>{{ entry.job_title }}</strong> — {{ entry.company }}
+                ({{ entry.dates|normalize_dates }})
               </p>
             {% else %}
               {# Builder path: format using real dates #}
               {% if entry.currently_work_here %}
-                <p><strong>{{ entry.job_title }}</strong> at {{ entry.company }}
+                <p><strong>{{ entry.job_title }}</strong> — {{ entry.company }}
                   ({{ entry.start_date|date:"b Y" }} - Present)
                 </p>
               {% else %}
-                <p><strong>{{ entry.job_title }}</strong> at {{ entry.company }}
+                <p><strong>{{ entry.job_title }}</strong> — {{ entry.company }}
                   ({{ entry.start_date|date:"b Y" }} - {{ entry.end_date|date:"b Y" }})
                 </p>
               {% endif %}
@@ -135,14 +135,16 @@
     {% with skills=resume.skills.all %}
       {% if skills|length %}
         <section>
-          <div class="sectionTitle"><h1>Key Skills</h1></div>
-          <div class="sectionContent">
-            <ul class="keySkills">
-              {% for skill in skills %}<li>{{ skill.name|title }}</li>{% endfor %}
-            </ul>
-          </div>
-          <div class="clear"></div>
-        </section>
+      <div class="sectionTitle"><h1>Key Skills</h1></div>
+      <div class="sectionContent">
+        <ul class="keySkills">
+          {% for skill in skills %}
+            <li class="skill-pill">{{ skill.name|title }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="clear"></div>
+    </section>
       {% endif %}
     {% endwith %}
 

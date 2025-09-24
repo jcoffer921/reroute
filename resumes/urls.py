@@ -24,6 +24,8 @@ urlpatterns = [
     # Imported resume flow
     path('import/', views.resume_upload_page, name='resume_upload_page'),
     path('import/<int:resume_id>/', views.resume_import, name='imported_resume'),
+    path('import/<int:resume_id>/update/', views.update_imported_resume, name='update_imported_resume'),
+    path('import/<int:resume_id>/discard/', views.discard_imported_resume, name='discard_imported_resume'),
     path('parse-upload/', views.parse_resume_upload, name='parse_resume_upload'),
     path('upload-only/', views.upload_resume_only, name='upload_resume_only'),
 

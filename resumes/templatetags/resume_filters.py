@@ -34,8 +34,22 @@ def normalize_dates(s: str) -> str:
     # Normalize "present"
     txt = re.sub(r'\bpresent\b', 'Present', txt, flags=re.I)
 
-    # Collapse weird spaces around dashes
-    txt = re.sub(r'\s*[---]\s*', ' - ', txt)
+    # Collapse weird spaces around dashes (en/em/simple hyphen)
+    txt = re.sub(r'\s*[\-\u2013\u2014]+\s*', ' - ', txt)
+
+    # Remove duplicated parenthetical date groups e.g. "(Nov 2022) (Nov 2022)"
+    txt = re.sub(r'\(([^)]+)\)\s*\(\1\)', r'(\1)', txt, flags=re.I)
+
+    # Deduplicate repeated Month Year tokens: "Nov 2022 Nov 2022" -> "Nov 2022"
+    txt = re.sub(
+        r'\b((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.?\s+\d{4})\b(\s+\1\b)+',
+        r'\1',
+        txt,
+        flags=re.I,
+    )
+
+    # Deduplicate repeated standalone years: "2022 2022" -> "2022"
+    txt = re.sub(r'\b((19|20)\d{2})\b(\s+\1\b)+', r'\1', txt)
 
     return txt.strip()
 

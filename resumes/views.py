@@ -326,6 +326,148 @@ def upload_resume_only(request):
             "redirect_url": redirect_url,
         })
     except Exception as e:
+    return JsonResponse({"error": str(e)}, status=400)
+
+
+@login_required
+def update_imported_resume(request, resume_id: int):
+    """Accept JSON payload from the imported resume editor to update draft fields."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    # Update summary
+    summary = (payload.get('summary') or '').strip()
+    if hasattr(resume, 'summary'):
+        resume.summary = summary
+        resume.save(update_fields=['summary'])
+
+    # Update experiences (backward compat: 'experiences' or new 'experiences_updates')
+    for item in (payload.get('experiences_updates') or payload.get('experiences') or []) or []:
+        try:
+            exp = ExperienceEntry.objects.get(id=int(item.get('id') or 0), resume=resume)
+            exp.job_title = (item.get('job_title') or '')[:255]
+            exp.company = (item.get('company') or '')[:255]
+            exp.dates = (item.get('dates') or '')[:100]
+            exp.save(update_fields=['job_title', 'company', 'dates'])
+        except (ExperienceEntry.DoesNotExist, ValueError):
+            continue
+
+    # Create new experiences
+    for item in payload.get('experiences_creates', []) or []:
+        jt = (item.get('job_title') or '').strip()[:255]
+        co = (item.get('company') or '').strip()[:255]
+        if not jt or not co:
+            continue
+        ExperienceEntry.objects.create(resume=resume, job_title=jt, company=co, dates=(item.get('dates') or '')[:100])
+
+    # Delete experiences
+    for rid in payload.get('experience_deletes', []) or []:
+        try:
+            ExperienceEntry.objects.filter(id=int(rid), resume=resume).delete()
+        except Exception:
+            continue
+
+    # Update education
+    for ed in (payload.get('education_updates') or payload.get('education') or []) or []:
+        try:
+            obj = EducationEntry.objects.get(id=int(ed.get('id') or 0), resume=resume)
+            obj.degree = (ed.get('degree') or '')[:255]
+            obj.school_name = (ed.get('school_name') or '')[:255]
+            obj.graduation_year = (ed.get('graduation_year') or '')[:4]
+            obj.save(update_fields=['degree', 'school_name', 'graduation_year'])
+        except (EducationEntry.DoesNotExist, ValueError):
+            continue
+
+    # Create new education entries (require school_name)
+    for ed in payload.get('education_creates', []) or []:
+        school = (ed.get('school_name') or '').strip()[:255]
+        if not school:
+            continue
+        EducationEntry.objects.create(
+            resume=resume,
+            school_name=school,
+            degree=(ed.get('degree') or '')[:255],
+            graduation_year=(ed.get('graduation_year') or '')[:4]
+        )
+
+    # Delete education entries
+    for rid in payload.get('education_deletes', []) or []:
+        try:
+            EducationEntry.objects.filter(id=int(rid), resume=resume).delete()
+        except Exception:
+            continue
+
+    # Update skills: if a pill text changed, re-associate to a matching skill
+    for s in (payload.get('skills_updates') or payload.get('skills') or []) or []:
+        try:
+            sid = int(s.get('id') or 0)
+            if not sid:
+                continue
+            old = Skill.objects.get(id=sid)
+            new_name = (s.get('name') or '').strip().lower()
+            if not new_name or new_name == (old.name or ''):
+                continue
+            new_skill, _ = Skill.objects.get_or_create(name=new_name[:255])
+            resume.skills.remove(old)
+            resume.skills.add(new_skill)
+        except Exception:
+            continue
+
+    # Create skills: get_or_create and attach
+    for s in payload.get('skills_creates', []) or []:
+        name = (s.get('name') or '').strip().lower()
+        if not name:
+            continue
+        skill, _ = Skill.objects.get_or_create(name=name[:255])
+        resume.skills.add(skill)
+
+    # Delete skills: detach association
+    for rid in payload.get('skill_deletes', []) or []:
+        try:
+            resume.skills.remove(int(rid))
+        except Exception:
+            continue
+
+    # Section order: optionally persist into ai_summary JSON so it can be reused
+    try:
+        ai = json.loads(resume.ai_summary) if resume.ai_summary else {}
+        ai['section_order'] = payload.get('section_order') or []
+        if payload.get('experience_order'):
+            ai['experience_order'] = payload.get('experience_order')
+        if payload.get('education_order'):
+            ai['education_order'] = payload.get('education_order')
+        resume.ai_summary = json.dumps(ai)
+        resume.save(update_fields=['ai_summary'])
+    except Exception:
+        pass
+
+    return JsonResponse({"status": "ok"})
+
+
+@login_required
+def discard_imported_resume(request, resume_id: int):
+    """Delete the imported resume draft and return a redirect URL for the client."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST required"}, status=405)
+    resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+    try:
+        # Delete file if present
+        if getattr(resume, 'file', None):
+            try:
+                resume.file.delete(save=False)
+            except Exception:
+                pass
+        resume.delete()
+        # Go back to dashboard router
+        from django.urls import reverse
+        return JsonResponse({"redirect_url": reverse('dashboard:my_dashboard')})
+    except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
 # ------------------ Builder Steps ------------------

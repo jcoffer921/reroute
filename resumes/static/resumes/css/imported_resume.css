@@ -23,7 +23,7 @@
 
 @media (min-width: 900px) {
   .resume-grid {
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -152,6 +152,43 @@
 /* Clean lists */
 .clean-list { list-style: disc; padding-left: 1.2rem; }
 .clean-list li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+/* Single-line formats for education and experience */
+.exp-line, .ed-line { display: inline; }
+
+/* Editor */
+.editor-toolbar { display:flex; align-items:center; justify-content: space-between; gap: .75rem; margin-top: 1rem; }
+.editor-toolbar .danger { --btn-bg: #fff2f0; --btn-fg: #9a1b1b; border-color: #f1c0c0; }
+
+.editable-resume .resume-section { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem; background:#fcfdff; }
+.editable-resume .resume-section .section-header { display:flex; align-items:center; gap:.5rem; margin-bottom: .5rem; }
+.editable-resume .resume-section .drag-handle { cursor: grab; user-select:none; opacity:.6; }
+.editable-resume .resume-section.draggable.dragging { opacity:.7; }
+.mini-btn { margin-left: auto; padding:.25rem .5rem; font-size:.85rem; border-radius:6px; border:1px solid #c7d2fe; background:#eef2ff; color:#1e3a8a; cursor:pointer; }
+.mini-btn:hover{ background:#e0e7ff; }
+
+.editable { outline: none; }
+.editable:focus { box-shadow: 0 0 0 2px #c7d2fe inset; border-radius: 4px; }
+
+.editable-row { padding: .25rem 0; }
+.editable-row .drag-handle { cursor: grab; margin-right: .35rem; opacity:.6; }
+.row-line { display:flex; flex-wrap: wrap; align-items: baseline; gap:.25rem; }
+.inline.muted { color:#6b7280; }
+.remove-row { margin-left:.35rem; background:transparent; border:none; color:#9b1c1c; font-weight:700; cursor:pointer; line-height:1; }
+.remove-row.small { margin-left:.25rem; font-size:.9em; }
+.editable-row:hover .remove-row, .skills-list li:hover .remove-row { opacity:1; }
+
+/* Side-by-side */
+.two-col .file-preview.sticky { position: sticky; top: 6rem; }
+.file-actions { display:flex; gap: .5rem; margin-top: .5rem; }
+
+/* Toast */
+#rr-toast { position: fixed; bottom: 1rem; right: 1rem; background:#111827; color:#fff; padding:.5rem .75rem; border-radius:6px; opacity:0; transform: translateY(6px); transition: all .18s ease; pointer-events:none; }
+#rr-toast.show { opacity:1; transform: translateY(0); }
+
+/* Mobile bottom actions */
+.mobile-only { display:none; }
+@media (max-width: 640px) { .mobile-only { display:flex; } }
 
 /* Skills */
 .skills-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
