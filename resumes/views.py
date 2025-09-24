@@ -326,7 +326,7 @@ def upload_resume_only(request):
             "redirect_url": redirect_url,
         })
     except Exception as e:
-    return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 @login_required
